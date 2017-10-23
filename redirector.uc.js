@@ -9,34 +9,46 @@
 
   Redirector = {
 
-    // [regex, replace, decode]
+    // [regex, replace, decode, tld]
     rules: [[
       /^https?:\/\/redir\.folha\.com\.br\/redir\/online\/.+?\*(.+)/,
       '$1',
       true
     ], [
-      /^https?:\/\/www\.google\.com\/url\?q=(.+?)&.*/,
+      /^https?:\/\/www\.google\.tld\/url\?(?:.*&)?(?:url|q)=([^&#]+).*/,
       '$1',
+      true,
       true
     ], [
       /^https:\/\/outgoing\.prod\.mozaws\.net\/v1\/\w+\/(.+)/,
       '$1',
       true
     ], [
-      /^https?:\/\/click\.uol\.com.br\/.*?(?:\?|&)u=(.*?)(?:&.*|$)/,
+      /^https?:\/\/click\.uol\.com\.br\/\?(?:.*&)?u=([^&#]+).*/,
       '$1',
       true
     ], [
-      /^https?:\/\/(?:(?:m|new)\.)?vk\.com\/away\.php\?to=(.+)/,
+      /^https?:\/\/(?:(?:m|new)\.)?vk\.com\/away\.php\?(?:.*&)?to=([^&#]+).*/,
       '$1',
       true
     ], [
-      /^https?:\/\/l\.instagram\.com\/\?u=(.+?)&.*/,
+      /^https?:\/\/l\.instagram\.com\/\?(?:.*&)?u=([^&#]+).*/,
       '$1',
       true
     ], [
-      /^https?:\/\/youtu\.be\/(.+)/,
-      'https://www.youtube.com/watch?v=$1'
+      /^https?:\/\/www\.youtube\.com\/redirect\?(?:.*&)?q=([^&#]+).*/,
+      '$1',
+      true
+    ], [
+      /^https?:\/\/bugzil\.la\/(.*)/,
+      function (url) {
+        return 'https://bugzilla.mozilla.org/' + (url[1] ? 'show_bug.cgi?id=' + url[1] : '');
+      }
+    ], [
+      /^https?:\/\/youtu\.be\/(.*)/,
+      function (url) {
+        return 'https://www.youtube.com/' + (url[1] ? 'watch?v=' + url[1] : '');
+      }
     ], [
       /^https?:\/\/(userscripts\.org(?:\:8080|)|(?:www.|)webextender.net)\/(.*)/,
       'http://userscripts-mirror.org/$2'
@@ -45,7 +57,7 @@
       'http://archive.$1'
     ], [
       //Remove universal parameters
-      /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|referer|soc_\w+|cc_key|PHPSESSID|ved|cmpid|lang)=).*?|sid=[0-9A-Fa-f]{32})(?=&|$)/g,
+      /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|referer|soc_\w+|cc_key|PHPSESSID|ved|cmpid|lang|newreg)=).*?|sid=[0-9A-Fa-f]{32})(?=&|$|#)/g,
       '$1'
     ], [
       //Remove unnecesary ? and &
@@ -130,18 +142,20 @@
           rules: rules,
 
           getRedirectUrl: function (originUrl) {
+            var tld = Services.eTLD.getPublicSuffix(Services.io.newURI(originUrl)).replace(/\./, '\\.');
             var redirectUrl = false;
             this.rules.forEach( function (rule) {
-              if (rule[0].test(originUrl)) {
+              var regex = rule[3] ? new RegExp(rule[0].source.replace(/\.tld/, '\.' + tld)) : rule[0];
+              if (regex.test(originUrl)) {
                 if (!redirectUrl)
                   redirectUrl = true;
                 originUrl = typeof rule[1] == 'function'
                   ? rule[2]
-                    ? decodeURIComponent(rule[1](originUrl.match(rule[0])))
-                    : rule[1](originUrl.match(rule[0]))
+                    ? decodeURIComponent(rule[1](originUrl.match(regex)))
+                    : rule[1](originUrl.match(regex))
                   : rule[2]
-                    ? decodeURIComponent(originUrl.replace(rule[0], rule[1]))
-                    : originUrl.replace(rule[0], rule[1]);
+                    ? decodeURIComponent(originUrl.replace(regex, rule[1]))
+                    : originUrl.replace(regex, rule[1]);
               }
             });
             return redirectUrl ? originUrl : false;
