@@ -142,7 +142,10 @@
           rules: rules,
 
           getRedirectUrl: function (originUrl) {
-            var tld = Services.eTLD.getPublicSuffix(Services.io.newURI(originUrl)).replace(/\./, '\\.');
+            var nsIOriginUrl = Services.io.newURI(originUrl);
+            if (!nsIOriginUrl.asciiHost)
+              return false;
+            var tld = Services.eTLD.getPublicSuffix(nsIOriginUrl).replace(/\./, '\\.');
             var redirectUrl = false;
             this.rules.forEach( function (rule) {
               var regex = rule[3] ? new RegExp(rule[0].source.replace(/\.tld/, '\.' + tld)) : rule[0];
