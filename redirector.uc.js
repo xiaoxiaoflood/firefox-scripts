@@ -40,6 +40,11 @@
       '$1',
       true
     ], [
+      /^https?:\/\/www\.reddit\.com\/u(?:(?:ser\/([^\/]+)\/?$)|\/(?:([^\/]+)\/?$|(.*)))/,
+      function (url) {
+        return 'https://www.reddit.com/user/' + (url[3] ? url[3] : (url[1] || url[2]) + '/overview/');
+      }
+    ], [
       /^https?:\/\/bugzil\.la\/(.*)/,
       function (url) {
         return 'https://bugzilla.mozilla.org/' + (url[1] ? 'show_bug.cgi?id=' + url[1] : '');
@@ -57,7 +62,7 @@
       'http://archive.$1'
     ], [
       //Remove universal parameters
-      /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|referer|soc_\w+|cc_key|PHPSESSID|ved|cmpid|lang|newreg)=).*?|sid=[0-9A-Fa-f]{32})(?=&|$|#)/g,
+      /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|referer|soc_\w+|cc_key|PHPSESSID|ved|cmpid|lang|newreg|fref)=).*?|sid=[0-9A-Fa-f]{32})(?=&|$|#)/g,
       '$1'
     ], [
       //Remove unnecesary ? and &
@@ -94,7 +99,7 @@
           shouldLoad: function (contentType, contentLocation, requestOrigin, node) {
             let redirectUrl = this.getRedirectUrl(contentLocation.spec);
             if (contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT && redirectUrl && node) {
-              node.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation).loadURI(redirectUrl, Ci.nsIWebNavigation.LOAD_FLAGS_NONE, requestOrigin, null, null);
+              node.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsITabChild).messageManager.sendAsyncMessage('Redirector', [redirectUrl, requestOrigin]);
               return Ci.nsIContentPolicy.REJECT_REQUEST;
             }
             return Ci.nsIContentPolicy.ACCEPT;
@@ -171,6 +176,9 @@
 
     init: function () {
       Services.ppmm.loadProcessScript(this.processScript, true);
+      Services.mm.addMessageListener('Redirector', function (m) {
+        m.target.loadURI(m.data[0], null, m.data[1], null, null);
+      });
     },
 
     destroy: function () {
