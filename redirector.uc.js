@@ -192,7 +192,7 @@
         delete this.policy;
       }).toString() + ')();'), false);
       Services.ppmm.removeDelayedProcessScript(this.processScript);
-      Services.mm.removeMessageListener('Redirector', chromeListener);
+      Services.mm.removeMessageListener('Redirector', this.chromeListener);
       delete Redirector;
     }
   }
