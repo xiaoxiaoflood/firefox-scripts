@@ -7,6 +7,9 @@
 
 (function () {
 
+  if (Components.manager.QueryInterface(Ci.nsIComponentRegistrar).isContractIDRegistered('@xiao/redirector;1'))
+    return;
+
   Redirector = {
 
     // [regex, replace, decode, tld]
@@ -112,28 +115,28 @@
           },
 
           onChannelRedirect: function (oldChannel, newChannel, flags) {
-              if (!(newChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI))
-                return;
-              let newLocation = newChannel.URI.spec;
-              if (!newLocation)
-                return;
-              let callbacks = [];
-              if (newChannel.notificationCallbacks)
-                callbacks.push(newChannel.notificationCallbacks);
-              if (newChannel.loadGroup && newChannel.loadGroup.notificationCallbacks)
-                callbacks.push(newChannel.loadGroup.notificationCallbacks);
-              let webNav;
-              for (let callback of callbacks) {
-                try {
-                  webNav = callback.getInterface(Ci.nsILoadContext).associatedWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation);
-                  break;
-                } catch(e) {}
-              }
-              if (!webNav)
-                return;
-              let redirectUrl = this.getRedirectUrl(newLocation);
-              if (redirectUrl)
-                webNav.loadURI(redirectUrl, null, null, null, null);
+            if (!(newChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI))
+              return;
+            let newLocation = newChannel.URI.spec;
+            if (!newLocation)
+              return;
+            let callbacks = [];
+            if (newChannel.notificationCallbacks)
+              callbacks.push(newChannel.notificationCallbacks);
+            if (newChannel.loadGroup && newChannel.loadGroup.notificationCallbacks)
+              callbacks.push(newChannel.loadGroup.notificationCallbacks);
+            let webNav;
+            for (let callback of callbacks) {
+              try {
+                webNav = callback.getInterface(Ci.nsILoadContext).associatedWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation);
+                break;
+              } catch(e) {}
+            }
+            if (!webNav)
+              return;
+            let redirectUrl = this.getRedirectUrl(newLocation);
+            if (redirectUrl)
+              webNav.loadURI(redirectUrl, null, null, null, null);
           },
 
           createInstance: function (outer, iid) {
@@ -174,11 +177,13 @@
       }.toString() + ')(' + this.rules.toSource() + ')');
     },
 
+    chromeListener: function (m) {
+      m.target.loadURI(m.data[0], null, m.data[1], null, null);
+    },
+
     init: function () {
       Services.ppmm.loadProcessScript(this.processScript, true);
-      Services.mm.addMessageListener('Redirector', function (m) {
-        m.target.loadURI(m.data[0], null, m.data[1], null, null);
-      });
+      Services.mm.addMessageListener('Redirector', this.chromeListener);
     },
 
     destroy: function () {
@@ -187,9 +192,11 @@
         delete this.policy;
       }).toString() + ')();'), false);
       Services.ppmm.removeDelayedProcessScript(this.processScript);
+      Services.mm.removeMessageListener('Redirector', chromeListener);
       delete Redirector;
     }
   }
 
   Redirector.init();
+
 })()
