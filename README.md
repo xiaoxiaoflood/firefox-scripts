@@ -2,7 +2,7 @@
 
 <img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/rebuild_userChrome.png">
 
-Firefox 58.0b6 (current Developer Edition)
+Firefox 58.0b7 (current Developer Edition)
 
 1. Save [config.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/installation-folder/config.js) to Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox**), next to **firefox.exe**.
 
@@ -17,3 +17,5 @@ Firefox 58.0b6 (current Developer Edition)
 6. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) to **chrome** folder, especially [rebuild_userChrome.uc.js](https://github.com/xiaoxiaoflood/firefox-scripts/blob/master/chrome/rebuild_userChrome.uc.js) (userChromeJS Manager with Greasemonkey-like button menu).
 
 7. Restart Firefox.
+
+<img  src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/window.png" width="880" height="470">
