@@ -1,6 +1,11 @@
-## userChromeJS
+# userChromeJS
 
 #### Tested on Firefox 58.0b7
+
+* [Instructions](#instructions)
+* [Screenshots](#screenshots)
+
+## Instructions
 
 1. Save [config.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/installation-folder/config.js) to Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox**), next to **firefox.exe**.
 
@@ -16,10 +21,12 @@
 
 7. Restart Firefox.
 
-**Screenshots**
+## Screenshots
+
+<img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/folder.png">
 
 ###### userChromeJS Manager
 <img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/rebuild_userChrome.png" height="600">
 
 ###### Status Bar, Extension Options Menu, MinMaxClose Button, newDownloadPlus.uc.js and legacy extensions:
-<img  src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/window.png" width="880" height="470">
+<img  src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/window.png">
