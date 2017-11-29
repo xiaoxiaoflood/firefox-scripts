@@ -1,16 +1,18 @@
 // ==UserScript==
-// @name      redirector.uc.js
-// @include   main
-// @startup   Redirector.init();
-// @shutdown  Redirector.destroy();
+// @name            Redirector
+// @include         main
+// @shutdown        UC.Redirector.destroy();
+// @author          xiaoxiaoflood
 // ==/UserScript==
+
+// original: https://github.com/harv/userChromeJS/blob/master/redirector_ui.uc.js
 
 (function () {
 
   if (Components.manager.QueryInterface(Ci.nsIComponentRegistrar).isContractIDRegistered('@xiao/redirector;1'))
     return;
 
-  Redirector = {
+  UC.Redirector = {
 
     // [regex, replace, decode, tld]
     rules: [[
@@ -193,10 +195,10 @@
       }).toString() + ')();'), false);
       Services.ppmm.removeDelayedProcessScript(this.processScript);
       Services.mm.removeMessageListener('Redirector', this.chromeListener);
-      delete Redirector;
+      delete UC.Redirector;
     }
   }
 
-  Redirector.init();
+  UC.Redirector.init();
 
 })()
