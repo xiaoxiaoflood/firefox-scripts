@@ -25,7 +25,7 @@
 
 <img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/folder.png">
 
-###### userChromeJS Manager
+###### userChromeJS Manager (the blue ones are restartless)
 <img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/rebuild_userChrome.png" height="600">
 
 ###### Status Bar, Extension Options Menu, MinMaxClose Button, newDownloadPlus.uc.js and legacy extensions:
