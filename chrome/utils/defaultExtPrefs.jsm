@@ -1,6 +1,8 @@
 var EXPORTED_SYMBOLS = [];
 
-(({Preferences, Services}, {classes: Cc, interfaces: Ci, utils: Cu}) => {
+// http://forum.mozilla-russia.org/viewtopic.php?pid=746461#p746461
+
+try {(({Preferences, Services}, {classes: Cc, interfaces: Ci, utils: Cu}) => {
     if (parseInt(Services.appinfo.version) < 58) return;
 
     var urls = new Set(), file = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -34,12 +36,13 @@ var EXPORTED_SYMBOLS = [];
             file.leafName.endsWith(".js") && urls.add(Services.io.newFileURI(file).spec)
         );
     }
+    var readFile = "readFile" in Cu ? "readFile" : "readUTF8File";
 
     var staged = file.clone(), stagedIds = new Set();
     ["extensions", "staged"].forEach(staged.append);
     if (staged.exists() && staged.isDirectory()) files(staged, file => {
         if (!file.leafName.endsWith(".json")) return;
-        var addon = JSON.parse(Cu.readFile(file));
+        var addon = JSON.parse(Cu[readFile](file));
         if (skip(addon)) return;
 
         stagedIds.add(addon.id);
@@ -53,7 +56,7 @@ var EXPORTED_SYMBOLS = [];
 
     file.append("extensions.json");
     if (file.exists() && file.isFile()) {
-        var {addons} = JSON.parse(Cu.readFile(file));
+        var {addons} = JSON.parse(Cu[readFile](file));
         addons.forEach(addon => {
             if (skip(addon) || stagedIds.has(addon.id)) return;
             file.initWithPath(addon.path);
@@ -80,4 +83,4 @@ var EXPORTED_SYMBOLS = [];
         Services.scriptloader.loadSubScript(url, obj);
     } catch(e) {}});
 
-})(Components.utils.import("resource://gre/modules/Preferences.jsm", {}), Components)
+})(Components.utils.import("resource://gre/modules/Preferences.jsm", {}), Components);} catch(ex) {}
