@@ -1,0 +1,24 @@
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <RDF:Description about="urn:mozilla:extension:s3download@statusbar">
+    <em:updates>
+      <RDF:Seq>
+        <RDF:li resource="urn:mozilla:extension:s3download@statusbar:4.14.62.2018.07.09-xiao"/>
+      </RDF:Seq>
+    </em:updates>
+  </RDF:Description>
+
+  <RDF:Description about="urn:mozilla:extension:s3download@statusbar:4.14.62.2018.07.09-xiao">
+    <em:version>4.14.62.2018.07.09-xiao</em:version>
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>57.0</em:minVersion>
+        <em:maxVersion>*</em:maxVersion>
+        <em:updateLink>https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/S3Download/s3download.xpi</em:updateLink>
+      </Description>
+    </em:targetApplication>
+  </RDF:Description>
+
+</RDF:RDF>
