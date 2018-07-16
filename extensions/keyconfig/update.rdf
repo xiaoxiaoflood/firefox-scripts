@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "keyconfig@mozilla.dorando.at": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "57.0"
+            }
+          },
+          "version": "2018.2.62.2018.07.16-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/keyconfig/keyconfig.xpi"
+        }
+      ]
+    }
+  }
+}
