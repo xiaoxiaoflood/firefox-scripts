@@ -8,7 +8,7 @@
               "strict_min_version": "61.0"
             }
           },
-          "version": "3.12.62.2018.08.00-xiao",
+          "version": "3.12.62.2018.08.01-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/greasemonkey/greasemonkey.xpi"
         }
       ]
