@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "{e4a8a97b-f2ed-450b-b12d-ee082ba24781}": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "61.0"
+            }
+          },
+          "version": "3.1.2.62.2018.07.31-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/greasemonkey/greasemonkey.xpi"
+        }
+      ]
+    }
+  }
+}
