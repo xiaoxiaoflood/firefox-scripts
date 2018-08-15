@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "norvel@history": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "57.0"
+            }
+          },
+          "version": "3.1.0.2.2.62.2018.08.15-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/norwellht/norwellht.xpi"
+        }
+      ]
+    }
+  }
+}
