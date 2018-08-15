@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "privateTab@infocatcher": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "20.0"
+            }
+          },
+          "version": "0.2.4pre.62.2018.08.15-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/privatetab/privatetab.xpi"
+        }
+      ]
+    }
+  }
+}
