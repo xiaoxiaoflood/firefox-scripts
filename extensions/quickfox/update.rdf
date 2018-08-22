@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "amin.eft_bmnotes@gmail.com": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "57.0"
+            }
+          },
+          "version": "2.8.7.62.2018.08.21-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/quickfox/quickfox.xpi"
+        }
+      ]
+    }
+  }
+}
