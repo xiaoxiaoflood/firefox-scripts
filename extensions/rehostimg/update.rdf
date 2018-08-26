@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "rehostimage@engy.us": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "57.0"
+            }
+          },
+          "version": "1.5.21.62.2018.08.26-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/rehostimg/rehost.xpi"
+        }
+      ]
+    }
+  }
+}
