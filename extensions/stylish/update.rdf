@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "{46551EC9-40F0-4e47-8E18-8E5CF550CFB8}": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "57.0"
+            }
+          },
+          "version": "2.0.8.63.2018.09.10-xiao",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/stylish/stylish.xpi"
+        }
+      ]
+    }
+  }
+}
