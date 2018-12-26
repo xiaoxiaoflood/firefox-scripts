@@ -7,8 +7,8 @@ let {
   utils: Cu
 } = Components;
 
-if (!'ChromeUtils' in this || !'import' in ChromeUtils)
-  this.ChromeUtils = Cu;
+if (!('import' in ChromeUtils))
+  ChromeUtils.import = Cu.import;
 
 var cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
 cmanifest.append('utils');
