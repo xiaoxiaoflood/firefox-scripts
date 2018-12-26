@@ -6,7 +6,10 @@ let {
   utils: Cu
 } = Components;
 
-Cu.import('resource://gre/modules/Services.jsm');
+if (!'ChromeUtils' in this || !'import' in ChromeUtils)
+  this.ChromeUtils = Components.utils;
+
+ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 let xPref = {
   // Retorna o valor da preferência, seja qual for o tipo, mas não
