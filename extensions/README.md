@@ -16,4 +16,4 @@ Firefox release, Beta and ESR can't run legacy addons.
    
    `extensions.legacy.enabled = true`
    
-3. Install the desired legacy addon from the folders above (*.xpi* file).
+3. Install the desired legacy addons from the folders above (*.xpi* files).
