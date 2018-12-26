@@ -6,8 +6,8 @@ let {
   utils: Cu
 } = Components;
 
-if (!'ChromeUtils' in this || !'import' in ChromeUtils)
-  this.ChromeUtils = Components.utils;
+if (!('import' in ChromeUtils))
+  ChromeUtils.import = Cu.import;
 
 ChromeUtils.import('resource://gre/modules/Services.jsm');
 
