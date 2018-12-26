@@ -1,6 +1,6 @@
 Unnoficial versions for Fx 57+.
 
-Just for Firefox Developer Edition (main compatibility target) and Firefox Nightly.
+Just for [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/) (main compatibility target) and [Firefox Nightly](https://www.mozilla.org/firefox/channel/desktop/#nightly).
 
 Firefox release, Beta and ESR can't run legacy addons.
 
