@@ -6,7 +6,7 @@ Firefox release, Beta and ESR can't run legacy addons.
 
 ## Instructions
 
-1. If you're using Fx ≥ 65, you need to install [userChromeJS](https://github.com/xiaoxiaoflood/firefox-scripts#instructions) because they removed the internal component that loads legacy addons. userChromeJS has the code to restore it.
+1. If you're using Fx ≥ 65, you need to install [bootstrapLoader.xpi](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/extensions/bootstrapLoader) OR [userChromeJS](https://github.com/xiaoxiaoflood/firefox-scripts#instructions), because Fx 65 removed the internal component that loads legacy addons. bootstrapLoader.xpi is easier to install and should work just fine, but userChromeJS is the ideal choice.
 
 2. This step is automated in userChromeJS, so if you installed it you can skip to 3.
 
