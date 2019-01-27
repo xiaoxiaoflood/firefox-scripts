@@ -10,12 +10,11 @@
 
   UC.newTabAboutBlank = {
     init: function () {
-      let { NewTabURL } = Cu.import('resource:///modules/NewTabURL.jsm');
-      NewTabURL.override('about:blank');
+      aboutNewTabService.newTabURL = 'about:blank';
     },
 
     destroy: function () {
-      NewTabURL.reset();
+      aboutNewTabService.resetNewTabURL();
       delete UC.newTabAboutBlank;
     }
   }
