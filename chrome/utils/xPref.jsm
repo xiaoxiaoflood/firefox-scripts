@@ -1,19 +1,10 @@
 let EXPORTED_SYMBOLS = ['xPref'];
 
-let {
-  classes: Cc,
-  interfaces: Ci,
-  utils: Cu
-} = Components;
-
-if (!('import' in ChromeUtils))
-  ChromeUtils.import = Cu.import;
-
 ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 let xPref = {
   // Retorna o valor da preferência, seja qual for o tipo, mas não
-  // testei com tipos complexos como nsIFilem, não sei como detectar
+  // testei com tipos complexos como nsIFile, não sei como detectar
   // uma preferência assim, na verdade nunca vi uma
   get: function (prefPath, def = false) {
     let sPrefs = def ?
@@ -38,11 +29,11 @@ let xPref = {
 
     switch (typeof value) {
       case 'string':
-        return sPrefs.setCharPref(prefPath, value);
+        return sPrefs.setCharPref(prefPath, value) || value;
       case 'number':
-        return sPrefs.setIntPref(prefPath, value);
+        return sPrefs.setIntPref(prefPath, value) || value;
       case 'boolean':
-        return sPrefs.setBoolPref(prefPath, value);
+        return sPrefs.setBoolPref(prefPath, value) || value;
     }
     return;
   },

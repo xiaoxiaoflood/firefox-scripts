@@ -3,12 +3,8 @@ let EXPORTED_SYMBOLS = [];
 let {
   classes: Cc,
   interfaces: Ci,
-  manager: Cm,
-  utils: Cu
+  manager: Cm
 } = Components;
-
-if (!('import' in ChromeUtils))
-  ChromeUtils.import = Cu.import;
 
 var cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
 cmanifest.append('utils');
