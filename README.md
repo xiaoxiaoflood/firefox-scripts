@@ -24,6 +24,12 @@
 
 (click on each to expand)
 <details>
+  <summary>about:blank as New Tab</summary>
+  Self-descriptive title. For clean, light and empty New Tab page.
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/aboutBlankNewTab.uc.js).  
+</details>
+<details>
   <summary>Master Password+</summary>
   Locks Firefox with password. It will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
