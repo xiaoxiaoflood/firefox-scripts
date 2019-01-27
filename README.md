@@ -25,7 +25,7 @@
 (click on each to expand)
 <details>
   <summary>Master Password+</summary>
-  Locks Firefox with a Master Password. It will prompt the password on Fx startup or anytime when you lock it with Ctrl+Alt+Shift+W.
+  Locks Firefox with password. It will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
   You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a master password</i>.
 
@@ -34,7 +34,7 @@
   Locked:
   ![Locked](https://i.imgur.com/cE3sUGT.png "Locked")
 
-  Locked:
+  Unlocked:
   ![Unlocked](https://i.imgur.com/KOkEJq5.png "Unlocked")
 </details>
 
