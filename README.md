@@ -1,9 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox 58.0b7
-
-* [Instructions](#instructions)
-* [Screenshots](#screenshots)
+#### Tested on Firefox 65.0b12, Windows 10
 
 ## Instructions
 
@@ -19,9 +16,27 @@
 
 6. Save [rebuild_userChrome.uc.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
-7. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**.
+7. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below description of each one.
 
 8. Restart Firefox.
+
+## userChromeJS scripts
+
+(click on each to expand)
+<details>
+  <summary>Master Password+</summary>
+  Locks Firefox with a Master Password. It will prompt the password on Fx startup or anytime when you lock it with Ctrl+Alt+Shift+W.
+  
+  You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a master password</i>.
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/masterPasswordPlus.uc.js).  
+
+  Locked:
+  ![Locked](https://i.imgur.com/cE3sUGT.png "Locked")
+
+  Locked:
+  ![Unlocked](https://i.imgur.com/KOkEJq5.png "Unlocked")
+</details>
 
 ## Screenshots
 
