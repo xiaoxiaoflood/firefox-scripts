@@ -11,13 +11,19 @@ let xPref = {
                    Services.prefs.getDefaultBranch(null) :
                    Services.prefs;
 
-    switch (sPrefs.getPrefType(prefPath)) {
-      case 32:
-        return sPrefs.getStringPref(prefPath);
-      case 64:
-        return sPrefs.getIntPref(prefPath);
-      case 128:
-        return sPrefs.getBoolPref(prefPath);
+    try {
+      switch (sPrefs.getPrefType(prefPath)) {
+        case 0:
+          return undefined;
+        case 32:
+          return sPrefs.getStringPref(prefPath);
+        case 64:
+          return sPrefs.getIntPref(prefPath);
+        case 128:
+          return sPrefs.getBoolPref(prefPath);
+      }
+    } catch (ex) {
+      return undefined;
     }
     return;
   },
