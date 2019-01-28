@@ -16,7 +16,7 @@
 
 6. Save [rebuild_userChrome.uc.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
-7. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below description of each one.
+7. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of each one.
 
 8. Restart Firefox.
 
@@ -26,8 +26,23 @@
 <details>
   <summary>about:blank as New Tab</summary>
   Self-descriptive title. For clean, light and empty New Tab page.
-
+  
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/aboutBlankNewTab.uc.js).  
+</details>
+
+<details>
+  <summary>Adjust URLBar Popup Position and Width</summary>
+  Since Fx 48, URLBar Popup was stretched to fill the entire width of the browser. This script restores the previous behavior, with the popup inheriting the width and position of URLBar.
+  
+  Note: there are similar userChrome.css alternatives, but the URLBar width can change depending of the size of the window and the number of buttons around, and you can't set dynamic width with pure CSS.
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/adjustUrlbar.uc.js).  
+  
+  Without this script:
+  ![](https://i.imgur.com/R4xc6LB.png)
+  
+  With this script:
+  ![](https://i.imgur.com/zgTwOL9.png)
 </details>
 <details>
   <summary>Master Password+</summary>
@@ -38,10 +53,10 @@
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/masterPasswordPlus.uc.js).  
 
   Locked:
-  ![Locked](https://i.imgur.com/cE3sUGT.png "Locked")
+  ![](https://i.imgur.com/cE3sUGT.png)
 
   Unlocked:
-  ![Unlocked](https://i.imgur.com/KOkEJq5.png "Unlocked")
+  ![](https://i.imgur.com/KOkEJq5.png)
 </details>
 
 ## Screenshots
