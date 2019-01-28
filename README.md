@@ -1,6 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox 65.0b12, Windows 10
+#### Tested on Firefox Developer Edition 65.0b12, Windows 10
 
 ## Instructions
 
@@ -32,13 +32,13 @@
 
 <details>
   <summary>Adjust URLBar Popup Position and Width</summary>
-  Since Fx 48, URLBar Popup was stretched to fill the entire width of the browser. This script restores the previous behavior, with the popup inheriting the width and position of URLBar.
+  In Fx 48, URLBar Popup was stretched to fill the entire width of the browser. This script restores the previous behavior, with the popup inheriting the width and position of URLBar.
   
-  Note: there are similar userChrome.css alternatives, but the URLBar width can change depending of the size of the window and the number of buttons around, and you can't set dynamic width with pure CSS.
+  Note: there are similar userChrome.css alternatives, but the URLBar width can change depending on the buttons around and depending on the size of the window. You can't set dynamic width with pure CSS, so JS is needed.
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/adjustUrlbar.uc.js).  
   
-  Without this script:
+  Firefox default:
   ![](https://i.imgur.com/R4xc6LB.png)
   
   With this script:
