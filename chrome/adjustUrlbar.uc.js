@@ -12,29 +12,30 @@
 
   UC.adjustUrlbar = {
     exec: function (win) {
-      var document = win.document;
-      var popup = document.getElementById('PopupAutoCompleteRichResult');
-      popup.style.marginLeft = '';// orig seta marginleft quando a popup é aberta, precisa resetar
-      popup.__proto__._openAutocompletePopup = function _openAutocompletePopup (aInput, aElement) {
+      let gURLBar = win.gURLBar;
+      gURLBar.popup.removeAttribute('style');
+      gURLBar.popup._openAutocompletePopup = function _openAutocompletePopup (aInput, aElement) {
         if (this.mPopupOpen)
           return;
-        this.setAttribute('width', Math.round(win.gURLBar.getBoundingClientRect().width));
+
+        this.setAttribute('width', Math.round(gURLBar.getBoundingClientRect().width));
+
         this._invalidate();
         this.openPopup(aElement, 'after_start', 0, -1, false, false);
       }
     },
 
-    orig: document.getElementById('PopupAutoCompleteRichResult').__proto__._openAutocompletePopup.toString(),
+    orig: gURLBar.popup._openAutocompletePopup.toString(),
 
     destroy: function () {
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-        var win = enumerator.getNext();
-        win.eval("document.getElementById('PopupAutoCompleteRichResult').__proto__._openAutocompletePopup = " +
-             UC.adjustUrlbar.orig);
-      }
+      _uc.windows((doc, win) => {
+        let gURLBar = win.gURLBar;
+        win.eval('gURLBar.popup._openAutocompletePopup = ' + UC.adjustUrlbar.orig);
+        gURLBar.popup.margins = gURLBar.popup.margins;
+      });
       delete UC.adjustUrlbar;
     }
   }
 
 })()
+
