@@ -52,7 +52,11 @@ let xPref = {
 
   unlock: function (prefPath) {
     Services.prefs.unlockPref(prefPath);
-    xPref.set(prefPath, xPref.lockedBackupDef[prefPath], true);
+    let bkp = xPref.lockedBackupDef[prefPath];
+    if (bkp == undefined)
+      Services.prefs.deleteBranch(prefPath);
+    else
+      xPref.set(prefPath, bkp, true);
   },
 
   clear: Services.prefs.clearUserPref,
