@@ -24,13 +24,6 @@
 
 (click on each to expand)
 <details>
-  <summary>about:blank as New Tab</summary>
-  Self-descriptive title. For clean, light and empty New Tab page.
-  
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/aboutBlankNewTab.uc.js).  
-</details>
-
-<details>
   <summary>Adjust URLBar Popup Position and Width</summary>
   In Fx 48, URLBar Popup was stretched to fill the entire width of the browser. This script restores the previous behavior, with the popup inheriting the width and position of URLBar.
   
