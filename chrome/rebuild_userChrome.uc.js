@@ -10,11 +10,11 @@
 (function () {
 
   UC.rebuild = {
-		PREF_TOOLSBUTTON: 'userChromeJS.showtoolbutton',
+    PREF_TOOLSBUTTON: 'userChromeJS.showtoolbutton',
 
-		menues: [],
+    menues: [],
 
-		onpopup: function (event) {
+    onpopup: function (event) {
       let document = event.target.ownerDocument;
 
       if (event.target != document.getElementById('userChromejs_options'))
@@ -67,10 +67,10 @@
         event.target.appendChild(mi);
       });
 
-			document.getElementById('showToolsMenu').setAttribute('label', 'Switch to ' + (this.showToolButton ? 'button in Navigation Bar' : 'item in Tools Menu'));
-		},
+      document.getElementById('showToolsMenu').setAttribute('label', 'Switch to ' + (this.showToolButton ? 'button in Navigation Bar' : 'item in Tools Menu'));
+    },
 
-		clickScriptMenu: function (event) {
+    clickScriptMenu: function (event) {
       let script = _uc.scripts[event.target.filename];
       if (event.button == 1) {
         if (event.ctrlKey) {
@@ -81,30 +81,35 @@
         }
         this.toggleScript(script);
         event.target.setAttribute('checked', script.isEnabled);
-			} else if (event.button == 2) {
+      } else if (event.button == 2) {
         if (event.ctrlKey) {
           this.uninstall(script);
         } else {
-          this.launchEditor(script.url);
+          this.launchEditor(script);
         }
         closeMenus(event.target);
-			} else if (event.button == 0 && event.ctrlKey) {
+      } else if (event.button == 0 && event.ctrlKey) {
         this.toggleScript(script);
       }
-		},
+    },
 
-		launchEditor: function (scriptURL) {
-			let UI = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
-			UI.charset = navigator.platform.toLowerCase().indexOf('win') > -1 ? 'BIG5' : 'UTF-8';
-
-			let path = UI.ConvertFromUnicode(Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getFileFromURLSpec(scriptURL).path);
-
-			let appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
-			appfile.initWithPath(xPref.get('view_source.editor.path'));
-			let process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
-			process.init(appfile);
-			process.run(false, [path], 1, {});
-		},
+    launchEditor: function (script) {
+      let editor = xPref.get('view_source.editor.path');
+      if (editor) {
+        let appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
+        appfile.initWithPath(editor);
+        let process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+        process.init(appfile);
+        process.run(false, [script.file.path], 1, {});
+      } else {
+        const {ScratchpadManager} = ChromeUtils.import('resource://devtools/client/scratchpad/scratchpad-manager.jsm');
+        ScratchpadManager.openScratchpad({
+          'filename': script.file.path,
+          'text': _uc.readFile(script.file),
+          'saved': true,
+        });
+      }
+    },
 
     toggleScript: function (script) {
       if (script.isEnabled) {
@@ -120,7 +125,7 @@
       }
     },
 
-		toggleUI: function (byaboutconfig = false, startup = false) {
+    toggleUI: function (byaboutconfig = false, startup = false) {
       this.showToolButton = xPref.get(this.PREF_TOOLSBUTTON);
       if (!byaboutconfig && !startup) {
         this.showToolButton = xPref.set(this.PREF_TOOLSBUTTON, !this.showToolButton);
@@ -135,7 +140,7 @@
           doc.getElementById('userChromebtnMenu').appendChild(doc.getElementById('userChromejs_options'));
         }
       });
-		},
+    },
 
     install: function (script) {
       script = _uc.getScriptData(script.file);
@@ -163,7 +168,7 @@
             try {
               eval(script.shutdown);
             } catch (ex) {
-              console.error(e);
+              console.error(ex);
             }
             if (script.onlyonce)
               return true;
