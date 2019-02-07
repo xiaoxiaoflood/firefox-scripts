@@ -1,7 +1,7 @@
 let EXPORTED_SYMBOLS = [];
 
-ChromeUtils.import('resource://gre/modules/Services.jsm');
-ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
+const {Services} = ChromeUtils.import('resource://gre/modules/Services.jsm');
+const {xPref} = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
 
 let UC = {};
 
