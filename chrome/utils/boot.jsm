@@ -11,9 +11,9 @@ cmanifest.append('utils');
 cmanifest.append('chrome.manifest');
 Cm.QueryInterface(Ci.nsIComponentRegistrar).autoRegister(cmanifest);
 
-ChromeUtils.import('resource://gre/modules/AddonManager.jsm');
+const {AddonManager} = ChromeUtils.import('resource://gre/modules/AddonManager.jsm');
 if (AddonManager.addExternalExtensionLoader) {
-  ChromeUtils.import('chrome://userchromejs/content/BootstrapLoader.jsm');
+  const {BootstrapLoader} = ChromeUtils.import('chrome://userchromejs/content/BootstrapLoader.jsm');
   AddonManager.addExternalExtensionLoader(BootstrapLoader);
 }
 
