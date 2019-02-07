@@ -1,6 +1,6 @@
 let EXPORTED_SYMBOLS = ['xPref'];
 
-ChromeUtils.import('resource://gre/modules/Services.jsm');
+const {Services} = ChromeUtils.import('resource://gre/modules/Services.jsm');
 
 let xPref = {
   // Retorna o valor da preferência, seja qual for o tipo, mas não
