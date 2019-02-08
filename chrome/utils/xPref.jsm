@@ -2,7 +2,7 @@ let EXPORTED_SYMBOLS = ['xPref'];
 
 const {Services} = ChromeUtils.import('resource://gre/modules/Services.jsm');
 
-let xPref = {
+var xPref = {
   // Retorna o valor da preferência, seja qual for o tipo, mas não
   // testei com tipos complexos como nsIFile, não sei como detectar
   // uma preferência assim, na verdade nunca vi uma
