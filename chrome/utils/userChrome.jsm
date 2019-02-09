@@ -162,7 +162,7 @@ UserChrome_js.prototype = {
     let document = aEvent.originalTarget;
     let window = document.defaultView;
     let location = window.location;
-    if (/^chrome:(?!\/\/global\/content\/(commonDialog|alerts\/alert)\.xul)|about:(?!blank)/i.test(location.href)) {
+    if (/^chrome:(?!\/\/global\/content\/commonDialog\.xul)|about:(?!blank)/i.test(location.href)) {
       window.UC = UC;
       window._uc = _uc;
       window.xPref = xPref;
