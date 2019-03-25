@@ -178,8 +178,8 @@
       }
     },
     
-    elBuilder: function (win, tag, props) {
-      let el = document.createElement(tag);
+    elBuilder: function (doc, tag, props) {
+      let el = doc.createElement(tag);
       for (let p in props) {
         el.setAttribute(p, props[p]);
       }
@@ -297,7 +297,7 @@
           );
           aDocument.insertBefore(pi, aDocument.documentElement);
 
-          setTimeout((() => UC.rebuild.toggleUI(false, true)), 1000);
+          aDocument.defaultView.setTimeout((() => UC.rebuild.toggleUI(false, true)), 1000);
 
           return toolbaritem;
         }
