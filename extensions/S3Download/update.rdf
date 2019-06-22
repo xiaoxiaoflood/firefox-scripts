@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "61.0"
+              "strict_min_version": "68.0a1"
             }
           },
-          "version": "4.14.66.2019.02.10-xiao",
+          "version": "4.14.68.2019.06.22-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/S3Download/s3download.xpi"
         }
       ]
