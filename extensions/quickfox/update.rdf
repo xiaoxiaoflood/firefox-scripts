@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "67.0a1"
+              "strict_min_version": "69.0a1"
             }
           },
-          "version": "2.8.7.68.2019.06.24-xiao",
+          "version": "2.8.7.69.2019.07.29-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/quickfox/quickfox.xpi"
         }
       ]
