@@ -7,9 +7,10 @@ let UC = {};
 
 let _uc = {
   ALWAYSEXECUTE: 'rebuild_userChrome.uc.js',
-  BROWSERCHROME: 'chrome://browser/content/browser.xul',
+  BROWSERCHROME: 'chrome://browser/content/browser.xhtml',
   PREF_ENABLED: 'userChromeJS.enabled',
   PREF_SCRIPTSDISABLED: 'userChromeJS.scriptsDisabled',
+  BASE_FILEURI: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromDir(Services.dirsvc.get('UChrm', Ci.nsIFile)),
 
   getScripts: function () {
     this.scripts = {};
@@ -45,7 +46,7 @@ let _uc = {
     return this.scripts[filename] = {
       filename: filename,
       file: aFile,
-      url: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromFile(aFile),
+      url: this.BASE_FILEURI + filename,
       name: (header.match(/\/\/ @name\s+(.+)\s*$/im) || def)[1],
       charset: (header.match(/\/\/ @charset\s+(.+)\s*$/im) || def)[1],
       description: (header.match(/\/\/ @description\s+(.+)\s*$/im) || def)[1],
@@ -73,7 +74,7 @@ let _uc = {
     let cvstream = Cc['@mozilla.org/intl/converter-input-stream;1'].createInstance(Ci.nsIConverterInputStream);
     cvstream.init(stream, 'UTF-8', 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
     let content = '',
-      data = {};
+        data = {};
     while (cvstream.readString(4096, data)) {
       content += data.value;
       if (metaOnly && content.indexOf('// ==/UserScript==') > 0) {
@@ -162,11 +163,11 @@ UserChrome_js.prototype = {
     let document = aEvent.originalTarget;
     let window = document.defaultView;
     let location = window.location;
-    if (/^(chrome:(?!\/\/global\/content\/commonDialog\.xul)|about:(?!blank))/i.test(location.href)) {
+    if (/^(chrome:(?!\/\/(global\/content\/commonDialog|browser\/content\/webext-panels)\.xul)|about:(?!blank))/i.test(location.href)) {
       window.UC = UC;
       window._uc = _uc;
       window.xPref = xPref;
-      document.allowUnsafeHTML = true; // https://bugzilla.mozilla.org/show_bug.cgi?id=1432966
+      //document.allowUnsafeHTML = true; // https://bugzilla.mozilla.org/show_bug.cgi?id=1432966
       if (window._gBrowser) // bug 1443849
         window.gBrowser = window._gBrowser;
 
@@ -181,5 +182,5 @@ UserChrome_js.prototype = {
   }
 };
 
-if (!Services.appinfo.inSafeMode && Services.dirsvc.get('UChrm', Ci.nsIFile).exists())
+if (!Services.appinfo.inSafeMode)
   new UserChrome_js();

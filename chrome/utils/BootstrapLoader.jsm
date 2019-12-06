@@ -338,7 +338,11 @@ var BootstrapLoader = {
     let shutdown = findMethod("shutdown");
 
     return {
-      install: (...args) => install(...args),
+      install(...args) {
+        install(...args);
+        // Forget any cached files we might've had from this extension.
+        Services.obs.notifyObservers(null, "startupcache-invalidate");
+      },
 
       uninstall(...args) {
         uninstall(...args);
