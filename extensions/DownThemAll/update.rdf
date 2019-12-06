@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "68.0a1"
+              "strict_min_version": "69.0a1"
             }
           },
-          "version": "3.1.2.68.2019.07.01-xiao",
+          "version": "3.1.2.69.2019.12.06-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/DownThemAll/dta.xpi"
         }
       ]
