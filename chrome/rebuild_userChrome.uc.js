@@ -179,7 +179,7 @@
     },
     
     elBuilder: function (doc, tag, props) {
-      let el = doc.createElement(tag);
+      let el = doc.createXULElement(tag);
       for (let p in props) {
         el.setAttribute(p, props[p]);
       }
@@ -230,7 +230,7 @@
           });
           toolbaritem.appendChild(mp);
 
-          let mg = mp.appendChild(aDocument.createElement('menugroup'));
+          let mg = mp.appendChild(aDocument.createXULElement('menugroup'));
           mg.setAttribute('id', 'uc-menugroup');
 
           let mi1 = UC.rebuild.elBuilder(aDocument, 'menuitem', {
@@ -259,7 +259,7 @@
           });
           mp.appendChild(mn);
 
-          let mp2 = mn.appendChild(aDocument.createElement('menupopup'));
+          let mp2 = mn.appendChild(aDocument.createXULElement('menupopup'));
 
           let mi2 = UC.rebuild.elBuilder(aDocument, 'menuitem', {
             id: 'showToolsMenu',
@@ -270,7 +270,7 @@
           });
           mp2.appendChild(mi2);
 
-          let sep = mp.appendChild(aDocument.createElement('menuseparator'));
+          let sep = mp.appendChild(aDocument.createXULElement('menuseparator'));
           sep.setAttribute('id', 'uc-menuseparator');
 
           let menuitem = aDocument.getElementById('menu_ToolsPopup').insertBefore(UC.rebuild.elBuilder(aDocument, 'menu', {

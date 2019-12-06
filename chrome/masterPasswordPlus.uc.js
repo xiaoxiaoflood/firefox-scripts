@@ -19,13 +19,13 @@
         if (key) {
           this.atalho(key);
         } else {
-          let k = document.createElement('key');
+          let k = document.createXULElement('key');
           k.id = 'mpPk';
           this.atalho(k);
           document.getElementsByTagName('keyset')[0].appendChild(k);
         }
       }
-      let ovl = document.createElement('div');
+      let ovl = document.createXULElement('div');
       ovl.id = 'mpPlus';
       ovl.setAttribute('style', 'position: fixed; display: none; width: 100%; height: 100%; top: 0; background-color: gray; z-index: 2; cursor: pointer;');
       document.documentElement.appendChild(ovl);

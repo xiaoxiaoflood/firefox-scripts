@@ -42,7 +42,7 @@
         });
       },
       chromeListener: function (message) {
-        gBrowser.addTab(message.data, {owner: gBrowser.selectedTab, relatedToCurrent: true});
+        gBrowser.addTab(message.data, {owner: gBrowser.selectedTab, relatedToCurrent: true, triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
       },
       frameScript: 'data:application/javascript;charset=UTF-8,' + 
         encodeURIComponent('(' + (function () {
@@ -66,13 +66,12 @@
           contentListener = function (msg) {
             if (msg.data == 'img' && typeof elm != 'undefined') {
               sendAsyncMessage('imgurl', elm);
-            } else if (msg.data == 'up') {
-              content.scrollTo(0, 0);
             } else if (msg.data == 'down') {
               if (typeof elm != 'undefined') {
                 sendAsyncMessage('imgurl', 'http://www.google.com.br/searchbyimage?image_url=' + encodeURIComponent(elm));
               } else {
-                content.scrollTo(0, content.scrollMaxY);
+                content.windowUtils.sendNativeKeyEvent(0x00000416, 0xE04F0023, {}, '', '');
+                //content.scrollTo(0, content.scrollMaxY);
               }
             } else if (msg.data == 'deselect') {
               content.getSelection().removeAllRanges();
@@ -128,27 +127,24 @@
         'R>L': {
           name: 'Switch to last selected tab',
           cmd: function () {
-            var tab = gBrowser.selectedTab;
-            var tabs = tab.parentNode.childNodes;
-            var index = 0;
-            var last  = 0;
-            for (var i = 0; i < tabs.length; i++) {
-              var s = tabs[i]._lastAccessed;
-              if (s && s > last && tabs[i] != tab) {
-                index = i;
-                last = s;
+            let previousTab = gBrowser.selectedTab;
+            let lastAccessed  = 0;
+            for (let tab of gBrowser.tabs) {
+              if (!tab._notselectedsinceload && !tab.getAttribute('pending') && tab._lastAccessed > lastAccessed && tab != gBrowser.selectedTab) {
+                lastAccessed = tab._lastAccessed;
+                previousTab = tab;
               }
             }
-            gBrowser.selectedTab = tabs[index];
+            gBrowser.selectedTab = previousTab;
           }
         },
         'L>M': {
           name: 'Duplicate tab',
           cmd: function () {
             if ('duplicateTab' in gBrowser) {
-              gBrowser.duplicateTab(gBrowser.mCurrentTab);
+              gBrowser.duplicateTab(gBrowser._selectedTab);
             } else {
-              gBrowser.addTab(gBrowser.currentURI.spec, null, null);
+              gBrowser.addTab(gBrowser.currentURI.spec, {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
             }
           }
         },
@@ -167,7 +163,7 @@
         'L>R': {
           name: 'Reload current tab',
           cmd: function () {
-            openLinkIn(gBrowser.currentURI.spec, 'current', {allowThirdPartyFixup: true, targetBrowser: gBrowser.selectedBrowser, indicateErrorPageLoad: true, allowPinnedTabHostChange: true, disallowInheritPrincipal: true, allowPopups: false});
+            openLinkIn(gBrowser.currentURI.spec, 'current', {allowThirdPartyFixup: true, targetBrowser: gBrowser.selectedBrowser, indicateErrorPageLoad: true, allowPinnedTabHostChange: true, disallowInheritPrincipal: true, allowPopups: false, triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()});
           }
         },
         'R>M': {
@@ -179,7 +175,7 @@
         'U': {
           name: 'Go to top of page (strict)',
           cmd: function () {
-            gBrowser.selectedBrowser.messageManager.sendAsyncMessage('MGest', 'up');
+            document.commandDispatcher.focusedElement.controllers.getControllerForCommand('cmd_moveTop').doCommand('cmd_moveTop');
           }
         },
         'D': {
@@ -373,8 +369,8 @@
           } else if (this.isMouseDownM) {
             event.preventDefault();
             event.stopPropagation();
-            if (gBrowser.getBrowserForTab(gBrowser.mCurrentTab)._autoScrollPopup && gBrowser.getBrowserForTab(gBrowser.mCurrentTab)._autoScrollPopup.state == 'open')
-              document.getElementById('content')._autoScrollPopup.hidePopup();
+            if (gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup && gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup.state == 'open')
+              gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup.hidePopup();
             this.isRelatedM = true;
             this.stopGesture(event, '1' + (event.deltaY > 0 ? '+' : '-'));
           }

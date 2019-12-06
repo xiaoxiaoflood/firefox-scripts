@@ -40,10 +40,12 @@
         popup.removeChild(popup.firstChild);
 
       var addons;
-      AddonManager.getAddonsByTypes(['extension'], aAddons => addons = aAddons);
+      (async () => {
+        addons = await AddonManager.getAddonsByTypes(['extension']);
+      })();
 
       var thread = Services.tm.mainThread;
-      while (addons === void 0)
+      while (addons === undefined)
         thread.processNextEvent(true);
 
       addons.sort((a, b) => {
@@ -57,10 +59,10 @@
             || (!addon.hidden || UC.extensionOptionsMenu.showHidden)))) {
           var state = addon.isActive;
           if (UC.extensionOptionsMenu.enabledFirst && (prevState && state !== prevState))
-            popup.appendChild(document.createElement('menuseparator'));
+            popup.appendChild(document.createXULElement('menuseparator'));
           prevState = state;
 
-          var mi = document.createElement('menuitem');
+          var mi = document.createXULElement('menuitem');
           var label = addon.name;
           if (UC.extensionOptionsMenu.showVersion)
             label = label += ' ' + addon.version;
@@ -119,7 +121,10 @@
           break;
         case 2:
           if (!hasMdf) {
-            addon.userDisabled = !addon.userDisabled;
+            if (addon.userDisabled)
+              addon.enable();
+            else
+              addon.disable();
             UC.extensionOptionsMenu.setDisable(mi, addon, 1);
             if (addon.operationsRequiringRestart && UC.extensionOptionsMenu.autoRestart)
               if ('BrowserUtils' in window)
@@ -237,7 +242,7 @@
         type: 'custom',
         defaultArea: CustomizableUI.AREA_NAVBAR,
         onBuild: function (aDocument) {
-          var toolbaritem = aDocument.createElement('toolbarbutton');
+          var toolbaritem = aDocument.createXULElement('toolbarbutton');
           var props = {
             id: 'eom-button',
             label: 'Extension Options Menu',
@@ -250,7 +255,7 @@
           for (var p in props) {
             toolbaritem.setAttribute(p, props[p]);
           }
-          var mp = toolbaritem.appendChild(document.createElement('menupopup'));
+          var mp = toolbaritem.appendChild(document.createXULElement('menupopup'));
           mp.setAttribute('id', 'eom-button-popup');
           mp.setAttribute('onclick', 'event.preventDefault(); event.stopPropagation(); setTimeout(function () { document.getElementById("toolbar-context-menu").hidePopup(); }, 0);');
           mp.addEventListener('popupshowing', UC.extensionOptionsMenu.populateMenu);

@@ -17,7 +17,7 @@
         type: 'custom',
         defaultArea: CustomizableUI.AREA_NAVBAR,
         onBuild: function (aDocument) {
-          var toolbaritem = aDocument.createElement('toolbarbutton');
+          var toolbaritem = aDocument.createXULElement('toolbarbutton');
           var props = {
             id: 'minMaxClose-button',
             class: 'toolbarbutton-1 chromeclass-toolbar-additional',
@@ -45,7 +45,7 @@
           let max = win.document.getElementById('main-window').getAttribute('sizemode') == 'maximized' ? true : false;
           if ((!e.shiftKey && max) ||
               (e.shiftKey && !max && !(win.screenX === -5 && win.screenY === 0 && win.innerWidth === 1966 && win.innerHeight === 1050))) {
-            win.resizeTo(1978, 1056);
+            win.resizeTo(1992, 1056);
             win.moveTo(-5, 0);
           } else if (max && e.shiftKey) {
             win.restore();

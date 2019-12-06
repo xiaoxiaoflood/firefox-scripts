@@ -12,15 +12,12 @@
 
   UC.openLinkInSilentTab = {
     exec: function (win) {
-      XPCOMUtils.defineLazyServiceGetter(win, 'gSessionStore',
-                                         '@mozilla.org/browser/sessionstore;1',
-                                         'nsISessionStore');
       XPCOMUtils.defineLazyServiceGetter(win, 'gHistoryService',
                                          '@mozilla.org/browser/nav-history-service;1',
                                          'nsINavHistoryService');
 
       var document = win.document;
-      var menuitem = document.createElement('menuitem');
+      var menuitem = document.createXULElement('menuitem');
       menuitem.setAttribute('id', 'context-openlinkinsilent');
       menuitem.setAttribute('label', 'Open Link in Silent Tab');
       menuitem.addEventListener('command', function () {
@@ -35,7 +32,7 @@
     openLinkInSilentTab: function (tabbrowser, url) {
       // todo: funcionar no histórico e favoritos (sidebar e library)
       var win = tabbrowser.ownerGlobal;
-      var tab = win.gBrowser.addTab(null, { relatedToCurrent: true });
+      var tab = win.gBrowser.addTab(null, { relatedToCurrent: true, triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
       var title = '',
           icon = '',
           uri = Services.io.newURI(url, null, null);
@@ -60,14 +57,17 @@
         } catch (ex) {}
       }
 
-      win.gSessionStore.setTabState(tab, JSON.stringify({
+      win.SessionStore.setTabState(tab, JSON.stringify({
         entries: [{ url: url, title: title }],
         userTypedValue: url,
         userTypedClear: 2,
         lastAccessed: tab.lastAccessed,
-        index: 1,
-        image: icon
+        index: 1
       }));
+
+      PlacesUtils.favicons.getFaviconDataForPage(uri, (icon) => {
+        setTimeout(() => tab.setAttribute('image', icon.spec));
+      });
     },
 
     onPopupShowing: function (event) {
