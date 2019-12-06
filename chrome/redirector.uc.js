@@ -3,14 +3,12 @@
 // @include         main
 // @shutdown        UC.Redirector.destroy();
 // @author          xiaoxiaoflood
+// @onlyonce
 // ==/UserScript==
 
 // original: https://github.com/harv/userChromeJS/blob/master/redirector_ui.uc.js
 
 (function () {
-
-  if (Components.manager.QueryInterface(Ci.nsIComponentRegistrar).isContractIDRegistered('@xiao/redirector;1'))
-    return;
 
   UC.Redirector = {
 
@@ -67,16 +65,41 @@
       'http://archive.$1'
     ], [
       //Remove universal parameters
-      /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|referer|soc_\w+|cc_key|PHPSESSID|ved|cmpid|lang|newreg|fref)=).*?|sid=[0-9A-Fa-f]{32})(?=&|$|#)/g,
+      /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|referer|soc_\w+|cc_key|PHPSESSID|igshid|__twitter_impression|ved|cmpid|newreg|tag|fbclid|fref|variation|searchVariation|tracking_id)=).*?)(?=&|$|#)/g,
       '$1'
     ], [
       //Remove unnecesary ? and &
       /(?:(\?)(?:&+(?!$|&)))|(?:&(?=&))|(?:(?:\??&+|\?)$)/g,
       '$1'
     ]],
+
+    getRedirectUrl: function (originUrl) {
+      var nsIOriginUrl = Services.io.newURI(originUrl);
+      if (!nsIOriginUrl.asciiHost)
+        return false;
+      var tld = Services.eTLD.getPublicSuffix(nsIOriginUrl).replace(/\./, '\\.');
+      var redirectUrl = false;
+      this.rules.forEach( function (rule) {
+        var regex = rule[3] ? new RegExp(rule[0].source.replace(/\.tld/, '\.' + tld)) : rule[0];
+        if (regex.test(originUrl)) {
+          if (!redirectUrl)
+            redirectUrl = true;
+          originUrl = typeof rule[1] == 'function'
+            ? rule[2]
+              ? decodeURIComponent(rule[1](originUrl.match(regex)))
+              : rule[1](originUrl.match(regex))
+            : rule[2]
+              ? decodeURIComponent(originUrl.replace(regex, rule[1]))
+              : originUrl.replace(regex, rule[1]);
+        }
+      });
+      return redirectUrl ? originUrl : false;
+    },
           
     get processScript () {
-      return 'data:application/javascript;charset=UTF-8,(' + encodeURIComponent(function (rules) {
+      return 'data:application/javascript;charset=UTF-8,(' + encodeURIComponent(function (rules, getRedirectUrl) {
+        Components.utils.import("resource://gre/modules/Services.jsm");
+
         var {
           interfaces: Ci,
           results: Cr,
@@ -91,20 +114,23 @@
           init: function () {
             Cm.QueryInterface(Ci.nsIComponentRegistrar).registerFactory(this.classID, 'Redirector', this.contractID, this);
             for (let category of this.xpcom_categories)
-              XPCOMUtils.categoryManager.addCategoryEntry(category, this.contractID, this.contractID, false, true);
+              Services.catMan.addCategoryEntry(category, this.contractID, this.contractID, false, true);
           },
           
           destroy: function () {
             Cm.QueryInterface(Ci.nsIComponentRegistrar).unregisterFactory(this.classID, this);
             for (let category of this.xpcom_categories)
-              XPCOMUtils.categoryManager.deleteCategoryEntry(category, this.contractID, false);
+              Services.catMan.deleteCategoryEntry(category, this.contractID, false);
           },
 
           // nsIContentPolicy interface implementation
-          shouldLoad: function (contentType, contentLocation, requestOrigin, node) {
+          shouldLoad: function (contentLocation, loadInfo) {
             let redirectUrl = this.getRedirectUrl(contentLocation.spec);
-            if (contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT && redirectUrl && node) {
-              node.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsITabChild).messageManager.sendAsyncMessage('Redirector', [redirectUrl, requestOrigin]);
+            let loadingPrincipal = loadInfo.loadingPrincipal;
+            let requestOrigin = loadingPrincipal ? loadingPrincipal.URI : null;
+            let node = loadInfo.loadingContext;
+            if (loadInfo.externalContentPolicyType == Ci.nsIContentPolicy.TYPE_DOCUMENT && redirectUrl && node) {
+              node.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIBrowserChild).messageManager.sendAsyncMessage('Redirector', [redirectUrl, requestOrigin]);
               return Ci.nsIContentPolicy.REJECT_REQUEST;
             }
             return Ci.nsIContentPolicy.ACCEPT;
@@ -147,40 +173,19 @@
             return this.QueryInterface(iid);
           },
 
-          QueryInterface: XPCOMUtils.generateQI([Ci.nsIContentPolicy, Ci.nsIChannelEventSink]),
+          QueryInterface: ChromeUtils.generateQI([Ci.nsIContentPolicy, Ci.nsIChannelEventSink]),
 
           rules: rules,
 
-          getRedirectUrl: function (originUrl) {
-            var nsIOriginUrl = Services.io.newURI(originUrl);
-            if (!nsIOriginUrl.asciiHost)
-              return false;
-            var tld = Services.eTLD.getPublicSuffix(nsIOriginUrl).replace(/\./, '\\.');
-            var redirectUrl = false;
-            this.rules.forEach( function (rule) {
-              var regex = rule[3] ? new RegExp(rule[0].source.replace(/\.tld/, '\.' + tld)) : rule[0];
-              if (regex.test(originUrl)) {
-                if (!redirectUrl)
-                  redirectUrl = true;
-                originUrl = typeof rule[1] == 'function'
-                  ? rule[2]
-                    ? decodeURIComponent(rule[1](originUrl.match(regex)))
-                    : rule[1](originUrl.match(regex))
-                  : rule[2]
-                    ? decodeURIComponent(originUrl.replace(regex, rule[1]))
-                    : originUrl.replace(regex, rule[1]);
-              }
-            });
-            return redirectUrl ? originUrl : false;
-          }
+          getRedirectUrl: getRedirectUrl
         };
 
         policy.init();
-      }.toString() + ')(' + this.rules.toSource() + ')');
+      }.toString() + ')(' + this.rules.toSource() + ', ' + this.getRedirectUrl.toString() + ')');
     },
 
     chromeListener: function (m) {
-      m.target.loadURI(m.data[0], null, m.data[1], null, null);
+      m.target.loadURI(m.data[0], {referer: m.data[1], triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
     },
 
     init: function () {
