@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "67.0a1"
+              "strict_min_version": "69.0a1"
             }
           },
-          "version": "3.12.68.2019.06.22-xiao",
+          "version": "3.12.69.2019.12.01-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/greasemonkey/greasemonkey.xpi"
         }
       ]
