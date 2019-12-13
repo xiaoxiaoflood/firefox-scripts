@@ -35,23 +35,6 @@
       input.setAttribute('type', 'password');
       input.setAttribute('style', 'border: 1px solid black; text-align: center; position: absolute; top:0; bottom: 0; left: 0; right: 0; margin: auto;');
 
-      input.addEventListener('keypress', function (e) {
-        if (e.keyCode === 13) {
-          if (UC.masterPasswordPlus.mp.checkPassword(e.target.value)) {
-            _uc.windows((doc, win2) => {
-              e.target.value = '';
-              doc.getElementById('mpPlus').style.display = 'none';
-              win2.titObs.disconnect();
-              doc.title = win2.titulo;
-            }, false);
-            UC.masterPasswordPlus.locked = false;
-          } else {
-            e.target.value = '';
-          }
-        } else if ((e.which === 0 && e.keyCode != 35 && e.keyCode != 36 && e.keyCode != 37 && e.keyCode != 39 && e.keyCode != 46) || ((e.altKey || e.ctrlKey) && e.shiftKey) || (e.altKey && !e.ctrlKey && (e.which < 48 || e.which > 57)) || (e.ctrlKey && !e.altKey && (e.which != 97))) {
-          e.preventDefault();
-        }
-      });
       ovl.appendChild(input);
 
       input.addEventListener('blur', function () {
@@ -69,6 +52,29 @@
     },
 
     mp: Cc['@mozilla.org/security/pk11tokendb;1'].getService(Ci.nsIPK11TokenDB).getInternalKeyToken(),
+
+    keydownFunc: function (e) {
+      let input = this.document.getElementById('mpPinput');
+      if (e.key == 'Enter') {
+        if (UC.masterPasswordPlus.mp.checkPassword(input.value)) {
+          _uc.windows((doc, win) => {
+            doc.getElementById('mpPinput').value = '';
+            doc.getElementById('mpPlus').style.display = 'none';
+            win.titObs.disconnect();
+            doc.title = win.titulo;
+            win.removeEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
+          }, false);
+          UC.masterPasswordPlus.locked = false;
+        } else {
+          input.value = '';
+        }
+      } else if ((e.key.length > 2 && // teclas digitáveis quase sempre =1, exceto acento seguido de char não acentuável, aí =2.
+                  e.code.length == 2 && // F1 a F9 possuem key.length =2, mas são as únicas com code.length = 2, demais são > (como KeyA).
+                  e.key != 'Dead' && // teclas de acento, que aguardam a tecla seguinte
+                  e.key != 'Backspace' && e.key != 'Delete' && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Home' && e.key != 'End') || e.altKey || (e.ctrlKey && e.code != 'KeyA')) {
+        e.preventDefault();
+      }
+    },
 
     atalho: function (el) {
         el.setAttribute('oncommand', 'UC.masterPasswordPlus.lockAll();');
@@ -94,6 +100,7 @@
     },
 
     lock: function (doc, win) {
+      win.addEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
       let input = doc.getElementById('mpPinput');
       input.value = '';
       doc.getElementById('mpPlus').style.display = 'block';
