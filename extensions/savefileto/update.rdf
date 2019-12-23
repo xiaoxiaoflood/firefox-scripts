@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "68.0a1"
+              "strict_min_version": "70.0a1"
             }
           },
-          "version": "2.5.6.69.2019.12.02-xiao",
+          "version": "2.5.6.70.2019.12.07-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/savefileto/savefileto.xpi"
         }
       ]
