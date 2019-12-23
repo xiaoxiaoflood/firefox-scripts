@@ -1,6 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox Developer Edition 69.0b16, Windows 10
+#### Tested on Firefox Developer Edition 70.0b14, Windows 10
 
 ## Instructions
 
@@ -22,18 +22,14 @@
 
 (click on each to expand)
 <details>
-  <summary>Adjust URLBar Popup Position and Width</summary>
-  In Fx 48, URLBar Popup was stretched to fill the entire width of the browser. This script restores the previous behavior, with the popup inheriting the width and position of URLBar.
+  <summary>Enter Selects</summary>
+  Preselect the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xia", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
   
-  Note: there are similar userChrome.css alternatives, but the URLBar width can change depending on the buttons around and depending on the size of the window. You can't set dynamic width with pure CSS, so JS is needed.
+  This script replaces the purpose of autofill, so `browser.urlbar.autoFill` is disabled on install. If you are typing part of a domain from the start and the first suggestion is from that domain (for instance, *git* from *github.com*), Tab key will autocomplete the domain even if the first suggestion is not the root.
+  
+  I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust as you wish).
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/adjustUrlbar.uc.js).  
-  
-  Firefox default:
-  ![](https://i.imgur.com/R4xc6LB.png)
-  
-  With this script:
-  ![](https://i.imgur.com/zgTwOL9.png)
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/enterSelects.uc.js). 
 </details>
 <details>
   <summary>Master Password+</summary>
