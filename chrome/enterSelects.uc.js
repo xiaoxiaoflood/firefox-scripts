@@ -1,13 +1,11 @@
 // ==UserScript==
-// @name            enterSelects.uc.js
+// @name            Enter Selects
 // @include         main
 // @startup         UC.enterSelects.exec(win);
 // @shutdown        UC.enterSelects.destroy();
 // @author          xiaoxiaoflood
 // @onlyonce
 // ==/UserScript==
-
-// ver se dá pra tornar independente das outras preferências, exceto o autofill
 
 (function () {
 
@@ -61,8 +59,8 @@
       if (e.keyCode == e.DOM_VK_TAB) {
         let url = gURLBar.view._queryContext.results[1].payload.url;
         if (gURLBar.view.selectedIndex == 1 && gURLBar.value != url && new RegExp(/^(https?:\/\/(www\.)?)?/.source + gURLBar.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).test(url) && gURLBar.value != url.match(/(\w*:\/\/)?.+\..+?\//)[0]) {
-          gURLBar.value = url.match(/(\w*:\/\/)?.+\..+?\//)[0];
-          gURLBar.view.selectedIndex = gURLBar.value == url ? 1 : -1;
+          gURLBar.inputField.value = gURLBar._untrimmedValue = gURLBar.trimValue(url.match(/(\w*:\/\/)?.+\..+?\//)[0]) + '/';
+          gURLBar.view.close();
           e.preventDefault();
           e.stopPropagation();
         } else if (gURLBar.view.selectedIndex == -1) {
@@ -83,7 +81,7 @@
       _uc.windows((doc, win) => {
         let gURLBar = win.gURLBar;
         gURLBar.controller.receiveResults = gURLBar.controller.orig_oRA;
-        gURLBar.removeEventListener('keydown', this.keyD, false);
+        gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
       });
       delete UC.enterSelects;
     }
