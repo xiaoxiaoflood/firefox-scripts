@@ -12,9 +12,12 @@ let _uc = {
   PREF_SCRIPTSDISABLED: 'userChromeJS.scriptsDisabled',
   BASE_FILEURI: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromDir(Services.dirsvc.get('UChrm', Ci.nsIFile)),
 
+  chromedir: Services.dirsvc.get('UChrm', Ci.nsIFile),
+  sss: Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService),
+
   getScripts: function () {
     this.scripts = {};
-    let files = Services.dirsvc.get('UChrm', Ci.nsIFile).directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
+    let files = this.chromedir.directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
     while (files.hasMoreElements()) {
       let file = files.getNext().QueryInterface(Ci.nsIFile);
       if (/\.uc\.js$/i.test(file.leafName)) {
@@ -128,6 +131,14 @@ let _uc = {
       if (fun(doc, win, loc))
         break;
     }
+  },
+
+  createElement: function (doc, tag, atts, XUL = true) {
+    let el = XUL ? doc.createXULElement(tag) : doc.createElement(tag);
+    for (let att in atts) {
+      el.setAttribute(att, atts[att]);
+    }
+    return el
   },
 
   error: function (aMsg, err) {

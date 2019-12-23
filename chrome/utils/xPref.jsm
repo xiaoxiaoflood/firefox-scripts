@@ -6,7 +6,7 @@ var xPref = {
   // Retorna o valor da preferência, seja qual for o tipo, mas não
   // testei com tipos complexos como nsIFile, não sei como detectar
   // uma preferência assim, na verdade nunca vi uma
-  get: function (prefPath, def = false) {
+  get: function (prefPath, def = false, valueIfUndefined, setDefault = true) {
     let sPrefs = def ?
                    Services.prefs.getDefaultBranch(null) :
                    Services.prefs;
@@ -14,7 +14,10 @@ var xPref = {
     try {
       switch (sPrefs.getPrefType(prefPath)) {
         case 0:
-          return undefined;
+          if (valueIfUndefined != undefined)
+            return this.set(prefPath, valueIfUndefined, setDefault);
+          else
+            return undefined;
         case 32:
           return sPrefs.getStringPref(prefPath);
         case 64:
@@ -46,11 +49,11 @@ var xPref = {
 
   lock: function (prefPath, value) {
     let sPrefs = Services.prefs;
-    xPref.lockedBackupDef[prefPath] = xPref.get(prefPath, true);
+    this.lockedBackupDef[prefPath] = this.get(prefPath, true);
     if (sPrefs.prefIsLocked(prefPath))
       sPrefs.unlockPref(prefPath);
 
-    xPref.set(prefPath, value, true);
+    this.set(prefPath, value, true);
     sPrefs.lockPref(prefPath);
   },
 
@@ -58,11 +61,11 @@ var xPref = {
 
   unlock: function (prefPath) {
     Services.prefs.unlockPref(prefPath);
-    let bkp = xPref.lockedBackupDef[prefPath];
+    let bkp = this.lockedBackupDef[prefPath];
     if (bkp == undefined)
       Services.prefs.deleteBranch(prefPath);
     else
-      xPref.set(prefPath, bkp, true);
+      this.set(prefPath, bkp, true);
   },
 
   clear: Services.prefs.clearUserPref,
