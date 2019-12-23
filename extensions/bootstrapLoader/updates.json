@@ -3,7 +3,7 @@
         "bootstrap@xxf": {
             "updates": [
                 {
-                    "version": "0.1.68.2019.12.06",
+                    "version": "0.1.70.2019.12.10",
                     "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/bootstrapLoader/bootstrapLoader.xpi"
                 }
             ]
