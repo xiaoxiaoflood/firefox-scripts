@@ -125,11 +125,13 @@
 
           // nsIContentPolicy interface implementation
           shouldLoad: function (contentLocation, loadInfo) {
+            if (loadInfo.externalContentPolicyType != Ci.nsIContentPolicy.TYPE_DOCUMENT)
+              return Ci.nsIContentPolicy.ACCEPT;
             let redirectUrl = this.getRedirectUrl(contentLocation.spec);
             let loadingPrincipal = loadInfo.loadingPrincipal;
             let requestOrigin = loadingPrincipal ? loadingPrincipal.URI : null;
             let node = loadInfo.loadingContext;
-            if (loadInfo.externalContentPolicyType == Ci.nsIContentPolicy.TYPE_DOCUMENT && redirectUrl && node) {
+            if (redirectUrl && node) {
               node.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIBrowserChild).messageManager.sendAsyncMessage('Redirector', [redirectUrl, requestOrigin]);
               return Ci.nsIContentPolicy.REJECT_REQUEST;
             }
@@ -156,7 +158,7 @@
             let webNav;
             for (let callback of callbacks) {
               try {
-                webNav = callback.getInterface(Ci.nsILoadContext).associatedWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation);
+                webNav = callback.getInterface(Ci.nsILoadContext).topFrameElement.webNavigation;// funciona sem webNavigation também
                 break;
               } catch(e) {}
             }
@@ -164,7 +166,7 @@
               return;
             let redirectUrl = this.getRedirectUrl(newLocation);
             if (redirectUrl)
-              webNav.loadURI(redirectUrl, null, null, null, null);
+              webNav.loadURI(redirectUrl, {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
           },
 
           createInstance: function (outer, iid) {
