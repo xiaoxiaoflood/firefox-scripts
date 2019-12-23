@@ -32,6 +32,17 @@
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/enterSelects.uc.js). 
 </details>
 <details>
+  <summary>Extension Options Menu</summary>
+  A single toolbar button to handle all your extensions. It opens a menu listing each extension. Left-click to open Options from the selected addon, right-click to enable/disable, Ctrl + right-click do uninstall. Hover anywhere on the menu to see more.
+  
+  I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust as you wish).  
+
+  Screenshot:
+  ![](https://i.imgur.com/FWs3pYl.png)
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/blob/master/chrome/extensionOptionsMenu.uc.js).
+</details>
+<details>
   <summary>Master Password+</summary>
   Locks Firefox with password. It will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
