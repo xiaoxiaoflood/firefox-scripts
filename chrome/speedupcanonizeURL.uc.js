@@ -13,19 +13,19 @@
 
   UC.speedupcanonizeURL = {
     exec: function (win) {
-      win.eval('gURLBar.maybeCanonizeURL = ' +
-               win.gURLBar.maybeCanonizeURL.toString().
-                 replace(/ctrlKey\) \{\n/, `ctrlKey) {
-                  let linkURI;
-                  if (/^(?!https?:\\/\\/)[\\w-]+\\.[\\w-]/.test(aUrl))
-                    linkURI = 'http://' + aUrl.trim();
-                  else
-                    return;
+      win.eval('gURLBar._maybeCanonizeURL = function ' +
+               win.gURLBar._maybeCanonizeURL.toString().
+                 replace(/ \) \{\n/, ` ) {
+      var linkURI;
+      if (/^(?!https?:\\/\\/)[\\w-]+\\.[\\w-]/.test(value))
+        linkURI = 'http://' + value.trim();
+      else
+        return null;
 
-                  if ((this.popup.selectedIndex < 1 || !this.popup.richlistbox.children[0].getAttribute('url').startsWith('moz-action:')) && !/[\\w-]\\s/.test(aUrl) && !UC.speedupcanonizeURL.isValidTLD(Services.io.newURI(linkURI).host)) {
-                    var URIFixup = Cc['@mozilla.org/docshell/urifixup;1'].getService(Ci.nsIURIFixup);
-                    this.popup.overrideValue = URIFixup.createFixupURI('?' + aUrl, URIFixup.FIXUP_FLAG_ALLOW_KEYWORD_LOOKUP ).spec;
-                  }\n`));
+      if ((gURLBar.view.selectedIndex < 1 || !gURLBar.view._queryContext.results[0].payload.url.startsWith('moz-action:')) && gURLBar.valueIsTyped && !/[\\w-]\\s/.test(value) && !UC.speedupcanonizeURL.isValidTLD(Services.io.newURI(linkURI).host)) {
+        var URIFixup = Cc['@mozilla.org/docshell/urifixup;1'].getService(Ci.nsIURIFixup);
+        return URIFixup.createFixupURI('?' + value, URIFixup.FIXUP_FLAG_ALLOW_KEYWORD_LOOKUP).spec;
+      }\n`).replace(/^function /, ''));
     },
 
     isValidTLD: function (host) {
@@ -41,13 +41,13 @@
 
     regexpIP: /^[1-2]?\d?\d\.[1-2]?\d?\d\.[1-2]?\d?\d\.[1-2]?\d?\d$/,
 
-    orig: gURLBar.maybeCanonizeURL.toString(),
+    orig: gURLBar._maybeCanonizeURL.toString(),
     
     destroy: function () {
       var enumerator = Services.wm.getEnumerator('navigator:browser');
       while (enumerator.hasMoreElements()) {
         var win = enumerator.getNext();
-        win.eval('gURLBar.maybeCanonizeURL = ' +
+        win.eval('gURLBar._maybeCanonizeURL = function ' +
              UC.speedupcanonizeURL.orig);
       }
       delete UC.speedupcanonizeURL;
