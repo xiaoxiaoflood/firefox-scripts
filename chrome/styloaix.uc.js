@@ -11,13 +11,12 @@
 /*
 as for now, this script is recommended just as userChrome.css replacement. For better management of userstyles for sites I recommend (and I'm using) Stylus.
 
-*** to do (to recover Stylish features and to not need Stylish anymore) ***
+*** to do (to recover Stylish features and to not need Stylus anymore) ***
 - allow to update remote styles (when set to manual, provide option to ignore specific available updates [by checksum or lastmodified])
 - right click menu per style to: edit, reload, check for update (for remote styles), auto install updates [checkbox] and delete;
 - add new style;
 - own editor;
 - "find styles for this site"
-- agent_sheet
 - allow subfolders
 - ==UserStyle== (.user.css) compatibility
 - allow to install from userstyles.org and freestyler.ws
@@ -192,7 +191,11 @@ as for now, this script is recommended just as userChrome.css replacement. For b
         let menuitem = _uc.createElement(popup.ownerDocument, 'menuitem', {
           label: style.name,
           type: 'checkbox',
-          class: 'styloaix-style',
+          class: 'styloaix-style' + (style.type == _uc.sss.AUTHOR_SHEET ?
+                                      '' :
+                                      ' styloaix-' + (style.type == _uc.sss.USER_SHEET ?
+                                        'user' :
+                                        'agent') + 'sheet'),
           checked: style.enabled,
           oncommand: 'UC.styloaix.toggleStyle(this._style);',
           onclick: 'if (event.button === 1) UC.styloaix.toggleStyle(this._style);',
@@ -240,6 +243,14 @@ as for now, this script is recommended just as userChrome.css replacement. For b
           #styloaix-button.icon-colored {
             list-style-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwQAADsEBuJFr7QAAAAd0SU1FB9sJEwETHfi6mzAAAAIVSURBVDjLpZNPaJJxGICfbzjXEiJRcaCQkWQgHUwclSBWc0ZFjSQWsyDqEASxS4tuptiC1lUKlqOD1SljpqMtwpGsQiYuolFEuLHL4GuLr6JNa9/XQRyJ87Tn+r6/5/fy/hEAhU2gAkhOXWwIlL4s8X1pBZWqhZv9L3jldTTkHJksVgX/83L0M/fuTGG1WrFYLMjyX+x2O8fezqIVFGL7drNd3VpfQY3XE1+ZeLpIPp/H5XLViSuVCtFolFLqCY5mgsT9acaeZ3G5XMiyTKFQQJIkzGYzNpsNk8nEr416UEOQt67/HAqFmJ1PceCQBZ8vRfceKz+1Bi63tTYKTrtHADAYDOsBj8dD+nqa0ccZACyV3/S2rQJb6gQtADPDA8wMD+DcqSOXywHg8/koFotIkkQ2m0V1tIcTbz6yXP7TKKhx69JxAoEAiUSCcrkMgEajwev1EovFSGUy3P4031wwt7iMKIqYdRe4ekXH2d7DhMNhRFEEoKurC3nHruaCc4OPMBqNDN6VcXeucqM/x4oUIRKJrOfo9frmU1Cr1ZRKJZLJJOPj4zxIlNBqtYTD1U1VFIUf5TXmh55VH+y31AtkWaa9vZ1gMEgwGGxY3Xg8zsGe880ruHbGg9PpxO/343A46OjoQBAEFhYWSGfG2GbrpLP7ZHPBKfdeQg+HmJ78QPG9gvhNQRCgr2+NkXdzG16jsNlz/gcHerkUp11MYQAAAABJRU5ErkJggg==');
           }
+          .styloaix-usersheet label:after {
+            content:"US";
+            color: blue;
+          }
+          .styloaix-agentsheet label:after {
+            content:"AG";
+            color: green;
+          }
         }
       `)),
       type: _uc.sss.AUTHOR_SHEET
@@ -259,12 +270,16 @@ as for now, this script is recommended just as userChrome.css replacement. For b
   }
 
   class UserStyle {
-    constructor(file, registrationMethod = _uc.sss.AUTHOR_SHEET) {
-      this.name = file.leafName.replace(/(?:\.(?:user|as))?\.css$/, '');
+    constructor(file) {
+      this.type = file.leafName.endsWith('us.css') ?
+                    _uc.sss.USER_SHEET :
+                  file.leafName.endsWith('as.css') ?
+                    _uc.sss.AGENT_SHEET :
+                    _uc.sss.AUTHOR_SHEET;
+      this.name = file.leafName.replace(/(?:\.(?:user|as|us))?\.css$/, '');
       this.lastModified = file.lastModifiedTime;
       this.url = Services.io.newURI('resource://userchromejs/UserStyles/' + file.leafName);
       this.enabled = UC.styloaix.disabledStyles.split('|').indexOf(this.name) == -1;
-      this.type = registrationMethod;
       if (UC.styloaix.enabled && this.enabled)
         _uc.sss.loadAndRegisterSheet(this.url, this.type);
       this.id = UC.styloaix.styles.length;
