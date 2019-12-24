@@ -56,6 +56,12 @@
   Unlocked:
   ![](https://i.imgur.com/KOkEJq5.png)
 </details>
+<details>
+  <summary>speedupcanonizeURL</summary>
+  Strings like "extensions.legacy.enabled" should load results in your default search engine when you press Enter in addressbar. Instead, Firefox tries to load the site "extensions.legacy.enabled", which of course doesn't exists. This script solves it.
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/speedupcanonizeURL.uc.js).
+</details>
 
 ## Screenshots
 
