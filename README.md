@@ -23,11 +23,11 @@
 (click on each to expand)
 <details>
   <summary>Enter Selects</summary>
-  Preselect the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xia", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
+  Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xia", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
   
-  This script replaces the purpose of autofill, so `browser.urlbar.autoFill` is disabled on install. If you are typing part of a domain from the start and the first suggestion is from that domain (for instance, *git* from *github.com*), Tab key will autocomplete the domain even if the first suggestion is not the root.
+  This script replaces autofill, so `browser.urlbar.autoFill` is disabled on install. If you are typing part of a domain from the start and the first suggestion is from that domain (for instance, *git* from *github.com*), Tab key will autocomplete the domain even if the first suggestion is not the root.
   
-  I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust as you wish).
+  I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust the value as you wish).
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/enterSelects.uc.js). 
 </details>
@@ -38,13 +38,14 @@
   I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust as you wish).  
 
   Screenshot:
+  
   ![](https://i.imgur.com/FWs3pYl.png)
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/blob/master/chrome/extensionOptionsMenu.uc.js).
 </details>
 <details>
   <summary>Master Password+</summary>
-  Locks Firefox with password. It will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
+  Locks Firefox with password. This will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
   You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a master password</i>.
 
@@ -58,17 +59,19 @@
 </details>
 <details>
   <summary>speedupcanonizeURL</summary>
-  Strings like "extensions.legacy.enabled" should load results in your default search engine when you press Enter in addressbar. Instead, Firefox tries to load the site "extensions.legacy.enabled", which of course doesn't exists. This script solves it.
+  Strings like "extensions.legacy.enabled" should load results in your default search engine when you press Enter in addressbar. Instead, Firefox tries to load the website "extensions.legacy.enabled", which of course doesn't exists. This script solves it.
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/speedupcanonizeURL.uc.js).
 </details>
 <details>
   <summary>StyloaiX</summary>
   Basic UserStyle manager with the same power of userChrome.css (can restyle Firefox window). It loads <i><u>.css</u></i> files from <i><u>\chrome\UserStyles</u></i>. It supports instant enable/disable per style or global. It also can reload updated styles and load new ones. More features may be added in the future. To reskin websites, <a href="https://addons.mozilla.org/firefox/addon/styl-us/">Stylus</a> is a better option, with more features including autoupdate for styles available on the web. But Stylus can't touch the Firefox interface, only websites.
+  
+  <b>Note</b>: just like Stylish, UserStyles are loaded by default as AUTHOR_SHEET. If you need AGENT_SHEET or USER_SHEET (for instance, userContent.css is USER_SHEET), save the file as ".as.css" or ".us.css".
 
   Screenshot (yes, I'm using the old Stylish icon):
   
-  ![](https://i.imgur.com/x8a6PSL.png)
+  ![](https://i.imgur.com/m0EonHK.png)
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/styloaix.uc.js).
 </details>
