@@ -62,6 +62,16 @@
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/speedupcanonizeURL.uc.js).
 </details>
+<details>
+  <summary>StyloaiX</summary>
+  Basic UserStyle manager with the same power of userChrome.css (can restyle Firefox window). It loads <i><u>.css</u></i> files from <i><u>\chrome\UserStyles</u></i>. It supports instant enable/disable per style or global. It also can reload updated styles and load new ones. More features may be added in the future. To reskin websites, <a href="https://addons.mozilla.org/firefox/addon/styl-us/">Stylus</a> is a better option, with more features including autoupdate for styles available on the web. But Stylus can't touch the Firefox interface, only websites.
+
+  Screenshot (yes, I'm using the old Stylish icon):
+  
+  ![](https://i.imgur.com/x8a6PSL.png)
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/speedupcanonizeURL.uc.js).
+</details>
 
 ## Screenshots
 
