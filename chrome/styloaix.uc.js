@@ -1,7 +1,6 @@
 // ==UserScript==
 // @name            StyloaiX
 // @include         main
-// @startup         UC.styloaix.exec(win);
 // @shutdown        UC.styloaix.destroy();
 // @onlyonce
 // ==/UserScript==
@@ -116,9 +115,6 @@ as for now, this script is recommended just as userChrome.css replacement. For b
       this.toggleStyle(this.STYLE, {aStatus: true, changeStatus: false, forced: true});
     },
 
-    exec: function (win) {
-    },
-
     get enabled () {
       return !xPref.get(this.PREF_DISABLED);
     },
@@ -128,7 +124,7 @@ as for now, this script is recommended just as userChrome.css replacement. For b
     },
 
     loadStyles: function() {
-      // remove scripts from button to avoid duplicates
+      // remove styles from menupopup to avoid duplicates
       let buttons = this.buttons;
       if (buttons.length) {
         buttons.forEach(btn => {

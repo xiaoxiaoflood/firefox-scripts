@@ -59,7 +59,8 @@ UC.enterSelects = {
     if (e.keyCode == e.DOM_VK_TAB) {
       let url = gURLBar.view._queryContext.results[1].payload.url;
       if (gURLBar.view.selectedIndex == 1 && gURLBar.value != url && new RegExp(/^(https?:\/\/(www\.)?)?/.source + gURLBar.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).test(url) && gURLBar.value != url.match(/(\w*:\/\/)?.+\..+?\//)[0]) {
-        gURLBar.inputField.value = gURLBar._untrimmedValue = gURLBar.trimValue(url.match(/(\w*:\/\/)?.+\..+?\//)[0]) + '/';
+        gURLBar.inputField.value = gURLBar._untrimmedValue = gURLBar.trimValue(url.match(/(\w*:\/\/)?.+\..+?\//)[0] + '/').slice(0, -1);
+        /* quando browser.urlbar.trimURLs = true, trimValue() em url terminada em '.tld/' remove o '/', o que não é desejado porque a ideia deste "atalho" tab é facilitar o preenchimento de algo depois da barra. Eu não poderia adicionar um '/' depois do trimValue() porque em caso de trim desabilitado ficaria com duas barras. A solução mais prática é esta, incluir um caractere antes de aplicar o trimValue() para que a barra não seja removida, aí depois só remove este caractere adicionado. */
         gURLBar.view.close();
         e.preventDefault();
         e.stopPropagation();
