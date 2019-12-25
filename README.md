@@ -12,7 +12,7 @@
 
 4. Inside **chrome**, create another new folder called **utils**, then save all [these](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils) files into it.
 
-5. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of each one.
+5. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of some of them.
 
 6. If you want a button to manage your userChromeJS scripts, save [rebuild_userChrome.uc.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
@@ -20,7 +20,7 @@
 
 ## userChromeJS scripts
 
-(click on each to expand)
+(click to expand)
 <details>
   <summary>Enter Selects</summary>
   Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xia", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
@@ -65,7 +65,7 @@
 </details>
 <details>
   <summary>StyloaiX</summary>
-  Basic UserStyle manager with the same power of userChrome.css (can restyle Firefox window). It loads <i><u>.css</u></i> files from <i><u>\chrome\UserStyles</u></i>. It supports instant enable/disable per style or global. It also can reload updated styles and load new ones. More features may be added in the future. To reskin websites, <a href="https://addons.mozilla.org/firefox/addon/styl-us/">Stylus</a> is a better option, with more features including autoupdate for styles available on the web. But Stylus can't touch the Firefox interface, only websites.
+  Basic UserStyle manager with the same power of userChrome.css and userContent.css (can restyle both Firefox windows and websites). It loads <i><u>.css</u></i> files from <i><u>\chrome\UserStyles</u></i>. It supports instant enable/disable per style or global. It also can reload updated styles and load new ones. More features may be added in the future. To reskin websites, <a href="https://addons.mozilla.org/firefox/addon/styl-us/">Stylus</a> is a better option, with more features including autoupdate for styles available on the web. But Stylus can't touch the Firefox interface, only websites.
   
   <b>Note</b>: just like Stylish, UserStyles are loaded by default as AUTHOR_SHEET. If you need AGENT_SHEET or USER_SHEET (for instance, userContent.css is USER_SHEET), save the file as ".as.css" or ".us.css".
 
