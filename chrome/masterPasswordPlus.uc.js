@@ -62,7 +62,7 @@ UC.masterPasswordPlus = {
           win.titObs.disconnect();
           doc.title = win.titulo;
           win.removeEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
-          win.addEventListener("AppCommand", HandleAppCommandEvent, true);
+          win.addEventListener('AppCommand', HandleAppCommandEvent, true);
         }, false);
         UC.masterPasswordPlus.locked = false;
       } else {

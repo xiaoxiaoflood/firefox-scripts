@@ -89,6 +89,7 @@ UC.statusBar = {
     if (!this.enabled)
       bottomBox.collapsed = true;
     bottomBox.appendChild(win.statusbar.node);
+    CustomizableUI.registerToolbarNode(win.statusbar.node);
     win.statusbar.parentNode = bottomBox;
 
     let sspi = document.createProcessingInstruction(
@@ -113,6 +114,19 @@ UC.statusBar = {
       border-top: 1px solid var(--chrome-content-separator-color);
       background-color: var(--toolbar-bgcolor);
     }
+    toolbarpaletteitem #status-text:after {
+      content: "Status text";
+      color: red;
+      border: 1px #aaa solid;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    #status-bar > #status-text {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-direction: column;
+    }
   `,
 
   styles: [],
@@ -126,6 +140,7 @@ UC.statusBar = {
       let StatusPanel = win.StatusPanel;
       StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
       document.getElementById('status-dummybar').remove();
+      win.statusbar.node.remove();
     });
     delete UC.statusBar;
   }
