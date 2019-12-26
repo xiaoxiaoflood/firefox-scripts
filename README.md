@@ -64,6 +64,18 @@
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/speedupcanonizeURL.uc.js).
 </details>
 <details>
+  <summary>Status Bar</summary>
+  Brings back the good old status bar (also known as Addon Bar) at the bottom, with status text plus any buttons you want.
+
+  Screenshots:
+  
+  ![](https://i.imgur.com/2EBQyjE.png)
+  
+  ![](https://i.imgur.com/zoX79TT.png)
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/status-bar.uc.js).
+</details>
+<details>
   <summary>StyloaiX</summary>
   Basic UserStyle manager with the same power of userChrome.css and userContent.css (can restyle both Firefox windows and websites). It loads <i><u>.css</u></i> files from <i><u>\chrome\UserStyles</u></i>. It supports instant enable/disable per style or global. It also can reload updated styles and load new ones. More features may be added in the future. To reskin websites, <a href="https://addons.mozilla.org/firefox/addon/styl-us/">Stylus</a> is a better option, with more features including autoupdate for styles available on the web. But Stylus can't touch the Firefox interface, only websites.
   
