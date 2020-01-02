@@ -78,7 +78,7 @@ UC.statusBar = {
 
     // precisa do container pra poder colocar itens à esquerda do resizer com efeito imediato. Sem ele, só corrige a ordem depois de reiniciar o Fx.
     let resizerContainer = _uc.createElement(document, 'toolbaritem', {id: 'resizer-container'});
-    let resizer = _uc.createElement(document, 'resizer', {dir: 'bottomend-container'});
+    let resizer = _uc.createElement(document, 'resizer');
     resizerContainer.appendChild(resizer);
     win.statusbar.node.appendChild(resizerContainer);
 

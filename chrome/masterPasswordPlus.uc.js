@@ -107,7 +107,7 @@ UC.masterPasswordPlus = {
     win.titulo = doc.title;
     doc.title = '🞻🞻🞻🞻🞻🞻';
     win.titObs = this.onTitleChanged(win);
-    win.removeEventListener("AppCommand", HandleAppCommandEvent, true);
+    win.removeEventListener('AppCommand', HandleAppCommandEvent, true);
     input.focus();
   },
 

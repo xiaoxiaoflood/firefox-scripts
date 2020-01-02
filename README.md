@@ -23,7 +23,7 @@
 (click to expand)
 <details>
   <summary>Enter Selects</summary>
-  Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xia", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
+  Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xiaoxiaoflood", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
   
   This script replaces autofill, so `browser.urlbar.autoFill` is disabled on install. If you are typing part of a domain from the start and the first suggestion is from that domain (for instance, *git* from *github.com*), Tab key will autocomplete the domain even if the first suggestion is not the root.
   
@@ -33,9 +33,7 @@
 </details>
 <details>
   <summary>Extension Options Menu</summary>
-  A single toolbar button to manage all your extensions. It opens a menu listing each extension. Left-click to open Options from the selected addon, right-click to enable/disable, Ctrl + right-click to uninstall. Hover anywhere on the menu to see more.
-  
-  I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust as you wish).  
+  A single toolbar button to manage all your extensions. It opens a menu listing each extension. Left-click to open Options from the hovered addon, right-click to enable/disable, Ctrl + right-click to uninstall. Hover anywhere on the menu to see more.
 
   Screenshot:
   
