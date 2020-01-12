@@ -1,34 +1,37 @@
 // ==UserScript==
 // @name            Enter Selects
+// @author          xiaoxiaoflood
 // @include         main
 // @startup         UC.enterSelects.exec(win);
 // @shutdown        UC.enterSelects.destroy();
-// @author          xiaoxiaoflood
 // @onlyonce
 // ==/UserScript==
 
+// original: https://addons.mozilla.org/firefox/addon/enter-selects/
+
 UC.enterSelects = {
   init: function () {
+    this.orig_receiveResults = this.controller.receiveResults;
+    this.controller.receiveResults = (function () {
+      return function () {
+        let gURLBar = this.browserWindow.gURLBar;
+        if (UC.enterSelects.shouldSelect(gURLBar, arguments[0]))
+          gURLBar.view._selectItem(gURLBar.view._rows.children[1], { updateInput: false});
+
+        var result =  UC.enterSelects.orig_receiveResults.apply(this, arguments);
+        return result;
+      };
+    })();
+
     xPref.lock('browser.urlbar.autoFill', false);
     xPref.set('browser.urlbar.matchBuckets', 'general:1', true);
   },
 
   exec: function (win) {
-    let gURLBar = win.gURLBar;
-    gURLBar.controller.orig_oRA = gURLBar.controller.receiveResults
-     gURLBar.controller.receiveResults = (function () {
-        return function () {
-          if (UC.enterSelects.shouldSelect(gURLBar, arguments[0]))
-            gURLBar.view._selectItem(gURLBar.view._rows.children[1], { updateInput: false});
-
-          var result =  gURLBar.controller.orig_oRA.apply(this, arguments);
-          return result;
-        };
-      }
-    )();
-
     gURLBar.textbox.addEventListener('keydown', this.keyD, true);
   },
+
+  controller: ChromeUtils.import('resource:///modules/UrlbarController.jsm').UrlbarController.prototype,
 
   shouldSelect: function (gURLBar, queryContext) {
     if (queryContext.lastResultCount < 1 || gURLBar.view.selectedIndex > 0)
@@ -81,7 +84,7 @@ UC.enterSelects = {
     xPref.unlock('browser.urlbar.autoFill');
     _uc.windows((doc, win) => {
       let gURLBar = win.gURLBar;
-      gURLBar.controller.receiveResults = gURLBar.controller.orig_oRA;
+      this.controller.receiveResults = this.orig_receiveResults;
       gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
     });
     delete UC.enterSelects;
