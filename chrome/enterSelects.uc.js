@@ -18,7 +18,7 @@ UC.enterSelects = {
         if (UC.enterSelects.shouldSelect(gURLBar, arguments[0]))
           gURLBar.view._selectItem(gURLBar.view._rows.children[1], { updateInput: false});
 
-        var result =  UC.enterSelects.orig_receiveResults.apply(this, arguments);
+        let  result =  UC.enterSelects.orig_receiveResults.apply(this, arguments);
         return result;
       };
     })();
