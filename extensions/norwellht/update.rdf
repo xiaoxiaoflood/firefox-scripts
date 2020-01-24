@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "66.0a1"
+              "strict_min_version": "71.0a1"
             }
           },
-          "version": "3.1.0.2.2.69.2019.07.08-xiao",
+          "version": "3.1.0.2.2.71.2020.01.24-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/norwellht/norwellht.xpi"
         }
       ]
