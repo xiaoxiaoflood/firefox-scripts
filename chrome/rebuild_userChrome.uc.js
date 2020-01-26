@@ -78,9 +78,10 @@
           if (url) {
             gBrowser.addTab(url, {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
           }
+        } else {
+          this.toggleScript(script);
+          event.target.setAttribute('checked', script.isEnabled);
         }
-        this.toggleScript(script);
-        event.target.setAttribute('checked', script.isEnabled);
       } else if (event.button == 2) {
         if (event.ctrlKey) {
           this.uninstall(script);
