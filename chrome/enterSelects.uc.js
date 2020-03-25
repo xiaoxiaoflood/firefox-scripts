@@ -16,10 +16,9 @@ UC.enterSelects = {
       return function () {
         let gURLBar = this.browserWindow.gURLBar;
         if (UC.enterSelects.shouldSelect(gURLBar, arguments[0]))
-          gURLBar.view._selectItem(gURLBar.view._rows.children[1], { updateInput: false});
+          gURLBar.view._selectElement(gURLBar.view._rows.children[1], { updateInput: false });
 
-        let  result =  UC.enterSelects.orig_receiveResults.apply(this, arguments);
-        return result;
+        return UC.enterSelects.orig_receiveResults.apply(this, arguments);
       };
     })();
 
@@ -83,9 +82,8 @@ UC.enterSelects = {
   destroy: function () {
     xPref.unlock('browser.urlbar.autoFill');
     _uc.windows((doc, win) => {
-      let gURLBar = win.gURLBar;
       this.controller.receiveResults = this.orig_receiveResults;
-      gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
+      win.gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
     });
     delete UC.enterSelects;
   }
