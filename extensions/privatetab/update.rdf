@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "67.0a1"
+              "strict_min_version": "72.0a1"
             }
           },
-          "version": "0.2.4pre.70.2019.12.07-xiao",
+          "version": "0.2.4pre.72.2020.03.27-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/privatetab/privatetab.xpi"
         }
       ]
