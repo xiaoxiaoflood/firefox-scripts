@@ -5,10 +5,10 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "69.0a1"
+              "strict_min_version": "72.0a1"
             }
           },
-          "version": "1.5.21.71.2020.02.02-xiao",
+          "version": "1.5.21.72.2020.03.27-xiao",
           "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/rehostimg/rehost.xpi"
         }
       ]
