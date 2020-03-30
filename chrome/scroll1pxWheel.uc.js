@@ -13,6 +13,12 @@
   UC.WheelAutoScroll_1px = {
     exec: function (win) {
       var document = win.document;
+      eval('document.querySelector(\'browser\').__proto__.startScroll = function ' +
+           document.querySelector('browser').__proto__.startScroll.toString().
+             replace(/window\.addEventListener\("DOMMouseScroll", this, true\);/,
+                     'window.addEventListener("DOMMouseScroll", this, { passive: false, capture: true });').
+             replace(/^function /,
+                     ''));
       eval('document.querySelector(\'browser\').__proto__.handleEvent = function ' +
            document.querySelector('browser').__proto__.handleEvent.toString().
              replace(/(case "DOMMouseScroll": {)(\s+)([\s\S]+?)\n([\s\S]+?)\n/,
@@ -21,7 +27,8 @@
                      ''));
     },
 
-    orig: document.querySelector('browser').__proto__.handleEvent.toString().replace(/^function /, ''),
+    startScroll_orig: document.querySelector('browser').__proto__.startScroll.toString().replace(/^function /, ''),
+    handleEvent_orig: document.querySelector('browser').__proto__.handleEvent.toString().replace(/^function /, ''),
 
     frameScript: 'data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
       content.contentListener = function (msg) {
@@ -49,8 +56,10 @@
       var enumerator = Services.wm.getEnumerator('navigator:browser');
       while (enumerator.hasMoreElements()) {
         var win = enumerator.getNext();
+        win.eval('document.querySelector(\'browser\').__proto__.startScroll = function ' +
+             UC.WheelAutoScroll_1px.startScroll_orig);
         win.eval('document.querySelector(\'browser\').__proto__.handleEvent = function ' +
-             UC.WheelAutoScroll_1px.orig);
+             UC.WheelAutoScroll_1px.handleEvent_orig);
       }
       delete UC.WheelAutoScroll_1px;
     }
