@@ -5,11 +5,11 @@
         {
           "applications": {
             "gecko": {
-              "strict_min_version": "73.0a1"
+              "strict_min_version": "74.0a1"
             }
           },
-          "version": "2.5.6.73.2020.03.30-xiao",
-          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/savefileto/savefileto.xpi"
+          "version": "2.5.6.74.2020.03.31-xiao",
+          "update_link": "https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/extensions/savefileto/savefileto.xpi"
         }
       ]
     }
