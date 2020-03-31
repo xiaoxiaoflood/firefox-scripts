@@ -106,15 +106,15 @@ UC.statusBar = {
     @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
     #status-bar {
       color: initial; /* sem isso, ícones padrões ficam transparentes */
+      background-color: var(--toolbar-non-lwt-bgcolor);
     }
     #status-text > #statuspanel-label {
       border-top: 0; /* status flutuante é 1, mas quando deslocado pra statusbar não é pra ter */
-      background-color: #fff !important; /* precisa definir a cor pra bater com fundo dos botões colocados lá e do resizer */
-      color: #444 !important;
+      background-color: unset;
+      color: #444;
     }
     #browser-bottombox:not([collapsed]) {
       border-top: 1px solid var(--chrome-content-separator-color);
-      background-color: var(--toolbar-bgcolor);
     }
     toolbarpaletteitem #status-text:after {
       content: "Status text";
