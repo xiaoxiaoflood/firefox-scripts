@@ -8,4 +8,4 @@ Before install, open *about:config*, then:
 
 `xpinstall.signatures.required = false`
 
-`extensions.legacy.enabled = true`
+`extensions.experiments.enabled = true`

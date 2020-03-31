@@ -8,14 +8,18 @@ var EXPORTED_SYMBOLS = ["BootstrapLoader"];
 
 const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const {XPIDatabase, AddonInternal} = ChromeUtils.import("resource://gre/modules/addons/XPIDatabase.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AddonInternal: "resource://gre/modules/addons/XPIDatabase.jsm",
   Blocklist: "resource://gre/modules/Blocklist.jsm",
   ConsoleAPI: "resource://gre/modules/Console.jsm",
   InstallRDF: "chrome://userchromejs/content/RDFManifestConverter.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
+
+XPIDatabase.isDisabledLegacy = function (addon) {
+  return false;
+}
 
 XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS", () => {
   const {XPIProvider} = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm");
