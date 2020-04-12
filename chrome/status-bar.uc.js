@@ -46,12 +46,12 @@ UC.statusBar = {
             xPref.set(UC.statusBar.PREF_ENABLED, false);
             win.statusbar.node.setAttribute('collapsed', true);
             StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
-            win.statusbar.parentNode.collapsed = true;;
+            win.statusbar.node.parentNode.collapsed = true;;
           } else {
             xPref.set(UC.statusBar.PREF_ENABLED, true);
             win.statusbar.node.setAttribute('collapsed', false);
             win.statusbar.textNode.appendChild(StatusPanel._labelElement);
-            win.statusbar.parentNode.collapsed = false;
+            win.statusbar.node.parentNode.collapsed = false;
           }
         }
 
@@ -90,7 +90,7 @@ UC.statusBar = {
       bottomBox.collapsed = true;
     bottomBox.appendChild(win.statusbar.node);
     CustomizableUI.registerToolbarNode(win.statusbar.node);
-    win.statusbar.parentNode = bottomBox;
+    win.statusbar.node.parentNode = bottomBox;
 
     let sspi = document.createProcessingInstruction(
       'xml-stylesheet',
