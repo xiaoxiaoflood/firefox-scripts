@@ -42,7 +42,10 @@
         });
       },
       chromeListener: function (message) {
-        gBrowser.addTab(message.data, {owner: gBrowser.selectedTab, relatedToCurrent: true, triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
+        if (message.data)
+          gBrowser.addTab(message.data, {owner: gBrowser.selectedTab, relatedToCurrent: true, triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
+        else
+          document.commandDispatcher.getControllerForCommand('cmd_moveBottom').doCommand('cmd_moveBottom');
       },
       frameScript: 'data:application/javascript;charset=UTF-8,' + 
         encodeURIComponent('(' + (function () {
@@ -70,8 +73,7 @@
               if (typeof elm != 'undefined') {
                 sendAsyncMessage('imgurl', 'http://www.google.com.br/searchbyimage?image_url=' + encodeURIComponent(elm));
               } else {
-                content.windowUtils.sendNativeKeyEvent(0x00000416, 0xE04F0023, {}, '', '');
-                //content.scrollTo(0, content.scrollMaxY);
+                sendAsyncMessage('imgurl');
               }
             } else if (msg.data == 'deselect') {
               content.getSelection().removeAllRanges();
@@ -113,8 +115,6 @@
         'R': {
           name: 'Open image URL',
           cmd: function () {
-            if ('TreeStyleTabService' in window)
-              TreeStyleTabService.readyToOpenChildTabNow(gBrowser.selectedTab);
             gBrowser.selectedBrowser.messageManager.sendAsyncMessage('MGest', 'img');
           }
         },
@@ -175,14 +175,12 @@
         'U': {
           name: 'Go to top of page (strict)',
           cmd: function () {
-            document.commandDispatcher.focusedElement.controllers.getControllerForCommand('cmd_moveTop').doCommand('cmd_moveTop');
+            document.commandDispatcher.getControllerForCommand('cmd_moveTop').doCommand('cmd_moveTop');
           }
         },
         'D': {
           name: 'Go to bottom of page (strict) / Image search',
           cmd: function () {
-            if ('TreeStyleTabService' in window)
-              TreeStyleTabService.readyToOpenChildTabNow(gBrowser.selectedTab);
             gBrowser.selectedBrowser.messageManager.sendAsyncMessage('MGest', 'down');
           }
         }
