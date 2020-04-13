@@ -89,7 +89,6 @@ UC.statusBar = {
     if (!this.enabled)
       bottomBox.collapsed = true;
     bottomBox.appendChild(win.statusbar.node);
-    CustomizableUI.registerToolbarNode(win.statusbar.node);
     win.statusbar.node.parentNode = bottomBox;
 
     let sspi = document.createProcessingInstruction(
