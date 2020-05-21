@@ -129,6 +129,27 @@ UC.privateTab = {
     let privateMask = document.getElementsByClassName('private-browsing-indicator')[0];
     privateMask.id = 'private-mask';
 
+    let btn2 = _uc.createElement(document, 'toolbarbutton', {
+      id: this.BTN2_ID,
+      label: 'New Private Tab',
+      tooltiptext: 'Open a new private tab (Ctrl+Alt+P)',
+      class: 'toolbarbutton-1 chromeclass-toolbar-additional',
+    });
+
+    btn2.addEventListener('click', function (e) {
+      if (e.button == 0) {
+        UC.privateTab.BrowserOpenTabPrivate(win);
+      } else if (e.button == 2) {
+        document.popupNode = document.getElementById(UC.privateTab.BTN_ID);
+        document.getElementById('toolbar-context-menu').openPopup(this, 'after_start', 14, -10, false, false);
+        document.getElementsByClassName('customize-context-removeFromToolbar')[0].disabled = false;
+        document.getElementsByClassName('customize-context-moveToPanel')[0].disabled = false;
+        e.preventDefault();
+      }
+    });
+
+    document.getElementById('tabs-newtab-button').insertAdjacentElement('afterend', btn2);
+
     gBrowser.tabContainer.addEventListener('TabSelect', this.onTabSelect);
 
     let listener = (e) => {
@@ -283,28 +304,6 @@ UC.privateTab = {
           oncommand: 'UC.privateTab.BrowserOpenTabPrivate(window)',
         });
 
-        let btn2 = _uc.createElement(doc, 'toolbarbutton', {
-          id: UC.privateTab.BTN2_ID,
-          label: 'New Private Tab',
-          tooltiptext: 'Open a new private tab (Ctrl+Alt+P)',
-          class: 'toolbarbutton-1 chromeclass-toolbar-additional',
-        });
-
-        btn2.addEventListener('click', function (e) {
-          if (e.button == 0) {
-            let win = e.view;
-            UC.privateTab.BrowserOpenTabPrivate(win);
-          } else if (e.button == 2) {
-            doc.popupNode = doc.getElementById(UC.privateTab.BTN_ID);
-            doc.getElementById('toolbar-context-menu').openPopup(this, 'after_start', 14, -10, false, false);
-            doc.getElementsByClassName('customize-context-removeFromToolbar')[0].disabled = false;
-            doc.getElementsByClassName('customize-context-moveToPanel')[0].disabled = false;
-            e.preventDefault();
-          }
-        });
-
-        doc.getElementById('tabs-newtab-button').insertAdjacentElement('afterend', btn2);
-
         return btn;
       }
     });
@@ -324,7 +323,7 @@ UC.privateTab = {
     this.TST_UUID = UUIDMap.get('treestyletab@piro.sakura.ne.jp', false);
 
     if (!this.config.neverClearData) {
-      let observe = (a, b) => {
+      let observe = () => {
         this.clearData();
         if (!this.config.restoreTabsOnRestart)
           this.closeTabs();
