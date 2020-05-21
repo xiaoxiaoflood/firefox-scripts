@@ -13,19 +13,25 @@ UC.masterPasswordPlus = {
       return;
 
     let document = win.document;
-    if (document.getElementsByTagName('keyset').length) {
-      let key = document.getElementById('mpPk');
-      if (key) {
-        this.atalho(key);
-      } else {
-        let k = _uc.createElement(document, 'key', {id: 'mpPk'});
-        this.atalho(k);
-        document.getElementsByTagName('keyset')[0].appendChild(k);
-      }
-    }
+
+    let keyset =  _uc.createElement(document, 'keyset', { id: 'masterPassword-keyset' });
+    let mainKeyset = document.getElementById('mainKeyset');
+    if (mainKeyset)
+      mainKeyset.insertAdjacentElement('afterend', keyset);
+    else
+      (document.body || document.documentElement).insertAdjacentElement('afterbegin', keyset);
+
+    let k = _uc.createElement(document, 'key', {
+      id: 'mpPk',
+      modifiers: 'accel alt shift',
+      key: 'W',
+      oncommand: 'UC.masterPasswordPlus.lockAll()',
+    });
+    keyset.appendChild(k);
+
     let ovl = _uc.createElement(document, 'div', {
       id: 'mpPlus',
-      style: 'position: fixed; display: none; width: 100%; height: 100%; top: 0; background-color: gray; z-index: 2; cursor: pointer;'
+      style: 'position: fixed; display: none; width: 100%; height: 100%; top: 0; background-color: gray; z-index: 2147483647; cursor: pointer;'
     });
     document.documentElement.appendChild(ovl);
 
@@ -40,9 +46,6 @@ UC.masterPasswordPlus = {
       setTimeout(() => {
         input.focus();
       });
-    });
-    win.addEventListener('activate', function () {
-      input.focus();
     });
 
     if (this.mp.hasPassword && this.locked) {
@@ -59,6 +62,7 @@ UC.masterPasswordPlus = {
         _uc.windows((doc, win) => {
           doc.getElementById('mpPinput').value = '';
           doc.getElementById('mpPlus').style.display = 'none';
+          [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
           win.titObs.disconnect();
           doc.title = win.titulo;
           win.removeEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
@@ -74,12 +78,6 @@ UC.masterPasswordPlus = {
                 e.key != 'Backspace' && e.key != 'Delete' && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Home' && e.key != 'End') || e.altKey || (e.ctrlKey && e.code != 'KeyA')) {
       e.preventDefault();
     }
-  },
-
-  atalho: function (el) {
-      el.setAttribute('oncommand', 'UC.masterPasswordPlus.lockAll();');
-      el.setAttribute('modifiers', 'accel alt shift');
-      el.setAttribute('key', 'W');
   },
 
   onTitleChanged: function (win) {
@@ -103,6 +101,7 @@ UC.masterPasswordPlus = {
     win.addEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
     let input = doc.getElementById('mpPinput');
     input.value = '';
+    [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = 'none');
     doc.getElementById('mpPlus').style.display = 'block';
     win.titulo = doc.title;
     doc.title = '🞻🞻🞻🞻🞻🞻';
@@ -129,12 +128,7 @@ UC.masterPasswordPlus = {
       if (mpPlus) {
         doc.getElementById('mpPlus').remove();
       }
-      let mpPk = doc.getElementById('mpPk');
-      if (mpPk) {
-        mpPk.setAttribute('modifiers', '');
-        mpPk.setAttribute('oncommand', '');
-        mpPk.setAttribute('key', '');
-      }
+      doc.getElementById('masterPassword-keyset').remove();
     }, false);
     delete UC.masterPasswordPlus;
   }
