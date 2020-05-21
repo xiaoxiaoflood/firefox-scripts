@@ -57,7 +57,7 @@
 </details>
 <details>
   <summary>PrivateTab</summary>
-  Fx 77 blocked the ability to open private tabs in non-private windows, previously possible with Private Tab addon. So I decided to wrote this script as a replacement. You can change some minor settings at the beginning of the code.
+  Fx 77 blocked the ability to open private tabs in non-private windows, previously possible with Private Tab addon. So I decided to write this script as a replacement. You can change some minor settings at the beginning of the code.
 
   [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/privateTab.uc.js).
 </details>
