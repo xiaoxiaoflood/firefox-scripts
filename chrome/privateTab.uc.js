@@ -106,10 +106,11 @@ UC.privateTab = {
     });
 
     openLink.addEventListener('command', (e) => {
-      win.openLinkIn(win.gContextMenu.linkURL, 'tab', {
+      let gContextMenu = win.gContextMenu;
+      win.openLinkIn(gContextMenu.linkURL, 'tab', gContextMenu._openLinkInParameters({
         userContextId: UC.privateTab.container.userContextId,
         triggeringPrincipal: document.nodePrincipal,
-      });
+      }});
     }, false);
 
     document.getElementById('contentAreaContextMenu').addEventListener('popupshowing', this.contentContext);
