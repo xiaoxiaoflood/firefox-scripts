@@ -66,6 +66,7 @@ UC.masterPasswordPlus = {
           win.titObs.disconnect();
           doc.title = win.titulo;
           win.removeEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
+          win.removeEventListener('activate', UC.masterPasswordPlus.setFocus);
           win.addEventListener('AppCommand', HandleAppCommandEvent, true);
         }, false);
         UC.masterPasswordPlus.locked = false;
@@ -78,6 +79,10 @@ UC.masterPasswordPlus = {
                 e.key != 'Backspace' && e.key != 'Delete' && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Home' && e.key != 'End') || e.altKey || (e.ctrlKey && e.code != 'KeyA')) {
       e.preventDefault();
     }
+  },
+
+  setFocus: function (e) {
+    e.target.document.getElementById('mpPinput').focus();
   },
 
   onTitleChanged: function (win) {
@@ -106,6 +111,7 @@ UC.masterPasswordPlus = {
     win.titulo = doc.title;
     doc.title = '🞻🞻🞻🞻🞻🞻';
     win.titObs = this.onTitleChanged(win);
+    win.addEventListener('activate', this.setFocus);
     win.removeEventListener('AppCommand', HandleAppCommandEvent, true);
     input.focus();
   },
