@@ -66,10 +66,9 @@ UC.privateTab = {
 
     let gBrowser = win.gBrowser;
     let MozElements = win.MozElements;
-    let MozXULElement = win.MozXULElement;
     let customElements = win.customElements;
 
-    let keyset =  _uc.createElement(document, 'keyset', { id: 'privateTab-keyset'});
+    let keyset =  _uc.createElement(document, 'keyset', { id: 'privateTab-keyset' });
     document.getElementById('mainKeyset').insertAdjacentElement('afterend', keyset);
 
     let toggleKey = _uc.createElement(document, 'key', {
@@ -110,7 +109,7 @@ UC.privateTab = {
       win.openLinkIn(gContextMenu.linkURL, 'tab', gContextMenu._openLinkInParameters({
         userContextId: UC.privateTab.container.userContextId,
         triggeringPrincipal: document.nodePrincipal,
-      }});
+      }));
     }, false);
 
     document.getElementById('contentAreaContextMenu').addEventListener('popupshowing', this.contentContext);
@@ -153,7 +152,7 @@ UC.privateTab = {
 
     gBrowser.tabContainer.addEventListener('TabSelect', this.onTabSelect);
 
-    let listener = (e) => {
+    gBrowser.privateListener = (e) => {
         let browser = e.target;
         let tab = gBrowser.getTabForBrowser(browser);
         if (!tab)
@@ -178,7 +177,7 @@ UC.privateTab = {
           browser.messageManager.loadFrameScript(this.frameScript, false);
     }
 
-    win.messageManager.addMessageListener('Browser:Init', listener);
+    win.messageManager.addMessageListener('Browser:Init', gBrowser.privateListener);
 
     if(this.observePrivateTabs)
       gBrowser.tabContainer.addEventListener('TabClose', this.onTabClose);
@@ -187,9 +186,9 @@ UC.privateTab = {
       return function (att) {
         if (att == 'usercontextid' && this.isToggling) {
           delete this.isToggling;
-          return MozXULElement.prototype.getAttribute.call(this, att) ? 0 : UC.privateTab.container.userContextId;
+          return UC.privateTab.orig_getAttribute.call(this, att) ? 0 : UC.privateTab.container.userContextId;
         } else {
-          return MozXULElement.prototype.getAttribute.call(this, att);
+          return UC.privateTab.orig_getAttribute.call(this, att);
         }
       };
     })();
@@ -268,26 +267,27 @@ UC.privateTab = {
       this.clearData();
     }
 
-    setTimeout(() => {
-      _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
-    }, 0);
+    this.setStyle();
+    _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
 
     let { gSeenWidgets } = Cu.import('resource:///modules/CustomizableUI.jsm');
     let firstRun = !gSeenWidgets.has(this.BTN_ID);
 
-    let listener = {
-      onWidgetAfterCreation: function (id) {
-        if (id == UC.privateTab.BTN_ID && firstRun) {
-          setTimeout(() => {
-            let newTabPlacement = CustomizableUI.getPlacementOfWidget('new-tab-button')?.position;
-            if (newTabPlacement && Services.wm.getMostRecentBrowserWindow().gBrowser.tabContainer.hasAttribute('hasadjacentnewtabbutton'))
-              CustomizableUI.addWidgetToArea(UC.privateTab.BTN_ID, CustomizableUI.AREA_TABSTRIP, newTabPlacement + 1);
-          }, 0);
-          CustomizableUI.removeListener(this);
+    if (firstRun) {
+      let listener = {
+        onWidgetAfterCreation: function (id) {
+          if (id == UC.privateTab.BTN_ID) {
+            setTimeout(() => {
+              let newTabPlacement = CustomizableUI.getPlacementOfWidget('new-tab-button')?.position;
+              if (newTabPlacement && Services.wm.getMostRecentBrowserWindow().gBrowser.tabContainer.hasAttribute('hasadjacentnewtabbutton'))
+                CustomizableUI.addWidgetToArea(UC.privateTab.BTN_ID, CustomizableUI.AREA_TABSTRIP, newTabPlacement + 1);
+            }, 0);
+            CustomizableUI.removeListener(this);
+          }
         }
       }
+      CustomizableUI.addListener(listener);
     }
-    CustomizableUI.addListener(listener);
 
     CustomizableUI.createWidget({
       id: UC.privateTab.BTN_ID,
@@ -321,7 +321,21 @@ UC.privateTab = {
                                                        '$1$2$1userContextId,\n'));
 
     let { UUIDMap } = Cu.import('resource://gre/modules/Extension.jsm');
-    this.TST_UUID = UUIDMap.get('treestyletab@piro.sakura.ne.jp', false);
+    let TST_ID = 'treestyletab@piro.sakura.ne.jp';
+    this.TST_UUID = UUIDMap.get(TST_ID, false);//null se nao tiver
+
+    if (this.TST_UUID)
+      this.setTstStyle(this.TST_UUID);
+    AddonManager.addAddonListener({
+      onInstalled: addon => {
+        if (addon.id == TST_ID)
+          this.setTstStyle(UUIDMap.get(TST_ID, false));
+      },
+      onUninstalled: addon => {
+        if (addon.id == TST_ID)
+          _uc.sss.unregisterSheet(this.TST_STYLE.url, this.TST_STYLE.type);
+      }
+    });
 
     if (!this.config.neverClearData) {
       let observe = () => {
@@ -349,7 +363,6 @@ UC.privateTab = {
     tab.isToggling = true;
     let shouldSelect = tab == win.gBrowser.selectedTab;
     let newTab = gBrowser.duplicateTab(tab);
-    gBrowser.moveTabTo(newTab, tab._tPos);
     if (shouldSelect) {
       let gURLBar = win.gURLBar;
       let focusUrlbar = gURLBar.focused;
@@ -441,8 +454,8 @@ UC.privateTab = {
   BTN_ID: 'privateTab-button',
   BTN2_ID: 'newPrivateTab-button',
 
-  get STYLE() {
-    return this.STYLE = {
+  setStyle: function () {
+    this.STYLE = {
       url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
         @-moz-document url('${_uc.BROWSERCHROME}') {
           #private-mask[enabled="true"] {
@@ -452,7 +465,6 @@ UC.privateTab = {
           .privatetab-icon {
             list-style-image: url(chrome://browser/skin/privatebrowsing/favicon.svg) !important;
           }
-        }
 
           #${UC.privateTab.BTN_ID}, #${UC.privateTab.BTN2_ID} {
             list-style-image: url(chrome://browser/skin/privateBrowsing.svg);
@@ -474,20 +486,29 @@ UC.privateTab = {
           .tabbrowser-tab[usercontextid="${UC.privateTab.container.userContextId}"][pinned] .tab-throbber {
             border-bottom: 1px dashed -moz-nativehyperlinktext !important;
           }
-${UC.privateTab.TST_UUID ? `
-          @-moz-document  url-prefix(moz-extension://${UC.privateTab.TST_UUID}/sidebar/sidebar.html) {
-            .tab.contextual-identity-firefox-container-${UC.privateTab.container.userContextId} .label-content {
-              text-decoration: underline !important;
-              text-decoration-color: -moz-nativehyperlinktext !important;
-              text-decoration-style: dashed !important;
-            }
-            .tab.contextual-identity-firefox-container-${UC.privateTab.container.userContextId} tab-favicon {
-              border-bottom: 1px dashed -moz-nativehyperlinktext !important;
-            }
-          }
-` : ''}`)),
+        }
+      `)),
       type: _uc.sss.USER_SHEET
     }
+  },
+
+  setTstStyle: function (uuid) {
+    this.TST_STYLE = {
+      url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
+        @-moz-document  url-prefix(moz-extension://${uuid}/sidebar/sidebar.html) {
+          .tab.contextual-identity-firefox-container-${UC.privateTab.container.userContextId} .label-content {
+            text-decoration: underline !important;
+            text-decoration-color: -moz-nativehyperlinktext !important;
+            text-decoration-style: dashed !important;
+          }
+          .tab.contextual-identity-firefox-container-${UC.privateTab.container.userContextId} tab-favicon {
+            border-bottom: 1px dashed -moz-nativehyperlinktext !important;
+          }
+        }
+      `)),
+      type: _uc.sss.USER_SHEET
+    };
+    _uc.sss.loadAndRegisterSheet(this.TST_STYLE.url, this.TST_STYLE.type);
   },
 
   destroy: function () {
@@ -499,6 +520,8 @@ ${UC.privateTab.TST_UUID ? `
     this.openTabs.forEach(tab => tab.ownerGlobal.gBrowser.removeTab(tab));
 
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
+    if (this.TST_STYLE)
+      _uc.sss.unregisterSheet(this.TST_STYLE.url, this.TST_STYLE.type);
 
     _uc.windows((doc, win) => {
       let gBrowser = win.gBrowser;
@@ -513,6 +536,7 @@ ${UC.privateTab.TST_UUID ? `
       doc.getElementById('placesContext').removeEventListener('popupshowing', this.placesContext);
       gBrowser.tabContainer.removeEventListener('TabSelect', this.onTabSelect);
       gBrowser.tabContainer.removeEventListener('TabClose', this.onTabClose);
+      win.messageManager.removeMessageListener('Browser:Init', gBrowser.privateListener);
       doc.getElementById('contentAreaContextMenu').removeEventListener('popupshowing', this.contentContext);
       doc.getElementById('tabContextMenu').removeEventListener('popupshowing', this.tabContext);
       win.MozElements.MozTab.prototype.getAttribute = this.orig_getAttribute;
