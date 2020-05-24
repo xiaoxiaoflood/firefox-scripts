@@ -56,6 +56,19 @@
   ![](https://i.imgur.com/KOkEJq5.png)
 </details>
 <details>
+  <summary>multifoxContainer</summary>
+  When Firefox introduced containers, I created this script to get some features that I missed from Multifox, the legacy addon that implemented "containers" years before Firefox having this feature by default.
+  Since then, Firefox has added some things this script had, so I removed them. But I still use it for two things:
+  
+  - New tabs (Ctrl+T or New Tab button) inherits the container of current tab (except for Private Tabs).
+  
+  - The label in urlbar serves as menubutton to reopen current tab in other container. With left click, current tab is replaced. With middleclick, a new tab is opened without closing the other one.
+  
+  ![](https://i.imgur.com/BE7oPcu.png)
+
+  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/multifoxContainer.uc.js).
+</details>
+<details>
   <summary>PrivateTab</summary>
   Fx 77 blocked the ability to open private tabs in non-private windows, previously possible with Private Tab addon. So I decided to write this script as a replacement. You can change some minor settings at the beginning of the code.
 
