@@ -96,19 +96,19 @@
 
     launchEditor: function (script) {
       let editor = xPref.get('view_source.editor.path');
-      if (editor) {
+      if (!editor) {
+        editor = prompt('Editor not defined. Paste the full path of your text editor', 'C:\\WINDOWS\\system32\\notepad.exe');
+        if (editor)
+          xPref.set('view_source.editor.path', editor);
+      }
+      try {
         let appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
         appfile.initWithPath(editor);
         let process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
         process.init(appfile);
         process.run(false, [script.file.path], 1, {});
-      } else {
-        const {ScratchpadManager} = ChromeUtils.import('resource://devtools/client/scratchpad/scratchpad-manager.jsm');
-        ScratchpadManager.openScratchpad({
-          'filename': script.file.path,
-          'text': _uc.readFile(script.file),
-          'saved': true,
-        });
+      } catch {
+        alert('Can\'t open the editor. Go to about:config and set editor\'s path in view_source.editor.path.');
       }
     },
 
