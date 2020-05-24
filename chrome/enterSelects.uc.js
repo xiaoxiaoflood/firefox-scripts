@@ -38,7 +38,7 @@ UC.enterSelects = {
   },
 
   exec: function (win) {
-    gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+    win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
   },
 
   controller: ChromeUtils.import('resource:///modules/UrlbarController.jsm').UrlbarController.prototype,
@@ -67,8 +67,8 @@ UC.enterSelects = {
 
     return true;
   },
-  keyD: (e) => {
-    let gURLBar = this.gURLBar;
+  keyD: function (e) {
+    let gURLBar = e.view.gURLBar;
     if (e.keyCode == e.DOM_VK_TAB) {
       let url = gURLBar.view._queryContext.results[1].payload.url;
       if (gURLBar.view.selectedRowIndex == 1 &&
