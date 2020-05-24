@@ -7,18 +7,29 @@
 // @onlyonce
 // ==/UserScript==
 
-// original: https://addons.mozilla.org/firefox/addon/enter-selects/
+// inspired by: https://addons.mozilla.org/firefox/addon/enter-selects/
+
+/* 
+  ███ Note ███
+  Firefox usually presents search suggestions first, so this script tries to set
+  browser.urlbar.matchBuckets = general:1
+  if you haven't defined this pref with other value. This is to force the first suggestion
+  to be from history/bookmark and not search suggestion.
+  You can increase the number of history/bookmarks suggestions before search ones by increasing
+  the number (like "general:5") or, as I do, you can disable search suggestions entirely with
+  browser.search.suggest.enabled = false
+*/
 
 UC.enterSelects = {
   init: function () {
     this.orig_receiveResults = this.controller.receiveResults;
     this.controller.receiveResults = (function () {
-      return function () {
+      return function (queryContext) {
         let gURLBar = this.browserWindow.gURLBar;
-        if (UC.enterSelects.shouldSelect(gURLBar, arguments[0]))
+        if (UC.enterSelects.shouldSelect(gURLBar, queryContext))
           gURLBar.view._selectElement(gURLBar.view._rows.children[1], { updateInput: false });
 
-        return UC.enterSelects.orig_receiveResults.apply(this, arguments);
+        return UC.enterSelects.orig_receiveResults.call(this, queryContext);
       };
     })();
 
