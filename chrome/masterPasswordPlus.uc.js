@@ -67,7 +67,7 @@ UC.masterPasswordPlus = {
           doc.title = win.titulo;
           win.removeEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
           win.removeEventListener('activate', UC.masterPasswordPlus.setFocus);
-          win.addEventListener('AppCommand', HandleAppCommandEvent, true);
+          win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
         }, false);
         UC.masterPasswordPlus.locked = false;
       } else {
@@ -112,7 +112,7 @@ UC.masterPasswordPlus = {
     doc.title = '🞻🞻🞻🞻🞻🞻';
     win.titObs = this.onTitleChanged(win);
     win.addEventListener('activate', this.setFocus);
-    win.removeEventListener('AppCommand', HandleAppCommandEvent, true);
+    win.removeEventListener('AppCommand', win.HandleAppCommandEvent, true);
     input.focus();
   },
 
