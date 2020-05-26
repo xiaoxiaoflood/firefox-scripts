@@ -4,7 +4,7 @@
 
 ## Instructions
 
-1. Save [config.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/installation-folder/config.js) to Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox**), next to **firefox.exe**.
+1. Save [config.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/installation-folder/config.js) to Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox**), next to **firefox.exe**.
 
 2. Save [config-prefs.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/installation-folder/config-prefs.js) into **\defaults\pref** inside Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox\defaults\pref**), next to **channel-prefs.js**.
 
@@ -22,7 +22,7 @@
 
 5. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of some of them.
 
-6. If you want a button to manage your userChromeJS scripts, save [rebuild_userChrome.uc.js](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
+6. If you want a button to manage your userChromeJS scripts, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
 7. Restart Firefox.
 
@@ -37,7 +37,7 @@
   
   I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust the value as you wish).
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/enterSelects.uc.js). 
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/enterSelects.uc.js). 
 </details>
 <details>
   <summary>Extension Options Menu</summary>
@@ -47,7 +47,7 @@
   
   ![](https://i.imgur.com/FWs3pYl.png)
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/blob/master/chrome/extensionOptionsMenu.uc.js).
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/extensionOptionsMenu.uc.js).
 </details>
 <details>
   <summary>Master Password+</summary>
@@ -55,7 +55,7 @@
   
   You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a master password</i>.
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/masterPasswordPlus.uc.js).  
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/masterPasswordPlus.uc.js).  
 
   Locked:
   ![](https://i.imgur.com/cE3sUGT.png)
@@ -74,13 +74,20 @@
   
   ![](https://i.imgur.com/BE7oPcu.png)
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/multifoxContainer.uc.js).
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/multifoxContainer.uc.js).
+</details>
+<details>
+  <summary>Open in Unloaded Tab</summary>
+  Creates an item in contextmenu to open links/bookmarks/history in unloaded tabs, i.e., the tab is created, but it will only load when selected. Just like unloaded tabs when you restore previous session.
+ So you can, for example, open multiple related YouTube videos and load them one by one. Or open an entire bookmark folder in tabs without freezing the browser, since tab content will load on demand.
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/openInUnloadedTab.uc.js).
 </details>
 <details>
   <summary>PrivateTab</summary>
   Fx 77 blocked the ability to open private tabs in non-private windows, previously possible with Private Tab addon. So I decided to write this script as a replacement. You can change some minor settings at the beginning of the code.
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/privateTab.uc.js).
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/privateTab.uc.js).
 </details>
 <details>
   <summary>Status Bar</summary>
@@ -104,17 +111,17 @@
   
   ![](https://i.imgur.com/m0EonHK.png)
 
-  [Download link](https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/chrome/styloaix.uc.js).
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/styloaix.uc.js).
 </details>
 
 Bonus: I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save [these files](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/passwordmgr), so that you can access the old password manager using chrome://userchromejs/content/passwordmgr/passwordManager.xhtml (bookmark this URL).
 
 ## Screenshots
 
-<img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/folder.png">
+<img src="https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/folder.png">
 
 ###### userChromeJS Manager (the blue ones are restartless)
-<img src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/rebuild_userChrome.png" height="600">
+<img src="https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/rebuild_userChrome.png" height="600">
 
 ###### Status Bar, Extension Options Menu, MinMaxClose Button, newDownloadPlus.uc.js and legacy extensions:
-<img  src="https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/screenshots/window.png">
+<img  src="https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/window.png">
