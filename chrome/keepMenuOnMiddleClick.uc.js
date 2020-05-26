@@ -7,34 +7,31 @@
 // @onlyonce
 // ==/UserScript==
 
-(function () {
+UC.KeepMenuOnMiddleClick = {
+  exec: (win) => win.eval('checkForMiddleClick = ' +
+                           checkForMiddleClick.toString().replace('closeMenus(event.target);', '')),
 
-  UC.KeepMenuOnMiddleClick = {
-    exec: function (win) {
-      win.eval('checkForMiddleClick = ' +
-               checkForMiddleClick.toString().
-                 replace('closeMenus(event.target);',
-                         ''));
-    },
+  init: function () {
+    if (this.prefHadUserValue = Services.prefs.prefHasUserValue(this.PREF))
+      this.prefUserValue = xPref.get(this.PREF);
+    xPref.set(this.PREF, false);
+  },
 
-    orig: checkForMiddleClick.toString(),
+  PREF: 'browser.bookmarks.openInTabClosesMenu',
+  orig: checkForMiddleClick.toString(),
 
-    init: function () {
-      xPref.set('browser.bookmarks.openInTabClosesMenu', false);
-    },
+  destroy: function () {
+    if (this.prefHadUserValue)
+      xPref.set(this.PREF, this.prefUserValue);
+    else
+      xPref.clear(this.PREF);
 
-    destroy: function () {
-      xPref.clear('browser.bookmarks.openInTabClosesMenu');
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-        var win = enumerator.getNext();
-        win.eval('checkForMiddleClick = ' +
-                 UC.KeepMenuOnMiddleClick.orig);
-      }
-      delete UC.KeepMenuOnMiddleClick;
-    }
+    _uc.windows((doc, win) => {
+      win.eval('checkForMiddleClick = ' + UC.KeepMenuOnMiddleClick.orig);
+    }, true);
+
+    delete UC.KeepMenuOnMiddleClick;
   }
+}
 
-  UC.KeepMenuOnMiddleClick.init();
-
-})()
+UC.KeepMenuOnMiddleClick.init();

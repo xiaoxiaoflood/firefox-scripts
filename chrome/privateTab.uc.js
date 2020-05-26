@@ -25,27 +25,27 @@ UC.privateTab = {
     if (win.PrivateBrowsingUtils.isWindowPrivate(win))
       return;
 
-    let document = win.document;
+    let {document} = win;
 
     let openAll = document.getElementById('placesContext_openContainer:tabs');
     let openAllPrivate = _uc.createElement(document, 'menuitem', {
       id: 'openAllPrivate',
-      label: 'Open All in Private Tab',
+      label: 'Open All in Private Tabs',
       accesskey: 'v',
       class: 'menuitem-iconic privatetab-icon',
-      oncommand: 'event.userContextId = ' + UC.privateTab.container.userContextId + ';' + openAll.getAttribute('oncommand'),
-      onclick: 'event.userContextId = ' + UC.privateTab.container.userContextId + ';' + openAll.getAttribute('onclick'),
+      oncommand: 'event.userContextId = ' + UC.privateTab.container.userContextId + '; ' + openAll.getAttribute('oncommand'),
+      onclick: 'event.userContextId = ' + UC.privateTab.container.userContextId + '; ' + openAll.getAttribute('onclick'),
     });
     openAll.insertAdjacentElement('afterend', openAllPrivate);
 
     let openAllLinks = document.getElementById('placesContext_openLinks:tabs');
     let openAllLinksPrivate = _uc.createElement(document, 'menuitem', {
       id: 'openAllLinksPrivate',
-      label: 'Open All in Private Tab',
+      label: 'Open All in Private Tabs',
       accesskey: 'v',
       class: 'menuitem-iconic privatetab-icon',
-      oncommand: 'event.userContextId = ' + UC.privateTab.container.userContextId + ';' + openAllLinks.getAttribute('oncommand'),
-      onclick: 'event.userContextId = ' + UC.privateTab.container.userContextId + ';' + openAllLinks.getAttribute('onclick'),
+      oncommand: 'event.userContextId = ' + UC.privateTab.container.userContextId + '; ' + openAllLinks.getAttribute('oncommand'),
+      onclick: 'event.userContextId = ' + UC.privateTab.container.userContextId + '; ' + openAllLinks.getAttribute('onclick'),
     });
     openAllLinks.insertAdjacentElement('afterend', openAllLinksPrivate);
 
@@ -55,7 +55,7 @@ UC.privateTab = {
       label: 'Open in a New Private Tab',
       accesskey: 'v',
       class: 'menuitem-iconic privatetab-icon',
-      oncommand: 'let view = event.target.parentElement._view;PlacesUIUtils._openNodeIn(view.selectedNode, "tab", view.ownerWindow, false, ' + UC.privateTab.container.userContextId + ')',
+      oncommand: 'let view = event.target.parentElement._view; PlacesUIUtils._openNodeIn(view.selectedNode, "tab", view.ownerWindow, false, ' + UC.privateTab.container.userContextId + ')',
     });
     openTab.insertAdjacentElement('afterend', openPrivate);
 
@@ -64,9 +64,7 @@ UC.privateTab = {
     if (win.location.href != _uc.BROWSERCHROME)
       return;
 
-    let gBrowser = win.gBrowser;
-    let MozElements = win.MozElements;
-    let customElements = win.customElements;
+    let {customElements, gBrowser, MozElements} = win;
 
     let keyset =  _uc.createElement(document, 'keyset', { id: 'privateTab-keyset' });
     document.getElementById('mainKeyset').insertAdjacentElement('afterend', keyset);
@@ -105,7 +103,7 @@ UC.privateTab = {
     });
 
     openLink.addEventListener('command', (e) => {
-      let gContextMenu = win.gContextMenu;
+      let {gContextMenu} = win;
       win.openLinkIn(gContextMenu.linkURL, 'tab', gContextMenu._openLinkInParameters({
         userContextId: UC.privateTab.container.userContextId,
         triggeringPrincipal: document.nodePrincipal,
@@ -291,8 +289,6 @@ UC.privateTab = {
 
     CustomizableUI.createWidget({
       id: UC.privateTab.BTN_ID,
-      label: 'New Private Tab',
-      tooltiptext: 'Open a new private tab (Ctrl+Alt+P)',
       type: 'custom',
       defaultArea: CustomizableUI.AREA_NAVBAR,
       showInPrivateBrowsing: false,
@@ -359,7 +355,7 @@ UC.privateTab = {
   },
 
   togglePrivate: function (win, tab = win.gBrowser.selectedTab) {
-    let gBrowser = win.gBrowser;
+    let {gBrowser} = win;
     tab.isToggling = true;
     let shouldSelect = tab == win.gBrowser.selectedTab;
     let newTab = gBrowser.duplicateTab(tab);
@@ -374,7 +370,7 @@ UC.privateTab = {
   },
 
   toggleMask: function (win) {
-    let gBrowser = win.gBrowser;
+    let {gBrowser} = win;
     let privateMask = win.document.getElementById('private-mask');
     if (gBrowser.selectedTab.isToggling)
       privateMask.setAttribute('enabled', gBrowser.selectedTab.userContextId == this.container.userContextId ? 'false' : 'true');
@@ -394,7 +390,6 @@ UC.privateTab = {
 
   contentContext: function (e) {
     let win = e.view;
-    let doc = win.document;
     let gContextMenu = win.gContextMenu;
     let tab = win.gBrowser.getTabForBrowser(gContextMenu.browser);
     gContextMenu.showItem('openLinkInPrivateTab', gContextMenu.onSaveableLink || gContextMenu.onPlainTextLink);
@@ -410,7 +405,7 @@ UC.privateTab = {
 
   placesContext: function (e) {
     let win = e.view;
-    let document = win.document;
+    let {document} = win;
     document.getElementById('openPrivate').disabled = document.getElementById('placesContext_open:newtab').disabled;
     document.getElementById('openPrivate').hidden = document.getElementById('placesContext_open:newtab').hidden;
     document.getElementById('openAllPrivate').disabled = document.getElementById('placesContext_openContainer:tabs').disabled;
@@ -421,7 +416,7 @@ UC.privateTab = {
 
   onTabSelect: function (e) {
     let tab = e.target;
-    let win = e.target.ownerGlobal;
+    let win = tab.ownerGlobal;
     let prevTab = e.detail.previousTab;
     if (tab.userContextId != prevTab.userContextId)
       UC.privateTab.toggleMask(win);
@@ -524,16 +519,20 @@ UC.privateTab = {
       _uc.sss.unregisterSheet(this.TST_STYLE.url, this.TST_STYLE.type);
 
     _uc.windows((doc, win) => {
-      let gBrowser = win.gBrowser;
+      if (!doc.getElementById('openAllPrivate'))
+        return;
       doc.getElementById('openAllPrivate').remove();
       doc.getElementById('openAllLinksPrivate').remove();
       doc.getElementById('openPrivate').remove();
+      doc.getElementById('placesContext').removeEventListener('popupshowing', this.placesContext);
+      let {gBrowser} = win;
+      if (!gBrowser)
+        return;
       doc.getElementById('privateTab-keyset').remove();
       doc.getElementById('menu_newPrivateTab').remove();
       doc.getElementById('openLinkInPrivateTab').remove();
       doc.getElementById('toggleTabPrivateState').remove();
       doc.getElementById(this.BTN2_ID).remove();
-      doc.getElementById('placesContext').removeEventListener('popupshowing', this.placesContext);
       gBrowser.tabContainer.removeEventListener('TabSelect', this.onTabSelect);
       gBrowser.tabContainer.removeEventListener('TabClose', this.onTabClose);
       win.messageManager.removeMessageListener('Browser:Init', gBrowser.privateListener);
@@ -549,7 +548,7 @@ UC.privateTab = {
       gBrowser.tabContainer.removeAttribute('hasadjacentnewprivatetabbutton');
       doc.getElementById('private-mask').removeAttribute('enabled');
       doc.getElementById('private-mask').removeAttribute('id');
-    }, true);
+    }, false);
 
     CustomizableUI.destroyWidget(this.BTN_ID);
 
