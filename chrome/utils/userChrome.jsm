@@ -126,10 +126,21 @@ let _uc = {
       let win = windows.getNext();
       if (!win._uc)
         continue;
-      let doc = win.document;
-      let loc = win.location;
-      if (fun(doc, win, loc))
-        break;
+      if (!onlyBrowsers) {
+        let frames = win.docShell.getAllDocShellsInSubtree(Ci.nsIDocShellTreeItem.typeAll, Ci.nsIDocShell.ENUMERATE_FORWARDS);
+        let res = frames.some(frame => {
+          let fWin = frame.domWindow;
+          let {document, location} = fWin;
+          if (fun(document, fWin, location))
+            return true;
+        });
+        if (res)
+          break;
+      } else {
+        let {document, location} = win;
+        if (fun(document, win, location))
+          break;
+      }
     }
   },
 
@@ -174,7 +185,7 @@ UserChrome_js.prototype = {
     let document = aEvent.originalTarget;
     let window = document.defaultView;
     let location = window.location;
-    if (/^(chrome:(?!\/\/(global\/content\/commonDialog|browser\/content\/webext-panels)\.xhtml)|about:(?!blank))/i.test(location.href)) {
+    if (/^(chrome:(?!\/\/(global\/content\/commonDialog|browser\/content\/webext-panels)\.x?html)|about:(?!blank))/i.test(location.href)) {
       window.UC = UC;
       window._uc = _uc;
       window.xPref = xPref;
