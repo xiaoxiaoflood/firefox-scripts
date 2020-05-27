@@ -60,6 +60,8 @@ UC.masterPasswordPlus = {
     if (e.key == 'Enter') {
       if (UC.masterPasswordPlus.mp.checkPassword(input.value)) {
         _uc.windows((doc, win) => {
+          if (!'UC' in win || !win.isChromeWindow || win != win.top)
+            return;
           doc.getElementById('mpPinput').value = '';
           doc.getElementById('mpPlus').style.display = 'none';
           [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
@@ -122,14 +124,17 @@ UC.masterPasswordPlus = {
 
     this.locked = true;
     _uc.windows((doc, win) => {
-      this.lock(doc, win);
+      if ('UC' in win && win.isChromeWindow && win == win.top)
+        this.lock(doc, win);
     }, false);
   },
 
   locked: true,
   
   destroy: function () {
-    _uc.windows((doc) => {
+    _uc.windows((doc, win) => {
+      if (!'UC' in win || !win.isChromeWindow || win != win.top)
+        return;
       let mpPlus = doc.getElementById('mpPlus');
       if (mpPlus) {
         doc.getElementById('mpPlus').remove();
