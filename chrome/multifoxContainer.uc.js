@@ -11,7 +11,6 @@ UC.multifoxContainer = {
   exec: function (win) {
     let document = win.document;
     let gBrowser = win.gBrowser;
-    let MozElements = win.MozElements;
 
     let mfcm = _uc.createElement(document, 'menupopup', {
       id: 'mf-contextmenu',
@@ -21,10 +20,19 @@ UC.multifoxContainer = {
     document.getElementById('mainPopupSet').appendChild(mfcm);
     document.getElementById('userContext-icons').setAttribute('popup', 'mf-contextmenu');
 
-    let BrowserOpenTab = win.BrowserOpenTab;
-    win.eval('BrowserOpenTab = ' +
-              BrowserOpenTab.toString().replace('relatedToCurrent,',
-                                                'relatedToCurrent, userContextId: gBrowser.selectedTab.userContextId == UC.privateTab?.container.userContextId ? 0 : gBrowser.selectedTab.userContextId,'));
+    gBrowser.orig_addTab = gBrowser.addTab;
+    gBrowser.addTab = (function () {
+      return function (aURI, options) {
+        if ('toUserContextId' in this) {
+          options.userContextId = this.toUserContextId;
+          delete this.toUserContextId;
+        } else if (!options.relatedToCurrent && !options.userContextId && this.selectedTab.userContextId != UC.privateTab?.container.userContextId) {
+          options.userContextId = this.selectedTab.userContextId;
+        }
+
+        return gBrowser.orig_addTab.call(this, aURI, options);
+      };
+    })();
 
     let orig_updateUserContextUIIndicator = win.updateUserContextUIIndicator;
     win.updateUserContextUIIndicator = (function () {
@@ -44,18 +52,6 @@ UC.multifoxContainer = {
 
     if (document.readyState == 'complete')
       win.updateUserContextUIIndicator();
-
-    MozElements.MozTab.prototype.getAttribute = (function () {
-      return function (att) {
-        if (att == 'usercontextid' && 'toUserContextId' in this) {
-          let id = this.toUserContextId;
-          delete this.toUserContextId;
-          return id;
-        } else {
-          return UC.multifoxContainer.orig_getAttribute.call(this, att);
-        }
-      };
-    })();
   },
 
   showPopup: function (win) {
@@ -105,8 +101,8 @@ UC.multifoxContainer = {
 
   openContainer: function (win, btn, id) {
     let gBrowser = win.gBrowser;
+    gBrowser.toUserContextId = id;
     let tab = gBrowser.selectedTab;
-    tab.toUserContextId = id;
     gBrowser.selectedTab = gBrowser.duplicateTab(tab);
     if (btn == 0)
       gBrowser.removeTab(tab);
@@ -116,8 +112,6 @@ UC.multifoxContainer = {
     this.setStyle();
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
   },
-
-  orig_getAttribute: MozElements.MozTab.prototype.getAttribute,
 
   setStyle: function () {
     this.STYLE = {
@@ -137,13 +131,12 @@ UC.multifoxContainer = {
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
 
     _uc.windows((doc, win) => {
+      let gBrowser = win.gBrowser;
       doc.getElementById('mf-contextmenu').remove();
-      win.eval('BrowserOpenTab = ' +
-                win.BrowserOpenTab.toString().replace('relatedToCurrent, userContextId: gBrowser.selectedTab.userContextId == UC.privateTab?.container.userContextId ? 0 : gBrowser.selectedTab.userContextId,',
-                                                  'relatedToCurrent,'));
+      gBrowser.addTab = gBrowser.orig_addTab;
+      delete gBrowser.orig_addTab;
       win.updateUserContextUIIndicator = win.updateUserContextUIIndicator.orig;
       win.updateUserContextUIIndicator();
-      win.MozElements.MozTab.prototype.getAttribute = this.orig_getAttribute;
     });
     delete UC.multifoxContainer;
   }
