@@ -9,18 +9,39 @@
 
 UC.statusBar = {
   PREF_ENABLED: 'userChromeJS.statusbar.enabled',
+  PREF_STATUSTEXT: 'userChromeJS.statusbar.appendStatusText',
 
   get enabled() {
     return xPref.get(this.PREF_ENABLED);
   },
 
+  get textInBar() {
+    return this.enabled && xPref.get(this.PREF_STATUSTEXT);
+  },
+
   init: function () {
     xPref.set(this.PREF_ENABLED, true, true);
-    this.prefListener = xPref.addListener(this.PREF_ENABLED, (isEnabled) => {
+    xPref.set(this.PREF_STATUSTEXT, true, true);
+    this.enabledListener = xPref.addListener(this.PREF_ENABLED, (isEnabled) => {
       CustomizableUI.getWidget('status-dummybar').instances.forEach(dummyBar => {
         dummyBar.node.setAttribute('collapsed', !isEnabled);
       });
     });
+    this.textListener = xPref.addListener(this.PREF_STATUSTEXT, (isEnabled) => {
+      if (!UC.statusBar.enabled)
+        return;
+
+      _uc.windows((doc, win) => {
+        let StatusPanel = win.StatusPanel;
+        if (isEnabled)
+          win.statusbar.textNode.appendChild(StatusPanel._labelElement);
+        else
+          StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
+      });
+    });
+
+    this.setStyle();
+    _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
 
     CustomizableUI.registerArea('status-bar', {legacy: true});
   },
@@ -29,7 +50,6 @@ UC.statusBar = {
     let document = win.document;
     let StatusPanel = win.StatusPanel;
 
-    // para ter a toolbar acessível via menu de contexto, é preciso que ela seja filha da gNavToolbox. Como a gNavToolbox fica no topo e o status lá embaixo, será criada uma barra "dummy", cuja ação referenciará a verdadeira statusbar.
     let dummystatusbar = _uc.createElement(document, 'toolbar', {
       id: 'status-dummybar',
       toolbarname: 'Status Bar',
@@ -50,7 +70,8 @@ UC.statusBar = {
           } else {
             xPref.set(UC.statusBar.PREF_ENABLED, true);
             win.statusbar.node.setAttribute('collapsed', false);
-            win.statusbar.textNode.appendChild(StatusPanel._labelElement);
+            if (UC.statusBar.textInBar)
+              win.statusbar.textNode.appendChild(StatusPanel._labelElement);
             win.statusbar.node.parentNode.collapsed = false;
           }
         }
@@ -72,17 +93,15 @@ UC.statusBar = {
       flex: '1',
       width: '100'
     });
-    if (this.enabled)
+    if (this.textInBar)
       win.statusbar.textNode.appendChild(StatusPanel._labelElement);
     win.statusbar.node.appendChild(win.statusbar.textNode);
 
-    // precisa do container pra poder colocar itens à esquerda do resizer com efeito imediato. Sem ele, só corrige a ordem depois de reiniciar o Fx.
     let resizerContainer = _uc.createElement(document, 'toolbaritem', {id: 'resizer-container'});
     let resizer = _uc.createElement(document, 'resizer');
     resizerContainer.appendChild(resizer);
     win.statusbar.node.appendChild(resizerContainer);
 
-    // a label que contém o status na verdade não apaga o texto quando não há status, apenas esconde o elemento container. Com a statusbar, a label estará sempre visível, então precisa apagar o texto quando não houver status.
     win.eval('Object.defineProperty(StatusPanel, "_label", {' + Object.getOwnPropertyDescriptor(StatusPanel, '_label').set.toString().replace(/^set _label/, 'set').replace(/((\s+)this\.panel\.setAttribute\("inactive", "true"\);)/, '$2this._labelElement.value = val;$1') + ', enumerable: true, configurable: true});');
 
     let bottomBox = document.getElementById('browser-bottombox');
@@ -90,52 +109,50 @@ UC.statusBar = {
       bottomBox.collapsed = true;
     bottomBox.appendChild(win.statusbar.node);
     win.statusbar.node.parentNode = bottomBox;
-
-    let sspi = document.createProcessingInstruction(
-      'xml-stylesheet',
-      'type="text/css" href="data:text/css,' + encodeURIComponent(this.style) + '"'
-    );
-    document.insertBefore(sspi, document.documentElement);
-    this.styles.push(sspi);
   },
 
   orig: Object.getOwnPropertyDescriptor(StatusPanel, '_label').set.toString(),
 
-  style: `
-    @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
-    #status-bar {
-      color: initial; /* sem isso, ícones padrões ficam transparentes */
-      background-color: var(--toolbar-non-lwt-bgcolor);
+  setStyle: function () {
+    this.STYLE = {
+      url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
+        @-moz-document url('${_uc.BROWSERCHROME}') {
+          #status-bar {
+            color: initial !important;
+            background-color: var(--toolbar-non-lwt-bgcolor) !important;
+          }
+          #status-text > #statuspanel-label {
+            border-top: 0 !important;
+            background-color: unset !important;
+            color: #444 !important;
+          }
+          #browser-bottombox:not([collapsed]) {
+            border-top: 1px solid var(--chrome-content-separator-color) !important;
+          }
+          #wrapper-status-text label::after {
+            content: "Status text" !important;
+            color: red !important;
+            border: 1px #aaa solid !important;
+            border-radius: 3px !important;
+            font-weight: bold !important;
+          }
+          #status-bar > #status-text {
+            display: flex !important;
+            justify-content: center !important;
+            align-content: center !important;
+            flex-direction: column !important;
+          }
+        }
+      `)),
+      type: _uc.sss.USER_SHEET
     }
-    #status-text > #statuspanel-label {
-      border-top: 0; /* status flutuante é 1, mas quando deslocado pra statusbar não é pra ter */
-      background-color: unset;
-      color: #444;
-    }
-    #browser-bottombox:not([collapsed]) {
-      border-top: 1px solid var(--chrome-content-separator-color);
-    }
-    toolbarpaletteitem #status-text:after {
-      content: "Status text";
-      color: red;
-      border: 1px #aaa solid;
-      border-radius: 3px;
-      font-weight: bold;
-    }
-    #status-bar > #status-text {
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        flex-direction: column;
-    }
-  `,
-
-  styles: [],
+  },
   
   destroy: function () {
-    xPref.removeListener(this.prefListener);
+    xPref.removeListener(this.enabledListener);
+    xPref.removeListener(this.textListener);
     CustomizableUI.unregisterArea('status-bar', false);
-    this.styles.forEach(style => style.remove());
+    _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
     _uc.windows((doc, win) => {
       win.eval('Object.defineProperty(StatusPanel, "_label", {' + this.orig.replace(/^set _label/, 'set') + ', enumerable: true, configurable: true});');
       let StatusPanel = win.StatusPanel;
