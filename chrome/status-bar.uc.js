@@ -43,7 +43,7 @@ UC.statusBar = {
     this.setStyle();
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
 
-    CustomizableUI.registerArea('status-bar', {legacy: true});
+    CustomizableUI.registerArea('status-bar', {});
   },
 
   exec: function (win) {
@@ -107,6 +107,8 @@ UC.statusBar = {
     let bottomBox = document.getElementById('browser-bottombox');
     if (!this.enabled)
       bottomBox.collapsed = true;
+
+    CustomizableUI.registerToolbarNode(win.statusbar.node);
     bottomBox.appendChild(win.statusbar.node);
     win.statusbar.node.parentNode = bottomBox;
   },
@@ -151,7 +153,7 @@ UC.statusBar = {
   destroy: function () {
     xPref.removeListener(this.enabledListener);
     xPref.removeListener(this.textListener);
-    CustomizableUI.unregisterArea('status-bar', false);
+    CustomizableUI.unregisterArea('status-bar');
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
     _uc.windows((doc, win) => {
       win.eval('Object.defineProperty(StatusPanel, "_label", {' + this.orig.replace(/^set _label/, 'set') + ', enumerable: true, configurable: true});');
