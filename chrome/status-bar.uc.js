@@ -159,7 +159,7 @@ UC.statusBar = {
       win.eval('Object.defineProperty(StatusPanel, "_label", {' + this.orig.replace(/^set _label/, 'set') + ', enumerable: true, configurable: true});');
       let StatusPanel = win.StatusPanel;
       StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
-      document.getElementById('status-dummybar').remove();
+      doc.getElementById('status-dummybar').remove();
       win.statusbar.node.remove();
     });
     delete UC.statusBar;
