@@ -4,13 +4,11 @@
 
 ## Instructions
 
-1. Save [config.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/installation-folder/config.js) to Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox**), next to **firefox.exe**.
+1. Download [this zip file](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/fx-folder.zip) and extract its content to Firefox installation folder (usually **C:\Program Files\Mozilla Firefox**).
 
-2. Save [config-prefs.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/installation-folder/config-prefs.js) into **\defaults\pref** inside Firefox installation folder (usually **C:\Program Files (x86)\Mozilla Firefox\defaults\pref**), next to **channel-prefs.js**.
+2. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* or simply open the address "*about:support*", then click *Open folder*. This is the folder of your Firefox profile. In there, create a new folder called **chrome**.
 
-3. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* (or simply open the address "*about:support*"), then click *Open folder*. This is the folder of your Firefox profile. In there, create a new folder called **chrome**.
-
-4. Inside **chrome**, create another new folder called **utils**, then download one of the files below and extract its content in **utils** folder.
+3. Download one of the files below and extract its content in **chrome** folder.
 
  - [utils → I'm only interested in scripts](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/utils_scripts_only.zip)
 
@@ -18,13 +16,19 @@
  
  - [utils → I'm interested in both scripts and extensions](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/utils.zip)
 
-*Now, if you're only interested in extensions, you can skip to step 7.*
+*Now, if you're only interested in extensions, you can skip to step 6.*
 
-5. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of some of them.
+4. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of some of them.
 
-6. If you want a button to manage your userChromeJS scripts, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
+5. If you want a button to manage your scripts, including the ability to disable/enable scripts without needing to restart Firefox¹, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
-7. Restart Firefox.
+6. Restart Firefox.
+
+**Important**
+
+In some cases, it may seem that nothing has changed in Firefox. If that happens, it's because Firefox didn't update startup cache, so userChromeJS didn't run. To fix this, reopen your profile folder (see step 2 above), exit Firefox and delete `startupCache` folder. It will be recreated the next time you open Firefox, detecting the scripts that have been added.
+
+¹: Not all scripts are restartless. These have `@shutdown` at the beginning of the code. Almost all scripts on this page were written by me to be restartless, but almost all scripts you get from other sources are not.
 
 ## userChromeJS scripts
 
