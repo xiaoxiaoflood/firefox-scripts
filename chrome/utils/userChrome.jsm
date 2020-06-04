@@ -173,12 +173,12 @@ if (xPref.get(_uc.PREF_SCRIPTSDISABLED) === undefined) {
 
 function UserChrome_js() {
   _uc.getScripts();
-  Services.obs.addObserver(this, 'domwindowopened', false);
+  Services.obs.addObserver(this, 'chrome-document-global-created', false);
 }
 
 UserChrome_js.prototype = {
-  observe: function (aSubject, aTopic, aData) {
-      aSubject.addEventListener('DOMContentLoaded', this, true);
+  observe: function (aSubject) {
+    aSubject.addEventListener('DOMContentLoaded', this, {once: true});
   },
 
   handleEvent: function (aEvent) {
@@ -189,7 +189,6 @@ UserChrome_js.prototype = {
       window.UC = UC;
       window._uc = _uc;
       window.xPref = xPref;
-      //document.allowUnsafeHTML = true; // https://bugzilla.mozilla.org/show_bug.cgi?id=1432966
       if (window._gBrowser) // bug 1443849
         window.gBrowser = window._gBrowser;
 
