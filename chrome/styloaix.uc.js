@@ -1,45 +1,45 @@
 // ==UserScript==
 // @name            StyloaiX
+// @author          xiaoxiaoflood
 // @include         main
+// @include         chrome://userchromejs/content/styloaix/edit.xhtml
 // @shutdown        UC.styloaix.destroy();
 // @onlyonce
 // ==/UserScript==
 
 // inspired by legacy Stylish and https://github.com/Endor8/userChrome.js/blob/master/Updates%202019/UserCSSLoader.uc.js
+// editor forked from Stylish - minor changes to edit.xhtml, but edit.js almost completely rewritten, with improvements and bug fixes.
+// icon from old Stylish
 
-/*
-as for now, this script is recommended just as userChrome.css replacement. For better management of userstyles for sites I recommend (and I'm using) Stylus.
-
-*** to do (to recover Stylish features and to not need Stylus anymore) ***
-- allow to update remote styles (when set to manual, provide option to ignore specific available updates [by checksum or lastmodified])
-- right click menu per style to: edit, reload, check for update (for remote styles), auto install updates [checkbox] and delete;
-- add new style;
-- own editor;
-- "find styles for this site"
-- allow subfolders
-- ==UserStyle== (.user.css) compatibility
-- allow to install from userstyles.org and freestyler.ws
-- options popup:
-  - use own editor or external editor;
-  - allow to specify external editor other than view_source.editor.path;
-  - open own editor in window or tab
-  - interval to check for updates
-*/
+// search for "userChromeJS.styloaix" in about:config to change settings.
 
 (function () {
 
   UC.styloaix = {
-    init: function() {
+    init: function () {
       xPref.lock(this.PREF_MOZDOCUMENT, true);
       xPref.set(this.PREF_DISABLED, false, true);
-      xPref.set(this.PREF_STYLESDISABLED, '', true);
+      xPref.set(this.PREF_STYLESDISABLED, '[]', true);
+      xPref.set(this.PREF_INSTANTCHECK, true, true);
+      xPref.set(this.PREF_INSTANTPREVIEW, true, true);
+      xPref.set(this.PREF_INSTANTINTERVAL, 500, true);
+      xPref.set(this.PREF_LINEWRAPPING, true, true);
+      xPref.set(this.PREF_OPENINWINDOW, true, true);
+
       this.prefListener = xPref.addListener(this.PREF_STYLESDISABLED, (sDisabled) => {
-        let listDisabled = sDisabled.split('|');
+        let newSet;
+        try {
+          newSet = new Set(JSON.parse(sDisabled));
+        } catch {
+          xPref.set(this.PREF_STYLESDISABLED, JSON.stringify([...this.disabledStyles]));
+          return;
+        }
+
         this.styles.forEach(style => {
-          if ( (style.enabled && listDisabled.includes(style.name)) ||
-               (!style.enabled && !listDisabled.includes(style.name)) )
-             UC.styloaix.toggleStyle(style, {byPref: true});
-        }); 
+          if ((style.enabled && newSet.has(style.fullName)) ||
+              (!style.enabled && !newSet.has(style.fullName)))
+            this.toggleStyle(style);
+        });
       });
       this.prefListenerAll = xPref.addListener(this.PREF_DISABLED, (disabled) => {
         this.toggleAll({disable: disabled});
@@ -51,6 +51,10 @@ as for now, this script is recommended just as userChrome.css replacement. For b
           doc.getElementById('styloaix-button').classList.replace(...this.btnClasses);
         });
       });
+
+      this.disabledStyles = new DisabledSet(JSON.parse(xPref.get(this.PREF_STYLESDISABLED)).sort((a, b) => a[0].localeCompare(b[0])));
+
+      this.UserStyle = UserStyle;
 
       if (!this.enabled)
         this.btnClasses.reverse();
@@ -72,7 +76,6 @@ as for now, this script is recommended just as userChrome.css replacement. For b
           });
 
           let popup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-popup'});
-          popup.addEventListener('popupshowing', this.populateMenu);
           btn.appendChild(popup);
 
           let disabled = xPref.get(this.PREF_DISABLED);
@@ -88,6 +91,13 @@ as for now, this script is recommended just as userChrome.css replacement. For b
           let menuseparator = _uc.createElement(doc, 'menuseparator');
           popup.appendChild(menuseparator);
 
+          let reloadAllBtn = _uc.createElement(doc, 'menuitem', {
+            id: 'styloaix-reload-all',
+            label: 'Reload All Styles',
+            oncommand: 'UC.styloaix.toggleAll({reload: true});'
+          });
+          popup.appendChild(reloadAllBtn);
+
           let openFolderBtn = _uc.createElement(doc, 'menuitem', {
             id: 'styloaix-open-folder',
             label: 'Open folder',
@@ -95,14 +105,63 @@ as for now, this script is recommended just as userChrome.css replacement. For b
           });
           popup.appendChild(openFolderBtn);
 
-          let reloadAllBtn = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-reload-all',
-            label: 'Reload Styles',
-            oncommand: 'UC.styloaix.toggleAll({reload: true});'
+          let newStyleMenu = _uc.createElement(doc, 'menu', {
+            id: 'styloaix-new-style',
+            label: 'New Style'
           });
-          popup.appendChild(reloadAllBtn);
 
-          popup.appendChild(menuseparator.cloneNode());
+          let newStylePopup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-newstyle-popup'});
+
+          let newPageStyleBtn = _uc.createElement(doc, 'menuitem', {
+            label: 'For this page',
+            oncommand: 'UC.styloaix.openEditor({url: gBrowser.currentURI.specIgnoringRef, type: "url"});'
+          });
+          newStylePopup.appendChild(newPageStyleBtn);
+
+          let newSiteStyleBtn = _uc.createElement(doc, 'menuitem', {
+            label: 'For this site',
+            oncommand: 'let host = gBrowser.currentURI.asciiHost; UC.styloaix.openEditor({url: host || gBrowser.currentURI.specIgnoringRef, type: host ? "domain" : "url"});'
+          });
+          newStylePopup.appendChild(newSiteStyleBtn);
+
+          let newStyle = _uc.createElement(doc, 'menuitem', {
+            label: 'Blank Style',
+            oncommand: 'UC.styloaix.openEditor();'
+          });
+          newStylePopup.appendChild(newStyle);
+
+          newStyleMenu.appendChild(newStylePopup);
+          popup.appendChild(newStyleMenu);
+
+          let separatorBeforeStyles = _uc.createElement(doc, 'menuseparator');
+          separatorBeforeStyles.hidden = !this.styles.size;
+          popup.appendChild(separatorBeforeStyles);
+          btn._separator = separatorBeforeStyles;
+
+          let stylePopup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-style-context'});
+
+          let styleEdit = _uc.createElement(doc, 'menuitem', {
+            id: 'styloaix-style-edit',
+            label: 'Edit',
+            oncommand: 'UC.styloaix.openEditor({id: document.popupNode._style.fullName})'
+          });
+          stylePopup.appendChild(styleEdit);
+
+          let styleReload = _uc.createElement(doc, 'menuitem', {
+            id: 'styloaix-style-reload',
+            label: 'Reload',
+            oncommand: 'document.popupNode._style.reload()'
+          });
+          stylePopup.appendChild(styleReload);
+
+          let styleDelete = _uc.createElement(doc, 'menuitem', {
+            id: 'styloaix-style-delete',
+            label: 'Delete',
+            oncommand: 'document.popupNode._style.delete()'
+          });
+          stylePopup.appendChild(styleDelete);
+
+          doc.getElementById('mainPopupSet').appendChild(stylePopup);
 
           this.styles.forEach(style => {
             this.addStyleInMenu(style, popup);
@@ -112,7 +171,7 @@ as for now, this script is recommended just as userChrome.css replacement. For b
         }
       });
 
-      this.toggleStyle(this.STYLE, {aStatus: true, changeStatus: false, forced: true});
+      _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
     },
 
     get enabled () {
@@ -124,7 +183,79 @@ as for now, this script is recommended just as userChrome.css replacement. For b
     },
 
     loadStyles: function() {
-      // remove styles from menupopup to avoid duplicates
+      let files = this.CSSDIR.directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
+      while (files.hasMoreElements()) {
+        let file = files.getNext().QueryInterface(Ci.nsIFile);
+        if (file.leafName.endsWith('.css')) {
+          let style = new UserStyle(file);
+        }
+      }
+
+      if (this.enabled)
+        this.toggleAll({disable: false});
+
+      this.rebuildMenu();
+    },
+
+    toggleAll: function ({disable = this.enabled, reload = false} = {}) {
+      this.styles.forEach(style => {
+        if (style.enabled)
+          this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
+      });
+      if (reload) {
+        this.styles = new Map();
+        this.loadStyles();
+      }
+    },
+
+    toggleStyle: function (style, {aStatus = !style.enabled, changeStatus = true, forced = false} = {}) {
+      if (this.enabled || forced) {
+        if (aStatus)
+          style.register();
+        else
+          style.unregister();
+      }
+      if (changeStatus) {
+        this.changeStatus(style, aStatus);
+      }
+    },
+
+    changeStatus: function (style, aStatus) {
+      style.enabled = aStatus;
+      _uc.windows((doc) => {
+        let menuitem = doc.getElementById('styloaix-popup').getElementsByAttribute('styleid', style.fullName)[0];
+        menuitem.setAttribute('checked', aStatus);
+      });
+      if (aStatus) {
+        this.disabledStyles.delete(style.fullName);
+      } else {
+        this.disabledStyles.add(style.fullName);
+      }
+    },
+
+    addStyleInMenu (style, popup) {
+      let menuitem = _uc.createElement(popup.ownerDocument, 'menuitem', {
+        label: style.name,
+        type: 'checkbox',
+        class: 'styloaix-style' + (style.type == _uc.sss.AUTHOR_SHEET ?
+                                     '' :
+                                     ' styloaix-' + (style.type == _uc.sss.USER_SHEET ?
+                                       'user' :
+                                       'agent') + 'sheet'),
+        checked: style.enabled,
+        context: 'styloaix-style-context',
+        oncommand: 'UC.styloaix.toggleStyle(this._style);',
+        styleid: style.fullName
+      });
+      menuitem.addEventListener('click', function (e) {
+        if (e.button == 1)
+          UC.styloaix.toggleStyle(this._style);
+      });
+      popup.appendChild(menuitem);
+      menuitem._style = style;      
+    },
+
+    rebuildMenu () {
       let buttons = this.buttons;
       if (buttons.length) {
         buttons.forEach(btn => {
@@ -135,74 +266,26 @@ as for now, this script is recommended just as userChrome.css replacement. For b
         })
       }
 
-      let files = this.CSSDIR.directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
-      while (files.hasMoreElements()) {
-        let file = files.getNext().QueryInterface(Ci.nsIFile);
-        if (file.leafName.endsWith('.css')) {
-          let style = new UserStyle(file);
-          buttons.forEach(btn => {
-            this.addStyleInMenu(style, btn.menupopup);
-          });
-        }
-      }
-    },
-
-    toggleAll: function ({disable = this.enabled, reload = false} = {}) {
-      this.styles.forEach(style => {
-        if (style.enabled)
-          this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
-      });
-      if (reload) {
-        this.styles = [];
-        this.loadStyles();
-      }
-    },
-
-    toggleStyle: function (style, {aStatus = !style.enabled, changeStatus = true, forced = false, byPref = false} = {}) {
-      if (this.enabled || forced) {
-        let method = aStatus ? 'loadAndRegisterSheet' : 'unregisterSheet';
-        _uc.sss[method](style.url, style.type);
-      }
-      if (changeStatus) {
-        this.changeStatus(style, aStatus, byPref);
-      }
-    },
-
-    changeStatus: function (style, aStatus, byPref = false) {
-      style.enabled = aStatus;
-      _uc.windows((doc) => {
-        let menuitem = doc.getElementById('styloaix-popup').getElementsByAttribute('styleid', style.id)[0];
-        menuitem.setAttribute('checked', aStatus);
-      });
-      if (!byPref) {
-        if (aStatus) {
-          xPref.set(this.PREF_STYLESDISABLED, this.disabledStyles.replace(new RegExp('^' + style.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\||$)|\\\|' + style.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|\\|)'), '$1'));
-        } else {
-          xPref.set(this.PREF_STYLESDISABLED, (this.disabledStyles.length ? this.disabledStyles + '|' : '') + style.name);
-        }
-      }
-    },
-
-    addStyleInMenu (style, popup) {
-        let menuitem = _uc.createElement(popup.ownerDocument, 'menuitem', {
-          label: style.name,
-          type: 'checkbox',
-          class: 'styloaix-style' + (style.type == _uc.sss.AUTHOR_SHEET ?
-                                      '' :
-                                      ' styloaix-' + (style.type == _uc.sss.USER_SHEET ?
-                                        'user' :
-                                        'agent') + 'sheet'),
-          checked: style.enabled,
-          oncommand: 'UC.styloaix.toggleStyle(this._style);',
-          onclick: 'if (event.button === 1) UC.styloaix.toggleStyle(this._style);',
-          styleid: style.id
+      let sortedMap = new Map([...this.styles.entries()].sort((a, b) => a[0].localeCompare(b[0])));
+      sortedMap.forEach(style => {
+        buttons.forEach(btn => {
+          this.addStyleInMenu(style, btn.menupopup);
         });
-        popup.appendChild(menuitem);
-        menuitem._style = style;      
+      });
     },
 
-    get disabledStyles () {
-      return xPref.get(this.PREF_STYLESDISABLED);
+    openEditor ({id, url, type} = {}) {
+      let win = Services.wm.getMostRecentBrowserWindow();
+      if (xPref.get(this.PREF_OPENINWINDOW)) {
+        win.openDialog(this.EDITOR_URI, (id || win.Math.random()) + ' - StyloaiX Editor', 'centerscreen,chrome,resizable,dialog=no', {id, url, type});
+      } else {
+        let appendUrl = '';
+        if (id != undefined)
+          appendUrl = '?id=' + id;
+        else if (url)
+          appendUrl = '?url=' + encodeURIComponent(url) + '&type=' + type;
+        win.switchToTabHavingURI(this.EDITOR_URI + appendUrl, true);
+      }
     },
 
     get CSSDIR () {
@@ -218,9 +301,11 @@ as for now, this script is recommended just as userChrome.css replacement. For b
     get buttons () {
       let arr = [];
       let widget = CustomizableUI.getWidget('styloaix-button');
-      if (widget && 'label' in widget) { // check if button exists
-        widget.instances.forEach(btn => {
-          arr.push(btn.node);
+      if (widget && 'label' in widget) {
+        widget.instances.forEach(btnWidget => {
+          let btn = btnWidget.node;
+          btn._separator.hidden = !this.styles.size;
+          arr.push(btn);
         });
       }
       return arr;
@@ -228,16 +313,22 @@ as for now, this script is recommended just as userChrome.css replacement. For b
 
     PREF_DISABLED: 'userChromeJS.styloaix.allDisabled',
     PREF_STYLESDISABLED: 'userChromeJS.styloaix.stylesDisabled',
+    PREF_INSTANTCHECK: 'userChromeJS.styloaix.instantCheck',
+    PREF_INSTANTPREVIEW: 'userChromeJS.styloaix.instantPreview',
+    PREF_INSTANTINTERVAL: 'userChromeJS.styloaix.instantInterval',
+    PREF_OPENINWINDOW: 'userChromeJS.styloaix.openInWindow',
+    PREF_LINEWRAPPING: 'userChromeJS.styloaix.lineWrapping',
     PREF_MOZDOCUMENT: 'layout.css.moz-document.content.enabled',
+    EDITOR_URI: 'chrome://userchromejs/content/styloaix/edit.xhtml',
 
     STYLE: {
       url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
         @-moz-document url('${_uc.BROWSERCHROME}') {
           #styloaix-button.icon-white {
-            list-style-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAAOwQAADsEBuJFr7QAAAAd0SU1FB9sJEwExOWMLOcEAAAHNSURBVDjLpZO/aiJRFIe/uxrC6ESUCDNgEdB+mC5VILVvIHkAyzyET2ArYq+1ASGYaBlC/oxNUNAIiqQIwhQjDI5zttiN7GTWKr/ycu7HOd+9RwHCD5IEEIkzVqsVnuehlELXdQzDQCkVqVFK/QH8m4eHB3q9Hrlcjmw2i4jgeR7r9RpN06hWq+i6HrkjX3l+fpZ6vS7L5VK+JwgCubu7k9lstj8DJNJBv9+nUqlQKBQQEVarFb7vk8lkOD095eTkJDbqr2+tUCgUALi/v2c0GpFIJFgsFrTbbRzHiUGSh+yenZ1xe3vL4+MjuVwO27a5uLj4b+1+pna7LfP5PDK77/vy/v4u3W5XarWauK4bcRABBEEgjUZDHMeR7XYbEzmdTqXVakUAEQefn59cXV2RTqe5ubmh0+kwGAzwPA+AYrGI7/uHHTSbTY6Pj8nn81iWhWmajEYjhsMh5XIZgFQqdRiQTCa5vr7m7e2N6XTK6+srmqZxeXm5f6UwDA8DwjDk6OgIy7KwLCtm++XlhfPz8+h3/isRgKenJ8bjMYZhYJomuq6jlMJ1XSaTCaVSCdu2I7sQAXxlt9vx8fHBZrMBIJPJYBhGrKM94Cfr/Bv7uSv7p31nCQAAAABJRU5ErkJggg==');
+            list-style-image: url('chrome://userchromejs/content/styloaix/16w.png');
           }
           #styloaix-button.icon-colored {
-            list-style-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwQAADsEBuJFr7QAAAAd0SU1FB9sJEwETHfi6mzAAAAIVSURBVDjLpZNPaJJxGICfbzjXEiJRcaCQkWQgHUwclSBWc0ZFjSQWsyDqEASxS4tuptiC1lUKlqOD1SljpqMtwpGsQiYuolFEuLHL4GuLr6JNa9/XQRyJ87Tn+r6/5/fy/hEAhU2gAkhOXWwIlL4s8X1pBZWqhZv9L3jldTTkHJksVgX/83L0M/fuTGG1WrFYLMjyX+x2O8fezqIVFGL7drNd3VpfQY3XE1+ZeLpIPp/H5XLViSuVCtFolFLqCY5mgsT9acaeZ3G5XMiyTKFQQJIkzGYzNpsNk8nEr416UEOQt67/HAqFmJ1PceCQBZ8vRfceKz+1Bi63tTYKTrtHADAYDOsBj8dD+nqa0ccZACyV3/S2rQJb6gQtADPDA8wMD+DcqSOXywHg8/koFotIkkQ2m0V1tIcTbz6yXP7TKKhx69JxAoEAiUSCcrkMgEajwev1EovFSGUy3P4031wwt7iMKIqYdRe4ekXH2d7DhMNhRFEEoKurC3nHruaCc4OPMBqNDN6VcXeucqM/x4oUIRKJrOfo9frmU1Cr1ZRKJZLJJOPj4zxIlNBqtYTD1U1VFIUf5TXmh55VH+y31AtkWaa9vZ1gMEgwGGxY3Xg8zsGe880ruHbGg9PpxO/343A46OjoQBAEFhYWSGfG2GbrpLP7ZHPBKfdeQg+HmJ78QPG9gvhNQRCgr2+NkXdzG16jsNlz/gcHerkUp11MYQAAAABJRU5ErkJggg==');
+            list-style-image: url('chrome://userchromejs/content/styloaix/16.png');
           }
           .styloaix-usersheet label:after {
             content:"US";
@@ -252,16 +343,34 @@ as for now, this script is recommended just as userChrome.css replacement. For b
       type: _uc.sss.AUTHOR_SHEET
     },
 
-    styles: [],
+    styles: new Map(),
 
     destroy: function () {
       xPref.unlock(this.PREF_MOZDOCUMENT);
       xPref.removeListener(this.prefListener);
       xPref.removeListener(this.prefListenerAll);
       CustomizableUI.destroyWidget('styloaix-button');
-      this.toggleStyle(this.STYLE, {aStatus: false, changeStatus: false, forced: true});
+      _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
       this.toggleAll({disable: true});
       delete UC.styloaix;
+    }
+  }
+
+  class DisabledSet extends Set {
+    constructor (iterable) {
+      super(iterable);
+    }
+
+    add (item) {
+      let cache_add = Set.prototype.add.call(this, item);
+      xPref.set(UC.styloaix.PREF_STYLESDISABLED, JSON.stringify([...this]));
+      return cache_add;
+    }
+
+    delete (item) {
+      let cache_delete = Set.prototype.delete.call(this, item);
+      xPref.set(UC.styloaix.PREF_STYLESDISABLED, JSON.stringify([...this]));
+      return cache_delete;
     }
   }
 
@@ -272,14 +381,34 @@ as for now, this script is recommended just as userChrome.css replacement. For b
                   file.leafName.endsWith('as.css') ?
                     _uc.sss.AGENT_SHEET :
                     _uc.sss.AUTHOR_SHEET;
+      this.file = file;
+      this.fullName = file.leafName;
       this.name = file.leafName.replace(/(?:\.(?:user|as|us))?\.css$/, '');
-      this.lastModified = file.lastModifiedTime;
       this.url = Services.io.newURI('resource://userchromejs/UserStyles/' + file.leafName);
-      this.enabled = UC.styloaix.disabledStyles.split('|').indexOf(this.name) == -1;
-      if (UC.styloaix.enabled && this.enabled)
-        _uc.sss.loadAndRegisterSheet(this.url, this.type);
-      this.id = UC.styloaix.styles.length;
-      UC.styloaix.styles.push(this);
+      this.enabled = !UC.styloaix.disabledStyles.has(this.fullName);
+      UC.styloaix.styles.set(this.fullName, this);
+    }
+    register () {
+      _uc.sss.loadAndRegisterSheet(this.url, this.type);
+    }
+    unregister () {
+      _uc.sss.unregisterSheet(this.url, this.type);
+    }
+    reload () {
+      if (this.enabled)
+        this.unregister();
+      UC.styloaix.toggleStyle(this, {aStatus: true});
+    }
+    delete () {
+      if (Services.prompt.confirm(null, 'StyloaiX', 'Delete "' + this.fullName + '" permanently?')) {
+        UC.styloaix.styles.delete(this.fullName);
+        if (this.enabled)
+          this.unregister();
+        else
+          UC.styloaix.disabledStyles.delete(this.fullName);
+        UC.styloaix.rebuildMenu();
+        this.file.remove(false);
+      }
     }
   }
 

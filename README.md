@@ -107,15 +107,15 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
 </details>
 <details>
   <summary>StyloaiX</summary>
-  Basic UserStyle manager with the same power of userChrome.css and userContent.css (can restyle both Firefox windows and websites). It loads <i><u>.css</u></i> files from <i><u>\chrome\UserStyles</u></i>. It supports instant enable/disable per style or global. It also can reload updated styles and load new ones. More features may be added in the future. To reskin websites, <a href="https://addons.mozilla.org/firefox/addon/styl-us/">Stylus</a> is a better option, with more features including autoupdate for styles available on the web. But Stylus can't touch the Firefox interface, only websites.
-  
-  <b>Note</b>: just like Stylish, UserStyles are loaded by default as AUTHOR_SHEET. If you need AGENT_SHEET or USER_SHEET (for instance, userContent.css is USER_SHEET), save the file as ".as.css" or ".us.css".
+  UserStyle manager to reskin Firefox window and websites. Replacement for legacy Stylish. More convenient than userChrome.css and userContent.css, as it has a powerful editor with instant preview, error checking, code autocomplete and you can enable/disable individual styles without restarting Firefox.
 
-  Screenshot (yes, I'm using the old Stylish icon):
+  Screenshots (yes, I'm using the old Stylish icon):
   
-  ![](https://i.imgur.com/m0EonHK.png)
+  ![](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/styloaix-editor.png)
+  
+  ![](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/styloaix-button.png)
 
-  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/styloaix.uc.js).
+  [Download link - extract it in chrome folder](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/styloaix.zip).
 </details>
 
 Bonus: I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save [these files](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/passwordmgr), so that you can access the old password manager using chrome://userchromejs/content/passwordmgr/passwordManager.xhtml (bookmark this URL).

@@ -1,0 +1,50 @@
+#errors {
+	margin: 2px 0px 4px 5px;
+	color: red;
+}
+#errors label {
+	cursor: pointer;
+}
+#internal-code {
+	font-family: monospace;
+	margin-bottom: 0;
+}
+.findbar-closebutton, .findbar-highlight, *[anonid="find-case-sensitive"] {
+	display: none;
+}
+#findbar {
+	border-top: 0;
+}
+.devtools-horizontal-splitter {
+	/* Overriding global.css */
+	height: 3px !important;
+}
+input.devtools-textinput {
+	padding: 4px;
+  margin: 0 6px 0 4px;
+  border: 1px solid ThreeDShadow;
+}
+.devtools-toolbarbutton {
+	border-radius: 2px !important;
+	border: 1px solid rgba(0,0,0,0.3) !important;
+	padding: 1px 5px !important;
+}
+.devtools-separator {
+	margin: 0 5px 0 4px !important;
+}
+.devtools-toolbarbutton[disabled="true"] {
+	opacity: 0.2;
+}
+.update-url-row {
+	display: none;
+}
+grid {
+	margin-bottom: 4px;
+}
+grid label {
+  padding-bottom: 2px;
+}
+#editor-tools {
+	padding: 5px;
+  -moz-box-align: center;
+}
