@@ -59,6 +59,8 @@ UC.masterPasswordPlus = {
     let input = this.document.getElementById('mpPinput');
     if (e.key == 'Enter') {
       if (UC.masterPasswordPlus.mp.checkPassword(input.value)) {
+        _uc.sss.unregisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
+
         _uc.windows((doc, win) => {
           if (!'UC' in win || !win.isChromeWindow || win != win.top)
             return;
@@ -105,7 +107,7 @@ UC.masterPasswordPlus = {
   },
 
   lock: function (doc, win) {
-    win.addEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
+    win.addEventListener('keydown', this.keydownFunc, true);
     let input = doc.getElementById('mpPinput');
     input.value = '';
     [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = 'none');
@@ -119,7 +121,7 @@ UC.masterPasswordPlus = {
   },
 
   lockAll: function () {
-    if (!UC.masterPasswordPlus.mp.hasPassword)
+    if (!this.mp.hasPassword)
       return;
 
     this.locked = true;
@@ -127,10 +129,21 @@ UC.masterPasswordPlus = {
       if ('UC' in win && win.isChromeWindow && win == win.top)
         this.lock(doc, win);
     }, false);
+
+    _uc.sss.loadAndRegisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
   },
 
   locked: true,
-  
+
+  LOCKED_STYLE: {
+    url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
+      menupopup {
+        display: none !important;
+      }
+    `)),
+    type: _uc.sss.USER_SHEET
+  },
+
   destroy: function () {
     _uc.windows((doc, win) => {
       if (!'UC' in win || !win.isChromeWindow || win != win.top)
@@ -144,3 +157,5 @@ UC.masterPasswordPlus = {
     delete UC.masterPasswordPlus;
   }
 }
+
+_uc.sss.loadAndRegisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
