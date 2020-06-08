@@ -151,13 +151,44 @@ UC.Redirector = {
           return Ci.nsIContentPolicy.ACCEPT;
         },
 
+        // nsIChannelEventSink interface implementation
+        asyncOnChannelRedirect: function (oldChannel, newChannel, flags, redirectCallback) {
+          this.onChannelRedirect(oldChannel, newChannel, flags);
+          redirectCallback.onRedirectVerifyCallback(Cr.NS_OK);
+        },
+
+        onChannelRedirect: function (oldChannel, newChannel, flags) {
+          if (!(newChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI))
+            return;
+          let newLocation = newChannel.URI.spec;
+          if (!newLocation)
+            return;
+          let callbacks = [];
+          if (newChannel.notificationCallbacks)
+            callbacks.push(newChannel.notificationCallbacks);
+          if (newChannel.loadGroup && newChannel.loadGroup.notificationCallbacks)
+            callbacks.push(newChannel.loadGroup.notificationCallbacks);
+          let webNav;
+          for (let callback of callbacks) {
+            try {
+              webNav = callback.getInterface(Ci.nsILoadContext).topFrameElement.webNavigation;
+              break;
+            } catch(e) {}
+          }
+          if (!webNav)
+            return;
+          let redirectUrl = this.getRedirectUrl(newLocation);
+          if (redirectUrl)
+            webNav.loadURI(redirectUrl, {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
+        },
+
         createInstance: function (outer, iid) {
           if (outer)
             throw Cr.NS_ERROR_NO_AGGREGATION;
           return this.QueryInterface(iid);
         },
 
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIContentPolicy]),
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIContentPolicy, Ci.nsIChannelEventSink]),
 
         rules: rules,
 
