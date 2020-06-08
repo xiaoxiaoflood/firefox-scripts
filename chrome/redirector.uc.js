@@ -174,9 +174,12 @@ UC.Redirector = {
 
   observe: function (subject) {
     let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
-    let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec, this.internalRules[httpChannel.loadInfo.externalContentPolicyType]);
-    if (redirectUrl) {
+    let contentType = httpChannel.loadInfo.externalContentPolicyType;
+    if (contentType != Ci.nsIContentPolicy.TYPE_DOCUMENT && contentType in this.internalRules) {
+      let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec, this.internalRules[contentType]);
+      if (redirectUrl) {
         httpChannel.redirectTo(Services.io.newURI(redirectUrl));
+      }
     }
   },
 
