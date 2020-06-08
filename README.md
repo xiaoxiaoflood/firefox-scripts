@@ -68,6 +68,20 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
   ![](https://i.imgur.com/KOkEJq5.png)
 </details>
 <details>
+  <summary>MinMaxClose Button</summary>
+  Toolbar button to replace window buttons (minimize, maximize and close). I'm a Windows user and use Tree Style Tab with hidden titlebar, so I need this.
+ 
+ - <i>Left-click</i> to minimize (so I can't close it accidentally).
+ 
+ - <i>Right-click</i> to close.
+ 
+ - <i>Middleclick</i> restores to fixed position/size (edit script code with your preferred values). If you want to restore to previous position/size, use <i>Shift + Middleclick</i>.
+  
+  ![](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/minmaxclose.png)
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/minMaxCloseButton.uc.js).
+</details>
+<details>
   <summary>multifoxContainer</summary>
   When Firefox introduced containers, I created this script to get some features that I missed from Multifox, the legacy addon that implemented "containers" years before Firefox having this feature by default.
   Since then, Firefox has added some things this script had, so I removed them. But I still use it for two things:
@@ -78,7 +92,7 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
   
   ![](https://i.imgur.com/BE7oPcu.png)
 
-  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/multifoxContainer.uc.js).
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/minMaxCloseButton.uc.js).
 </details>
 <details>
   <summary>Open in Unloaded Tab</summary>
@@ -90,8 +104,26 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
 <details>
   <summary>PrivateTab</summary>
   Fx 77 blocked the ability to open private tabs in non-private windows, previously possible with Private Tab addon. So I decided to write this script as a replacement. You can change some minor settings at the beginning of the code.
+ 
+  ![](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/screenshots/privatetab.png)
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/privateTab.uc.js).
+</details>
+<details>
+  <summary>Redirector</summary>
+  Requires basic JS skills to write rules using regex.
+ 
+  The main difference between this and extensions like [Redirector](https://addons.mozilla.org/en-US/firefox/addon/redirector/) it that these Firefox extensions record both pre-redirect and final URLs. I want it to record just the final URL.
+  
+  This script can also do more complex things like running a JS function with regex results.
+  
+  Finally, the main reason why I wrote this was to integrate it with [Link Status Redux](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/extensions/linkstatusredux). When I point the mouse to a link that I've already visited, LSR displays the time of last visit. This is extremely useful for me to know if I have already visited the page and to track changes since last visit.
+  
+  LSR uses Redirector rules to replace links directly in page. And as many URLs have gibberish at the end, I have rules to remove them, so that URL remains clean and LST can track last visit correctly (because the gibberish is different every time).
+  
+  Note: the list of rules in the script is just an example, mine is much bigger.
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/redirector.uc.js).
 </details>
 <details>
   <summary>Status Bar</summary>
