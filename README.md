@@ -37,9 +37,9 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
   <summary>Enter Selects</summary>
   Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xiaoxiaoflood", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
   
-  This script replaces autofill, so `browser.urlbar.autoFill` is disabled on install. If you are typing part of a domain from the start and the first suggestion is from that domain (for instance, *git* from *github.com*), Tab key will autocomplete the domain even if the first suggestion is not the root.
+  With practice, the page you want to go to will always become the first one, so accessing any frequent page will be as easy as typing just 'gm' + Enter to load Gmail.
   
-  I suggest to set `browser.urlbar.suggest.searches = false` or `browser.urlbar.matchBuckets = general:5` (general:5 means 5 normal suggestions before search suggestions, adjust the value as you wish).
+  This script replaces urlbar autocomplete, so `browser.urlbar.autoFill` is disabled on install. If at any time you miss domain autofill, you still sort of can achieve that by pressing Tab IF the domain of first suggestion matches what you've typed so far. Example: you typed *git* and the first suggestion if from *github.com*. Pressing Tab key will autocomplete the domain even if the first suggestion is not just github.com - it may be github.com/wathever. But if the typed input doesn't match the domain of the first suggestion, then Tab key will have default behavior, i.e. will select next suggestion just like down arrow key.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/enterSelects.uc.js). 
 </details>

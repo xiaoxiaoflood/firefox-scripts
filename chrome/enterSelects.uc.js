@@ -9,17 +9,6 @@
 
 // inspired by: https://addons.mozilla.org/firefox/addon/enter-selects/
 
-/* 
-  ███ Note ███
-  Firefox usually presents search suggestions first, so this script tries to set
-  browser.urlbar.matchBuckets = general:1
-  if you haven't defined this pref with other value. This is to force the first suggestion
-  to be from history/bookmark and not search suggestion.
-  You can increase the number of history/bookmarks suggestions before search ones by increasing
-  the number (like "general:5") or, as I do, you can disable search suggestions entirely with
-  browser.search.suggest.enabled = false
-*/
-
 UC.enterSelects = {
   init: function () {
     this.orig_receiveResults = this.controller.receiveResults;
@@ -34,7 +23,7 @@ UC.enterSelects = {
     })();
 
     xPref.lock('browser.urlbar.autoFill', false);
-    xPref.set('browser.urlbar.matchBuckets', 'general:1', true);
+    xPref.set('browser.urlbar.matchBuckets', 'general:5,suggestion:Infinity', true);
   },
 
   exec: function (win) {
