@@ -113,13 +113,13 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
   <summary>Redirector</summary>
   Requires basic JS skills to write rules using regex.
  
-  The main difference between this and extensions like [Redirector](https://addons.mozilla.org/en-US/firefox/addon/redirector/) it that these Firefox extensions record both pre-redirect and final URLs. I want it to record just the final URL.
+  The main difference between this and extensions like [Redirector](https://addons.mozilla.org/en-US/firefox/addon/redirector/) it that these Firefox extensions record both pre-redirect and final URLs in history. I want it to record just the final URL.
   
   This script can also do more complex things like running a JS function with regex results.
   
   Finally, the main reason why I wrote this was to integrate it with [Link Status Redux](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/extensions/linkstatusredux). When I point the mouse to a link that I've already visited, LSR displays the time of last visit. This is extremely useful for me to know if I have already visited the page and to track changes since last visit.
   
-  LSR uses Redirector rules to replace links directly in page. And as many URLs have gibberish at the end, I have rules to remove them, so that URL remains clean and LST can track last visit correctly (because the gibberish is different every time).
+  LSR uses Redirector rules to replace links directly in page (Redirector extension doesn't do this, it redirects only when you try to load the URL). And many URLs have gibberish at the end, so I have rules to remove them, then the URL remains clean and LST can track last visit correctly (because the gibberish is different every time, generating different URLs).
   
   Note: the list of rules in the script is just an example, mine is much bigger.
 
