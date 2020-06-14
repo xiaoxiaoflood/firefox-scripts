@@ -21,33 +21,29 @@ UC.multifoxContainer = {
     document.getElementById('userContext-icons').setAttribute('popup', 'mf-contextmenu');
 
     gBrowser.orig_addTab = gBrowser.addTab;
-    gBrowser.addTab = (function () {
-      return function (aURI, options) {
-        if ('toUserContextId' in this) {
-          options.userContextId = this.toUserContextId;
-          delete this.toUserContextId;
-        } else if (!options.relatedToCurrent && !options.userContextId && this.selectedTab.userContextId != UC.privateTab?.container.userContextId) {
-          options.userContextId = this.selectedTab.userContextId;
-        }
+    gBrowser.addTab = function (aURI, options) {
+      if ('toUserContextId' in this) {
+        options.userContextId = this.toUserContextId;
+        delete this.toUserContextId;
+      } else if (!options.relatedToCurrent && !options.userContextId && this.selectedTab.userContextId != UC.privateTab?.container.userContextId) {
+        options.userContextId = this.selectedTab.userContextId;
+      }
 
-        return gBrowser.orig_addTab.call(this, aURI, options);
-      };
-    })();
+      return gBrowser.orig_addTab.call(this, aURI, options);
+    };
 
     let orig_updateUserContextUIIndicator = win.updateUserContextUIIndicator;
-    win.updateUserContextUIIndicator = (function () {
-      return function () {
-        orig_updateUserContextUIIndicator();
+    win.updateUserContextUIIndicator = function () {
+      orig_updateUserContextUIIndicator();
 
-        if (gBrowser.selectedTab.userContextId == 0) {
-          let hbox = document.getElementById('userContext-icons');
-          hbox.hidden = false;
-          hbox.className = 'identity-color-black';
-          document.getElementById('userContext-label').value = 'Default';
-          document.getElementById('userContext-indicator').className = 'identity-icon-fingerprint';
-        }
-      };
-    })();
+      if (gBrowser.selectedTab.userContextId == 0) {
+        let hbox = document.getElementById('userContext-icons');
+        hbox.hidden = false;
+        hbox.className = 'identity-color-black';
+        document.getElementById('userContext-label').value = 'Default';
+        document.getElementById('userContext-indicator').className = 'identity-icon-fingerprint';
+      }
+    };
     win.updateUserContextUIIndicator.orig = orig_updateUserContextUIIndicator;
 
     if (document.readyState == 'complete')

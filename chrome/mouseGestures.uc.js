@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mouse Gestures
-// @include         main
 // @author          xiaoxiaoflood
+// @include         main
 // @shutdown        win.MGest.destroy();
 // ==/UserScript==
 
@@ -29,16 +29,14 @@ window.MGest = {
       ['mouseleave', 'mousemove'].forEach(function (type) {
         document.addEventListener(type, self, false);
       });
-      self.orig__selected = Object.getOwnPropertyDescriptor(customElements.get('tabbrowser-tab').prototype, '_selected').set;
+      self.orig_selected = Object.getOwnPropertyDescriptor(customElements.get('tabbrowser-tab').prototype, '_selected').set;
       Object.defineProperty(customElements.get('tabbrowser-tab').prototype, '_selected', {
-        set: (function () {
-          return function (val) {
-            if (val && !this.everSelected)
-              this.everSelected = true;
+        set: function (val) {
+          if (val && !this.everSelected)
+            this.everSelected = true;
 
-            return self.orig__selected.apply(this, arguments);
-          };
-        })()
+          return self.orig_selected.call(this, val);
+        }
       });
     },
     destroy: function () {
@@ -48,6 +46,10 @@ window.MGest = {
       });
       ['mouseleave', 'mousemove'].forEach(function (type) {
         document.removeEventListener(type, self, false);
+      });
+      Object.defineProperty(customElements.get('tabbrowser-tab').prototype, '_selected', {
+        set: this.orig_selected,
+        configurable: true
       });
     },
     chromeListener: function (message) {
@@ -173,7 +175,7 @@ window.MGest = {
       'L>R': {
         name: 'Reload current tab',
         cmd: function () {
-          openLinkIn(gBrowser.currentURI.spec, 'current', {allowThirdPartyFixup: true, targetBrowser: gBrowser.selectedBrowser, indicateErrorPageLoad: true, allowPinnedTabHostChange: true, disallowInheritPrincipal: true, allowPopups: false, triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()});
+          openLinkIn(gBrowser.currentURI.spec, 'current', {allowThirdPartyFixup: true, targetBrowser: gBrowser.selectedBrowser, indicateErrorPageLoad: true, allowPinnedTabHostChange: true, disallowInheritPrincipal: true, allowPopups: false, triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal});
         }
       },
       'R>M': {

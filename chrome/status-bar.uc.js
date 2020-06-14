@@ -56,29 +56,27 @@ UC.statusBar = {
       hidden: 'true'
     });
     dummystatusbar.collapsed = !this.enabled;
-    dummystatusbar.setAttribute = (function () {
-      return function (att, value) {
-        let result = Element.prototype.setAttribute.apply(this, arguments);
+    dummystatusbar.setAttribute = function (att, value) {
+      let result = Element.prototype.setAttribute.apply(this, arguments);
 
-        if (att == 'collapsed') {
-          let StatusPanel = win.StatusPanel;
-          if (value === true) {
-            xPref.set(UC.statusBar.PREF_ENABLED, false);
-            win.statusbar.node.setAttribute('collapsed', true);
-            StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
-            win.statusbar.node.parentNode.collapsed = true;;
-          } else {
-            xPref.set(UC.statusBar.PREF_ENABLED, true);
-            win.statusbar.node.setAttribute('collapsed', false);
-            if (UC.statusBar.textInBar)
-              win.statusbar.textNode.appendChild(StatusPanel._labelElement);
-            win.statusbar.node.parentNode.collapsed = false;
-          }
+      if (att == 'collapsed') {
+        let StatusPanel = win.StatusPanel;
+        if (value === true) {
+          xPref.set(UC.statusBar.PREF_ENABLED, false);
+          win.statusbar.node.setAttribute('collapsed', true);
+          StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
+          win.statusbar.node.parentNode.collapsed = true;;
+        } else {
+          xPref.set(UC.statusBar.PREF_ENABLED, true);
+          win.statusbar.node.setAttribute('collapsed', false);
+          if (UC.statusBar.textInBar)
+            win.statusbar.textNode.appendChild(StatusPanel._labelElement);
+          win.statusbar.node.parentNode.collapsed = false;
         }
+      }
 
-        return result;
-      };
-    })();
+      return result;
+    };
     win.gNavToolbox.appendChild(dummystatusbar);
 
     win.statusbar.node = _uc.createElement(document, 'toolbar', {

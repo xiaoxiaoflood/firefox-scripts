@@ -12,15 +12,13 @@
 UC.enterSelects = {
   init: function () {
     this.orig_receiveResults = this.controller.receiveResults;
-    this.controller.receiveResults = (function () {
-      return function (queryContext) {
-        let gURLBar = this.browserWindow.gURLBar;
-        if (UC.enterSelects.shouldSelect(gURLBar, queryContext))
-          gURLBar.view._selectElement(gURLBar.view._rows.children[1], { updateInput: false });
+    this.controller.receiveResults = function (queryContext) {
+      let gURLBar = this.browserWindow.gURLBar;
+      if (UC.enterSelects.shouldSelect(gURLBar, queryContext))
+        gURLBar.view._selectElement(gURLBar.view._rows.children[1], { updateInput: false });
 
-        return UC.enterSelects.orig_receiveResults.call(this, queryContext);
-      };
-    })();
+      return UC.enterSelects.orig_receiveResults.call(this, queryContext);
+    };
 
     xPref.lock('browser.urlbar.autoFill', false);
     xPref.set('browser.urlbar.matchBuckets', 'general:5,suggestion:Infinity', true);

@@ -180,16 +180,14 @@ UC.privateTab = {
     if(this.observePrivateTabs)
       gBrowser.tabContainer.addEventListener('TabClose', this.onTabClose);
 
-    MozElements.MozTab.prototype.getAttribute = (function () {
-      return function (att) {
-        if (att == 'usercontextid' && this.isToggling) {
-          delete this.isToggling;
-          return UC.privateTab.orig_getAttribute.call(this, att) ? 0 : UC.privateTab.container.userContextId;
-        } else {
-          return UC.privateTab.orig_getAttribute.call(this, att);
-        }
-      };
-    })();
+    MozElements.MozTab.prototype.getAttribute = function (att) {
+      if (att == 'usercontextid' && this.isToggling) {
+        delete this.isToggling;
+        return UC.privateTab.orig_getAttribute.call(this, att) ? 0 : UC.privateTab.container.userContextId;
+      } else {
+        return UC.privateTab.orig_getAttribute.call(this, att);
+      }
+    };
 
     Object.defineProperty(customElements.get('tabbrowser-tabs').prototype, 'allTabs', {
       get: function allTabs() {
