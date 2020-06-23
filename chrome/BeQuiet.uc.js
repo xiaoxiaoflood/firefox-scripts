@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name            Be Quiet
+// @name            BeQuiet
 // @author          xiaoxiaoflood
 // @include         main
 // @startup         UC.beQuiet.exec(win);
@@ -14,8 +14,8 @@ UC.beQuiet = {
     {
       rx: /^https:\/\/www\.deezer\.com\//,
       play: 'li > button.svg-icon-group-btn',
-      previous: '.Root__now-playing-bar .spoticon-skip-back-16',
-      next: '.player-controls li button'
+      previous: '.player-controls li button',
+      next: '.player-controls li:nth-of-type(5) button'
     },
     {
       rx: /^https:\/\/songa\.nl\//,
