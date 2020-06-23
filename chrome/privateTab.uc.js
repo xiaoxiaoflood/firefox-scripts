@@ -189,7 +189,7 @@ UC.privateTab = {
       }
     };
 
-    Object.defineProperty(customElements.get('tabbrowser-tabs').prototype, 'allTabs', {
+    win.Object.defineProperty(customElements.get('tabbrowser-tabs').prototype, 'allTabs', {
       get: function allTabs() {
         let children = Array.from(this.arrowScrollbox.children);
         while (children.length && children[children.length - 1].tagName != 'tab')
