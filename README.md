@@ -34,6 +34,17 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
 
 (click to expand)
 <details>
+  <summary>BeQuiet</summary>
+ The main purpose of this script is to control media without having to select the tab playing it. So I can play/pause a YouTube video or skip to the next song in Deezer while browsing Reddit, for example.
+ Three hotkeys are defined by this script: Ctrl+Alt+S to play/pause, Ctrl+Alt+D to next song and Ctrl+Alt+A to previous song.
+ 
+  Besides that, no more than one tab should play audio at the same time. Each tab paused by another tab that starts playing is added to a stack. So if I open a new YouTube video while there's already one playing, the new tab starts playing and the other is paused. When the video ends or when I pause it, the first YouTube tab resumes playing.
+ 
+ As for now, I only added support for a few sites, like Deezer, Spotify and YouTube. I chose not to support next/previous in YouTube, only play/pause.
+ 
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/BeQuiet.uc.js). 
+</details>
+<details>
   <summary>Enter Selects</summary>
   Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xiaoxiaoflood", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
   
