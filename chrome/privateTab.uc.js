@@ -175,7 +175,7 @@ UC.privateTab = {
           browser.messageManager.loadFrameScript(this.frameScript, false);
     }
 
-    win.messageManager.addMessageListener('Browser:Init', gBrowser.privateListener);
+    win.addEventListener('XULFrameLoaderCreated', gBrowser.privateListener);
 
     if(this.observePrivateTabs)
       gBrowser.tabContainer.addEventListener('TabClose', this.onTabClose);
@@ -533,7 +533,7 @@ UC.privateTab = {
       doc.getElementById(this.BTN2_ID).remove();
       gBrowser.tabContainer.removeEventListener('TabSelect', this.onTabSelect);
       gBrowser.tabContainer.removeEventListener('TabClose', this.onTabClose);
-      win.messageManager.removeMessageListener('Browser:Init', gBrowser.privateListener);
+      win.addEventListener('XULFrameLoaderCreated', gBrowser.privateListener);
       doc.getElementById('contentAreaContextMenu').removeEventListener('popupshowing', this.contentContext);
       doc.getElementById('tabContextMenu').removeEventListener('popupshowing', this.tabContext);
       win.MozElements.MozTab.prototype.getAttribute = this.orig_getAttribute;
