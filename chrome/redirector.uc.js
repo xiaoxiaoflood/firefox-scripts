@@ -68,7 +68,7 @@ UC.Redirector = {
     'http://archive.$1'
   ], [
     //Remove universal parameters
-    /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|soc_\w+|cc_key|PHPSESSID|ig_mid|igshid|__twitter_impression|ved|cmpid|newreg|tag|fbclid|fref|variation|searchVariation|tracking_id)=).*?)(?=&|$|#)/g,
+    /(?:(\?)|&)(?:(?:(?:utm_\w+|ref|soc_\w+|cc_key|PHPSESSID|ig_mid|igshid|__twitter_impression|ved|cmpid|newreg|tag|fbclid|fref|variation|searchVariation|tracking_id|seller_id|partner_id|gclid)=).*?)(?=&|$|#)/g,
     '$1'
   ], [
     //Remove unnecesary ? and &
@@ -111,102 +111,16 @@ UC.Redirector = {
     return redirectUrl ? originUrl : false;
   },
 
-  get processScript () {
-    return 'data:application/javascript;charset=UTF-8,(' + encodeURIComponent(function (rules, getRedirectUrl) {
-      Components.utils.import("resource://gre/modules/Services.jsm");
-
-      var {
-        interfaces: Ci,
-        results: Cr,
-        manager: Cm
-      } = Components;
-
-      this.policy = {
-        contractID: '@xiao/redirector;1',
-        classID: Components.ID('{009e4d80-b13f-11e7-8f1a-0800200c9a66}'),
-        xpcom_categories: ['content-policy', 'net-channel-event-sinks'],
-
-        init: function () {
-          Cm.QueryInterface(Ci.nsIComponentRegistrar).registerFactory(this.classID, 'Redirector', this.contractID, this);
-          for (let category of this.xpcom_categories)
-            Services.catMan.addCategoryEntry(category, this.contractID, this.contractID, false, true);
-        },
-        
-        destroy: function () {
-          Cm.QueryInterface(Ci.nsIComponentRegistrar).unregisterFactory(this.classID, this);
-          for (let category of this.xpcom_categories)
-            Services.catMan.deleteCategoryEntry(category, this.contractID, false);
-        },
-
-        // nsIContentPolicy interface implementation
-        shouldLoad: function (contentLocation, loadInfo) {
-          if (loadInfo.externalContentPolicyType != Ci.nsIContentPolicy.TYPE_DOCUMENT)
-            return Ci.nsIContentPolicy.ACCEPT;
-          let redirectUrl = this.getRedirectUrl(contentLocation.spec);
-          let node = loadInfo.loadingContext;
-          if (redirectUrl && node) {
-            node.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIBrowserChild).messageManager.sendAsyncMessage('Redirector', [redirectUrl, loadInfo.loadingPrincipal?.URI]);
-            return Ci.nsIContentPolicy.REJECT_REQUEST;
-          }
-          return Ci.nsIContentPolicy.ACCEPT;
-        },
-
-        // nsIChannelEventSink interface implementation
-        asyncOnChannelRedirect: function (oldChannel, newChannel, flags, redirectCallback) {
-          this.onChannelRedirect(oldChannel, newChannel, flags);
-          redirectCallback.onRedirectVerifyCallback(Cr.NS_OK);
-        },
-
-        onChannelRedirect: function (oldChannel, newChannel, flags) {
-          if (!(newChannel.loadFlags & Ci.nsIChannel.LOAD_INITIAL_DOCUMENT_URI))
-            return;
-          let newLocation = newChannel.URI.spec;
-          if (!newLocation)
-            return;
-          let callbacks = [];
-          if (newChannel.notificationCallbacks)
-            callbacks.push(newChannel.notificationCallbacks);
-          if (newChannel.loadGroup && newChannel.loadGroup.notificationCallbacks)
-            callbacks.push(newChannel.loadGroup.notificationCallbacks);
-          let webNav;
-          for (let callback of callbacks) {
-            try {
-              webNav = callback.getInterface(Ci.nsILoadContext).topFrameElement.webNavigation;
-              break;
-            } catch(e) {}
-          }
-          if (!webNav)
-            return;
-          let redirectUrl = this.getRedirectUrl(newLocation);
-          if (redirectUrl)
-            webNav.loadURI(redirectUrl, {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
-        },
-
-        createInstance: function (outer, iid) {
-          if (outer)
-            throw Cr.NS_ERROR_NO_AGGREGATION;
-          return this.QueryInterface(iid);
-        },
-
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIContentPolicy, Ci.nsIChannelEventSink]),
-
-        rules: rules,
-
-        getRedirectUrl: getRedirectUrl
-      };
-
-      policy.init();
-    }.toString() + ')(' + this.rules.toSource() + ', ' + this.getRedirectUrl.toString() + ')');
-  },
-
-  chromeListener: function (m) {
-    m.target.loadURI(m.data[0], {referer: m.data[1], triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
-  },
-
   observe: function (subject) {
     let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
     let contentType = httpChannel.loadInfo.externalContentPolicyType;
-    if (contentType != Ci.nsIContentPolicy.TYPE_DOCUMENT && contentType in this.internalRules) {
+    if (contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT) {
+      let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec);
+      if (redirectUrl) {
+        let loadInfo = httpChannel.loadInfo;
+        loadInfo.browsingContext.embedderElement.loadURI(redirectUrl, {referer: loadInfo.loadingPrincipal?.URI, triggeringPrincipal: loadInfo.triggeringPrincipal});
+      }
+    } else if (contentType in this.internalRules) {
       let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec, this.internalRules[contentType]);
       if (redirectUrl) {
         httpChannel.redirectTo(Services.io.newURI(redirectUrl));
@@ -214,19 +128,12 @@ UC.Redirector = {
     }
   },
 
+
   init: function () {
-    Services.ppmm.loadProcessScript(this.processScript, true);
-    Services.mm.addMessageListener('Redirector', this.chromeListener);
     Services.obs.addObserver(this, 'http-on-modify-request', false);
   },
 
   destroy: function () {
-    Services.ppmm.loadProcessScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('('+(function () {
-      this.policy.destroy();
-      delete this.policy;
-    }).toString() + ')();'), false);
-    Services.ppmm.removeDelayedProcessScript(this.processScript);
-    Services.mm.removeMessageListener('Redirector', this.chromeListener);
     Services.obs.removeObserver(this, 'http-on-modify-request', false);
     delete UC.Redirector;
   }
