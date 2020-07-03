@@ -114,7 +114,7 @@ UC.beQuiet = {
   audioStarted (ev) {
     let browser = ev.target;
     if (UC.beQuiet.sites.find(site => site.rx.test(browser.currentURI.spec))) {
-      if (UC.beQuiet.playing) {
+      if (UC.beQuiet.playing && UC.beQuiet.browser != browser) {
         UC.beQuiet.stackingBrowser = UC.beQuiet.browser;
         UC.beQuiet.doAction('play'); // pause
         UC.beQuiet.stack.unshift(UC.beQuiet.browser);
@@ -138,14 +138,15 @@ UC.beQuiet = {
   },
 
   frameScript: 'data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
-    this.contentListener = (msg) => {
+    let contentListener = (msg) => {
       if (msg.data == 'destroy') {
-        removeMessageListener('bequiet', this.contentListener);
+        removeMessageListener('bequiet', contentListener);
+        delete this.contentListener;
       } else {
         content.document.querySelector(msg.data)?.click();
       }
     }
-    addMessageListener('bequiet', this.contentListener);
+    addMessageListener('bequiet', contentListener);
   }).toString() + ')();'),
 
   stack: [],

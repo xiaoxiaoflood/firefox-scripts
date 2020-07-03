@@ -50,7 +50,7 @@ In some cases, it may seem that nothing has changed in Firefox. If that happens,
   
   With practice, the page you want to go to will always become the first one, so accessing any frequent page will be as easy as typing just 'gm' + Enter to load Gmail.
   
-  This script replaces urlbar autocomplete, so `browser.urlbar.autoFill` is disabled on install. If at any time you miss domain autofill, you still sort of can achieve that by pressing Tab IF the domain of first suggestion matches what you've typed so far. Example: you typed *git* and the first suggestion if from *github.com*. Pressing Tab key will autocomplete the domain even if the first suggestion is not just github.com - it may be github.com/wathever. But if the typed input doesn't match the domain of the first suggestion, then Tab key will have default behavior, i.e. will select next suggestion just like down arrow key.
+  This script replaces urlbar autocomplete, so `browser.urlbar.autoFill` is disabled on install. If at any time you miss domain autofill, you still sort of can achieve that by pressing Tab IF the domain of first suggestion matches what you've typed so far. Example: you typed *git* and the first suggestion if from *github.com*. Pressing Tab key will autocomplete the domain even if the first suggestion is not just github.com - it may be github.com/whatever. But if the typed input doesn't match the domain of the first suggestion, then Tab key will have default behavior, i.e. will select next suggestion just like down arrow key.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/enterSelects.uc.js). 
 </details>
