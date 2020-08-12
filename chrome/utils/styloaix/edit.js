@@ -54,7 +54,7 @@ function init () {
       {
         uri: style.url,
         loadingNode: document,
-        securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_INHERITS,
+        securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_INHERITS_SEC_CONTEXT,
         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
       },
       async function (stream) {
