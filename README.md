@@ -4,9 +4,11 @@
 
 ## Instructions
 
+→ For Linux and macOS paths, see [1](https://github.com/xiaoxiaoflood/firefox-scripts/issues/8#issuecomment-467619800) and [2](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Enterprise_deployment_before_60#Configuration).
+
 1. Download [this zip file](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/fx-folder.zip) and extract its content to Firefox installation folder (usually **C:\Program Files\Mozilla Firefox**).
 
-2. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* or simply open "*about:support*", then click "*Open folder*". This is the folder of your Firefox profile. In there, create a new folder called **chrome**.
+2. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* or simply open **about:support**, then click "*Open folder*". This is the folder of your Firefox profile. In there, create a new folder called **chrome**.
 
 3. Download one of the files below and extract its content in **chrome** folder.
 
@@ -22,7 +24,7 @@
 
 5. If you want a button to manage your scripts, including the ability to disable/enable scripts without needing to restart Firefox¹, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
-6. Open "*about:support*" and click "*Clear startup cache…*" to force Firefox to load userChromeJS on the next startup.
+6. Open **about:support** and click "*Clear startup cache…*" to force Firefox to load userChromeJS on the next startup.
 
 7. Restart Firefox.
 
