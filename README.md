@@ -6,7 +6,7 @@
 
 1. Download [this zip file](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/fx-folder.zip) and extract its content to Firefox installation folder (usually **C:\Program Files\Mozilla Firefox**).
 
-2. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* or simply open the address "*about:support*", then click *Open folder*. This is the folder of your Firefox profile. In there, create a new folder called **chrome**.
+2. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* or simply open "*about:support*", then click "*Open folder*". This is the folder of your Firefox profile. In there, create a new folder called **chrome**.
 
 3. Download one of the files below and extract its content in **chrome** folder.
 
@@ -22,11 +22,9 @@
 
 5. If you want a button to manage your scripts, including the ability to disable/enable scripts without needing to restart Firefox¹, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
-6. Restart Firefox.
+6. Open "*about:support*" and click "*Clear startup cache…*" to force Firefox to load userChromeJS on the next startup.
 
-**Important**
-
-In some cases, it may seem that nothing has changed in Firefox. If that happens, it's because Firefox didn't update startup cache, so userChromeJS didn't run. To fix this, reopen your profile folder (see step 2 above), exit Firefox and delete `startupCache` folder. It will be recreated the next time you open Firefox, detecting the scripts that have been added.
+7. Restart Firefox.
 
 ¹: Not all scripts are restartless. These have `@shutdown` at the beginning of the code. Almost all scripts on this page were written by me to be restartless, but almost all scripts you get from other sources are not.
 
