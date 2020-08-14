@@ -13,11 +13,12 @@ UC.enterSelects = {
   init: function () {
     this.orig_receiveResults = this.controller.receiveResults;
     this.controller.receiveResults = function (queryContext) {
+      let result = UC.enterSelects.orig_receiveResults.call(this, queryContext);
       let gURLBar = this.browserWindow.gURLBar;
       if (UC.enterSelects.shouldSelect(gURLBar, queryContext))
         gURLBar.view._selectElement(gURLBar.view._rows.children[1], { updateInput: false });
 
-      return UC.enterSelects.orig_receiveResults.call(this, queryContext);
+      return result;
     };
 
     xPref.lock('browser.urlbar.autoFill', false);
@@ -31,7 +32,7 @@ UC.enterSelects = {
   controller: ChromeUtils.import('resource:///modules/UrlbarController.jsm').UrlbarController.prototype,
 
   shouldSelect: function (gURLBar, queryContext) {
-    if (queryContext.lastResultCount < 1 || gURLBar.view.selectedRowIndex > 0)
+    if (queryContext.results.length < 2 || gURLBar.view.selectedRowIndex > 0)
       return false;
 
     let {value} = gURLBar;
