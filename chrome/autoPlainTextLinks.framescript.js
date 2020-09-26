@@ -1,5 +1,5 @@
 "use strict";
-console.log("AutoPlainTextLinks framescript loading");
+//console.log("AutoPlainTextLinks framescript loading");
 
 Cu.import("resource://gre/modules/BrowserUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -70,8 +70,8 @@ function unload() {
     delete BrowserUtils[HookFlag];
     removeMessageListener("AutoPlainTextLinks@byalexv.co.uk:disable", unload);
     
-    console.log("AutoPlainTextLinks unloaded");
+    //console.log("AutoPlainTextLinks unloaded");
 }
 addMessageListener("AutoPlainTextLinks@byalexv.co.uk:disable", unload);
 
-console.log("AutoPlainTextLinks framescript loaded");
+//console.log("AutoPlainTextLinks framescript loaded");
