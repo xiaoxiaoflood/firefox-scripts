@@ -1,0 +1,17 @@
+{
+  "addons": {
+    "backtrack@byalexv.co.uk": {
+      "updates": [
+        {
+          "applications": {
+            "gecko": {
+              "strict_min_version": "80.0a1"
+            }
+          },
+          "version": "0.32",
+          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/backtrack/BackTrack.xpi"
+        }
+      ]
+    }
+  }
+}
