@@ -164,9 +164,7 @@
   <summary>Auto Plain Text Links</summary>
   Firefox's default context menu will allow you to open plain text links if you select them first. This small addon automatically detects simple http and ftp plain text links when you right-click without needing you to select them first, then passes that URL on to the default Firefox menu items for opening them.
 
-  Download both files into the Chrome folder
-  [Download link - part 1](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/autoPlainTextLinks.uc.js).
-  [Download link - part 2](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/autoPlainTextLinks.framescript.js).
+  [Download link - extract it in chrome folder](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/autoPlainTextLinks.zip).
 </details>
 
 <details>
