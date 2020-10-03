@@ -304,8 +304,8 @@ UC.privateTab = {
     });
 
     let { getBrowserWindow } = Cu.import('resource:///modules/PlacesUIUtils.jsm');
-    eval('PlacesUIUtils._openTabset = ' +
-          PlacesUIUtils._openTabset.toString().replace(/(\s+)(inBackground: loadInBackground,)/,
+    eval('PlacesUIUtils.openTabset = function ' +
+          PlacesUIUtils.openTabset.toString().replace(/(\s+)(inBackground: loadInBackground,)/,
                                                       '$1$2$1userContextId: aEvent.userContextId || 0,'));
                                                       
     eval('PlacesUIUtils._openNodeIn = ' +
@@ -437,7 +437,7 @@ UC.privateTab = {
   orig_allTabs: Object.getOwnPropertyDescriptor(Object.getPrototypeOf(gBrowser.tabContainer), 'allTabs').get,
   orig_insertBefore: customElements.get('tabbrowser-tabs').prototype.insertBefore,
   orig__updateNewTabVisibility: customElements.get('tabbrowser-tabs').prototype._updateNewTabVisibility,
-  orig__openTabset: PlacesUIUtils._openTabset,
+  orig_openTabset: PlacesUIUtils.openTabset,
   orig__openNodeIn: PlacesUIUtils._openNodeIn,
 
   frameScript: 'data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (() => {
@@ -550,7 +550,7 @@ UC.privateTab = {
 
     CustomizableUI.destroyWidget(this.BTN_ID);
 
-    PlacesUIUtils._openTabset = this.orig__openTabset;
+    PlacesUIUtils.openTabset = this.orig_openTabset;
     PlacesUIUtils._openNodeIn = this.orig__openNodeIn;
 
     delete UC.privateTab;
