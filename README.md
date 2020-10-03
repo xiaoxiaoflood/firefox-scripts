@@ -68,7 +68,7 @@
   <summary>Master Password+</summary>
   Locks Firefox with password. This will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
-  You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a master password</i>.
+  You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a Primary Password</i>.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/masterPasswordPlus.uc.js).  
 
