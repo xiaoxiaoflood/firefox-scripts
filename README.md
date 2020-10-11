@@ -103,7 +103,7 @@
   
   ![](https://i.imgur.com/BE7oPcu.png)
 
-  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/minMaxCloseButton.uc.js).
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/multifoxContainer.uc.js).
 </details>
 <details>
   <summary>Open in Unloaded Tab</summary>
