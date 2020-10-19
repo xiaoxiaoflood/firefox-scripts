@@ -160,6 +160,19 @@
 
   [Download link - extract it in chrome folder](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/styloaix.zip).
 </details>
+<details>
+  <summary>Auto Plain Text Links</summary>
+  Firefox's default context menu will allow you to open plain text links if you select them first. This small addon automatically detects simple http and ftp plain text links when you right-click without needing you to select them first, then passes that URL on to the default Firefox menu items for opening them.
+
+  [Download link - extract it in chrome folder](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/autoPlainTextLinks.zip).
+</details>
+
+<details>
+  <summary>Context to Search</summary>
+  With this script, when you choose Search from the context menu (with text selected), instead of immediately searching it will just put the selected text in the search bar so you can edit it and choose the search engine before searching.
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/contextToSearch.uc.js).
+</details>
 
 Bonus: I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save [these files](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/passwordmgr), so that you can access the old password manager using chrome://userchromejs/content/passwordmgr/passwordManager.xhtml (bookmark this URL).
 
