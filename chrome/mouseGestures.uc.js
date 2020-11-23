@@ -23,9 +23,10 @@ window.MGest = {
   utils: {
     init: function () {
       var self = this;
-      ['mousedown', 'wheel', 'mouseup', 'contextmenu', 'drop', 'click'].forEach(function (type) {
+      ['mousedown', 'mouseup', 'contextmenu', 'drop', 'click'].forEach(function (type) {
         document.addEventListener(type, self, true);
       });
+      document.addEventListener('wheel', self, { passive: false, capture: true });
       ['mouseleave', 'mousemove'].forEach(function (type) {
         document.addEventListener(type, self, false);
       });
