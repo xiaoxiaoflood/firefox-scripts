@@ -32,6 +32,16 @@ UC.multifoxContainer = {
       return gBrowser.orig_addTab.call(this, aURI, options);
     };
 
+    document.getElementById('context-openlinkinusercontext-menu').menupopup.setAttribute('oncommand', 'gBrowser.toUserContextId = Number(event.target.dataset.usercontextid);gContextMenu.openLinkInTab(event);');
+    document.getElementById('context_reopenInContainer').menupopup.setAttribute('oncommand', 'gBrowser.toUserContextId = Number(event.target.dataset.usercontextid);TabContextMenu.reopenInContainer(event);');
+    function fixNewTabMenuButton () {
+      document.getElementById('tabs-newtab-button').menupopup.addEventListener('mouseup', UC.multifoxContainer.forceDefaultContainer, false);
+    }
+    if (document.readyState == 'complete')
+      fixNewTabMenuButton();
+    else
+      document.addEventListener('DOMContentLoaded', fixNewTabMenuButton, {once: true});
+
     let orig_updateUserContextUIIndicator = win.updateUserContextUIIndicator;
     win.updateUserContextUIIndicator = function () {
       orig_updateUserContextUIIndicator();
@@ -109,6 +119,11 @@ UC.multifoxContainer = {
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
   },
 
+  forceDefaultContainer: function (e) {
+    if (e.target == this.firstChild)
+      gBrowser.toUserContextId = 0;
+  },
+
   setStyle: function () {
     this.STYLE = {
       url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
@@ -133,6 +148,9 @@ UC.multifoxContainer = {
       delete gBrowser.orig_addTab;
       win.updateUserContextUIIndicator = win.updateUserContextUIIndicator.orig;
       win.updateUserContextUIIndicator();
+      doc.getElementById('context-openlinkinusercontext-menu').menupopup.setAttribute('oncommand', 'gContextMenu.openLinkInTab(event);');
+      doc.getElementById('context_reopenInContainer').menupopup.setAttribute('oncommand', 'TabContextMenu.reopenInContainer(event);');
+      doc.getElementById('tabs-newtab-button').menupopup.removeEventListener('mouseup', this.forceDefaultContainer, false);
     });
     delete UC.multifoxContainer;
   }
