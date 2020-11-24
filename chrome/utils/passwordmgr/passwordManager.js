@@ -463,7 +463,7 @@ async function DeleteAllSignons() {
 async function TogglePasswordVisible() {
   if (showingPasswords || (await masterPasswordLogin(AskUserShowPasswords))) {
     showingPasswords = !showingPasswords;
-    togglePasswordsButton.label = showingPasswords ? "Show Passwords" : "Hide Passwords";
+    togglePasswordsButton.label = showingPasswords ? "Hide Passwords" : "Show Passwords";
     togglePasswordsButton.accessKey = "P";
     document.getElementById("passwordCol").hidden = !showingPasswords;
     FilterPasswords();
