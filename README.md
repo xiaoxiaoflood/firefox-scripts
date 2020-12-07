@@ -174,6 +174,15 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/contextToSearch.uc.js).
 </details>
 
+<details>
+ <summary>Restore <code>browser.newtab.url</code> Pref to <code>about:config</code> (by TheRealPSV)</summary>
+ This script restores the <code>browser.newtab.url</code> preference to <code>about:config</code>. Using this preference, you can set whatever you like as your New Tab page, including things like <code>file://</code> URLs that don't work with new tab override extensions. Once you install the script, just set the preference in <code>about:config</code> and it should work automatically. Make sure you don't have any other new tab extensions, or it might not work.
+ 
+ (Written by [TheRealPSV](https://github.com/TheRealPSV))
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/newtab-aboutconfig.uc.js).
+</details>
+
 Bonus: I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save [these files](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/passwordmgr), so that you can access the old password manager using chrome://userchromejs/content/passwordmgr/passwordManager.xhtml (bookmark this URL).
 
 ## Screenshots
