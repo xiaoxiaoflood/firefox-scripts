@@ -65,6 +65,16 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/extensionOptionsMenu.uc.js).
 </details>
 <details>
+  <summary>Extensions Update Checker</summary>
+  Firefox checks for available updates every 24 hours. You can disable autoinstall updates, but then you'll only know there are available updates if you manually open Add-ons Manager. This script:
+ 
+  - Disables autoinstall updates for every addon.
+  - Just after the daily check, if there's an update available it will open Add-ons Manager directly in "Available Updates" view, so that you can track changes before updating (you can click on the extension, then click "Release Notes" button).
+  - You can fill `ignoreList` if you are deliberately using an outdated version of an extension and don't want to be notified that an update is available.
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/extensionsUpdateChecker.uc.js).
+</details>
+<details>
   <summary>Master Password+</summary>
   Locks Firefox with password. This will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
