@@ -25,9 +25,9 @@ UC.beQuiet = {
     },
     {
       rx: /^https:\/\/open\.spotify\.com\//,
-      play: '.Root__now-playing-bar .control-button--circled',
-      previous: '.Root__now-playing-bar .spoticon-skip-back-16',
-      next: '.Root__now-playing-bar .spoticon-skip-forward-16'
+      play: '.Root__now-playing-bar .player-controls__buttons button:nth-child(3)',
+      previous: '.Root__now-playing-bar .player-controls__buttons button:nth-child(2)',
+      next: '.Root__now-playing-bar .player-controls__buttons button:nth-child(4)'
     },
     {
       rx: /^https:\/\/www\.twitch\.tv\//,
@@ -48,6 +48,7 @@ UC.beQuiet = {
   exec: function (win) {
     let document = win.document;
     let gBrowser = win.gBrowser;
+    gBrowser.addTabsProgressListener(this.progressListener);
     gBrowser.addEventListener('DOMAudioPlaybackStarted', this.audioStarted);
     gBrowser.addEventListener('DOMAudioPlaybackStopped', this.audioStopped);
 
@@ -83,28 +84,43 @@ UC.beQuiet = {
 
   onTabClose (ev) {
     let closedBrowser = gBrowser.getBrowserForTab(ev.target);
-    if (UC.beQuiet.browser == closedBrowser) {
-      UC.beQuiet.playing = false;
-      return;
-    }
-    UC.beQuiet.stack.find(browser => {
-      if (closedBrowser == browser) {
-        let index = UC.beQuiet.stack.indexOf(browser);
-        if (index != -1)
-          UC.beQuiet.stack.splice(index, 1);
-        return true;
+    if (UC.beQuiet.playingStack.includes(closedBrowser)) {
+      if (closedBrowser == UC.beQuiet.playingBrowser) {
+        UC.beQuiet.doAction('play', UC.beQuiet.prevPlayingBrowser);
       }
-    });
+      UC.beQuiet.remove(UC.beQuiet.playingStack, closedBrowser);
+    }
+    UC.beQuiet.remove(UC.beQuiet.stack, closedBrowser);
+  },
+  
+  progressListener: {
+    onLocationChange: function (aBrowser, aWebProgress, aRequest, aLocation, aFlags) {
+      if (!aWebProgress.isTopLevel ||
+          aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_RELOAD || 
+          aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_ERROR_PAGE)
+          return;
+
+      if (UC.beQuiet.stack.includes(aBrowser) && !UC.beQuiet.isURLCompatible(aLocation.spec))
+        UC.beQuiet.remove(UC.beQuiet.stack, aBrowser);
+    }
   },
 
-  doAction (action) {
-    if (!UC.beQuiet.browser)
+  doAction (action, browser) {
+    if (!browser) {
+      if (this.playingBrowser)
+        browser = this.playingBrowser;
+      else
+        browser = this.topStack;
+    }
+
+    if (!browser)
       return;
+
     this.sites.find(site => {
-      if (site.rx.test(UC.beQuiet.browser.currentURI.spec)) {
+      if (site.rx.test(browser.currentURI.spec)) {
         let selector = site[action];
         if (selector)
-          UC.beQuiet.browser.messageManager.sendAsyncMessage('bequiet', selector);
+          browser.messageManager.sendAsyncMessage('bequiet', selector);
         return true;
       }
       return false;
@@ -113,27 +129,38 @@ UC.beQuiet = {
 
   audioStarted (ev) {
     let browser = ev.target;
-    if (UC.beQuiet.sites.find(site => site.rx.test(browser.currentURI.spec))) {
-      if (UC.beQuiet.playing && UC.beQuiet.browser != browser) {
-        UC.beQuiet.stackingBrowser = UC.beQuiet.browser;
-        UC.beQuiet.doAction('play'); // pause
-        UC.beQuiet.stack.unshift(UC.beQuiet.browser);
+    if (UC.beQuiet.isURLCompatible(browser.currentURI.spec)) {
+      UC.beQuiet.addUnique(UC.beQuiet.stack, browser);
+      UC.beQuiet.addUnique(UC.beQuiet.playingStack, browser);
+      
+      if (UC.beQuiet.prevPlayingBrowser) {
+        UC.beQuiet.doAction('play', UC.beQuiet.prevPlayingBrowser);
       }
-      UC.beQuiet.browser = browser;
     }
-    UC.beQuiet.playing = true;
+  },
+
+  isURLCompatible (url) {
+    return UC.beQuiet.sites.find(site => site.rx.test(url))
+  },
+
+  get playingBrowser () {
+    return this.playingStack[this.playingStack.length - 1];
+  },
+
+  get prevPlayingBrowser () {
+    return this.playingStack[this.playingStack.length - 2];
+  },
+
+  get topStack () {
+    return this.stack[this.stack.length - 1];
   },
 
   audioStopped (ev) {
     let browser = ev.target;
-    if (UC.beQuiet.stackingBrowser != browser) {
-      UC.beQuiet.playing = false;
-      if (UC.beQuiet.stack.length) {
-        UC.beQuiet.browser = UC.beQuiet.stack.shift();
-        UC.beQuiet.doAction('play');
-      }
-    } else {
-      UC.beQuiet.stackingBrowser = null;
+    if (browser == UC.beQuiet.playingBrowser) {
+      UC.beQuiet.remove(UC.beQuiet.playingStack, UC.beQuiet.playingBrowser);
+      if (UC.beQuiet.playingBrowser)
+        UC.beQuiet.doAction('play', UC.beQuiet.playingBrowser);
     }
   },
 
@@ -151,6 +178,20 @@ UC.beQuiet = {
 
   stack: [],
 
+  playingStack: [],
+
+  addUnique (stack, item) {
+    this.remove(stack, item);
+    stack.push(item);
+  },
+
+  remove (stack, item) {
+    let index = stack.indexOf(item);
+    if (index != -1) {
+      stack.splice(index, 1);
+    }
+  },
+
   init: function () {
     Services.mm.loadFrameScript(this.frameScript, true);
   },
@@ -160,6 +201,7 @@ UC.beQuiet = {
     Services.mm.broadcastAsyncMessage('bequiet', 'destroy');
     _uc.windows((doc, win) => {
       let gBrowser = win.gBrowser;
+      gBrowser.removeTabsProgressListener(this.progressListener);
       gBrowser.removeEventListener('DOMAudioPlaybackStarted', this.audioStarted);
       gBrowser.removeEventListener('DOMAudioPlaybackStopped', this.audioStopped);
       doc.getElementById('beQuiet-keyset').remove();
