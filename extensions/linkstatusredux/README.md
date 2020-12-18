@@ -1,3 +1,26 @@
 Unnoficial version for Fx 57+.
 
 [Read the Instructions](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/extensions#instructions).
+
+Original Description
+---
+Link Status Redux shows an indicator on the status bar in front of the link address when the mouse cursor is over a link to a page you have bookmarked or visited before. It can also show the date you last visited the linked page.
+
+The indicator prefixes for visited and bookmarked links are arbitrary, user-configurable text strings. The defaults are a white star (✩, U+2729) for visited links and a place of interest sign (⌘, U+2318) for bookmarked links. Remember a trailing space if you want the indicator separated from the address.
+
+For the displayed visit date, you can choose to prefer visit times that are older than a configurable limit (specified in seconds). This way you can still see the previous visit time even if you happened to accidentally click a visited link. If the limit is non-zero and the link is visited, the latest n visits (configurable, set it to 0 to check all visits) are checked and the latest visit time older than the limit is shown instead. If such a visit time was not found, the very latest time is shown. You can also choose to display both the very latest and the over-the-limit visit times. In this case the latest visit time is always shown and the older visit time is also shown if it a) exists and b) is not equal to the latest visit time.
+
+In Firefox 3.5 or later, you can choose to stop Firefox from rendering visited links differently. To do so, turn on the "Disable visited link styling" option in the add-on preferences. This can prevent a web server from abusing this feature of Firefox to probe which pages you have visited (See bug report). This issue appears to have been fixed in Firefox 4.0 and later and in Seamonkey 2.1 and later.
+
+This add-on is a successor/alternative to the Link Status add-on by fcp, and is based on its code. The main difference is the use of a text prefix instead of an image as the indicator, and that Link Status Redux also works with Firefox version 4 and later. It also works with the Status-4-Evar add-on.
+
+Places to copy-paste UTF-8 symbols from:
+http://www.fileformat.info/info/unicode/block/dingbats/utf8test.htm
+http://www.fileformat.info/info/unicode/block/miscellaneous_symbols/utf8test.htm
+http://www.fileformat.info/info/unicode/block/miscellaneous_technical/utf8test.htm
+http://www.fileformat.info/info/unicode/block/index.htm
+
+
+Custom formatting allows expert users to more freely specify the text that is shown when hovering the mouse over a link (the "link target text"). The specification is done with printf-style substitutions, and the following are valid for the link target text: **%u** (link URL), **%T** (custom-formatted link latest visit time, see below; empty string if not visited), **%t** (custom-formatted older visit time, if it exists; empty string if it does not exist), **%V** (the user-defined visited indicator), **%B** (the user-defined bookmarked indicator), **%%** (literal % character). In addition, the following conditional blocks can be used: **%+(** .. **%+)** (anything between is displayed only when the link is visited), **%-(** .. **%-)** (anything between is displayed only when the link is not visited), **%+[** .. **%+]** (anything between is displayed only when the link is bookmarked), **%-[** .. **%-]** (anything between is displayed only when the link is not bookmarked), **%+{** .. **%+}** (anything between is displayed only when the older visit time **%t** is defined), **%-{** .. **%-}** (anything between is displayed only when the older visit time **%t** is not defined).
+
+For the visit time, several formats can be defined, which are used when the visit time is more recent than the corresponding time limit. The following substitutions (a subset of those specified by strftime plus the "ago" ones) are valid for visit time formatting: **%c** (date and time in locale's preferred format), **%x** (date in locale's preferred format), **%X** (time in locale's preferred format), **%Y** (4-digit year), **%y** (2-digit year 00..99), **%m** (zero-padded month 01..12), **%b** (month name from user-defined list), **%a** (weekday name from user-defined list), **%d** (zero-padded day of month 01..31), **%e** (day of month 1..31), **%H** (zero-padded hour 00..23), **%k** (hour 0..23), **%I** (zero-padded hour 01..12), **%l** (hour 1..12), **%p** (AM/PM), **%P** (am/pm), **%z** (timezone offset in the form -HHMM or +HHMM), **%M** (zero-padded minute 00..59), **%S** (zero-padded second (00..60), **%Ns** (# seconds ago with N decimals), **%Nm** (# minutes ago with N decimals), **%Nh** (# hours ago with N decimals), **%Nd** (# days ago with N decimals), **%Nw** (# weeks ago with N decimals), **%NM** (# months ago with N decimals), **%Ny** (# years ago with N decimals), **%%** (literal % character). 
