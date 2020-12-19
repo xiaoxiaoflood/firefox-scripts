@@ -46,11 +46,13 @@
 </details>
 <details>
   <summary>Enter Selects</summary>
-  Preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xiaoxiaoflood", you don't need to press down arrow key before Enter. This is a workaround for the bad Firefox design choice of autofill domains only.
+  Have you ever been frustrated because you wanted, for example, that Firefox autofills "https://www.youtube.com/feed/subscriptions" when you type "youtube" in location bar? That's because Firefox only autofills domains, so it will never go further than just "https://www.youtube.com/". Also because of this, Firefox will never autofill "https://www.reddit.com/r/firefox/" when you type "firefox", no matter how many times you've visited that page.
   
-  With practice, the page you want to go to will always become the first one, so accessing any frequent page will be as easy as typing just 'gm' + Enter to load Gmail.
+  I don't like this. Firefox should be smart to always prioritize the page with higher "visit score" in browser history. That's what this script fixes. It preselects the first suggestion from address bar. For instance, if this page is the first suggestion when you type "xiaoxiaoflood", you don't need to press down arrow key before Enter.
   
-  This script replaces urlbar autocomplete, so `browser.urlbar.autoFill` is disabled on install. If at any time you miss domain autofill, you still sort of can achieve that by pressing Tab IF the domain of first suggestion matches what you've typed so far. Example: you typed *git* and the first suggestion if from *github.com*. Pressing Tab key will autocomplete the domain even if the first suggestion is not just github.com - it may be github.com/whatever. But if the typed input doesn't match the domain of the first suggestion, then Tab key will have default behavior, i.e. will select next suggestion just like down arrow key.
+  Pages you usually visit will always rise to the first position, so accessing any frequent page will be as easy as typing no more than three chars + Enter, like just "you" + Enter to load YouTube Feed directly instead of YouTube homepage. It's even possible to teach Firefox to selects YouTube Feed with "y" and YouTube Homepage with "yo", it's just a matter of practice.
+  
+  This script replaces urlbar autocomplete, so `browser.urlbar.autoFill` is disabled on install. If at any time you miss domain autofill, you still sort of can achieve that by pressing Tab IF the domain of first suggestion matches what you've typed so far. Example: you typed "*git*" and the first suggestion is from *github.com*. Pressing Tab key will autocomplete the domain even if the first suggestion is not just github.com - it may be github.com/whatever. But if the typed input doesn't match the domain of the first suggestion, then Tab key will have default behavior of selecting next suggestion just like down arrow key.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/enterSelects.uc.js). 
 </details>
