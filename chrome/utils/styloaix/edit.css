@@ -23,6 +23,7 @@ input.devtools-textinput {
 	padding: 4px;
   margin: 0 6px 0 4px;
   border: 1px solid ThreeDShadow;
+  -moz-box-flex: 1;
 }
 .devtools-toolbarbutton {
 	border-radius: 2px !important;
@@ -37,12 +38,6 @@ input.devtools-textinput {
 }
 .update-url-row {
 	display: none;
-}
-grid {
-	margin-bottom: 4px;
-}
-grid label {
-  padding-bottom: 2px;
 }
 #editor-tools {
 	padding: 5px;

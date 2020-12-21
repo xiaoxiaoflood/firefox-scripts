@@ -12,22 +12,22 @@
 <?xml-stylesheet href="chrome://devtools/content/shared/toolbarbutton.css" type="text/css"?>
 
 <window
-	class="theme-body"
-	id="styloaix-edit"
+  class="theme-body"
+  id="styloaix-edit"
   title="StyloaiX Editor"
   persist="width height screenX screenY sizemode"
   height="350"
-	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	xmlns:html="http://www.w3.org/1999/xhtml">
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml">
 
     <html:link rel="icon" href="chrome://userchromejs/content/styloaix/16.png"/>
     <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
     <html:link rel="localization" href="devtools/client/styleeditor.ftl"/>
 
-	<script src="chrome://userchromejs/content/styloaix/edit.js"/>
-	<script src="chrome://devtools/content/shared/theme-switching.js"/>
-	<script src="chrome://global/content/globalOverlay.js"/>
-	<script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://userchromejs/content/styloaix/edit.js"/>
+  <script src="chrome://devtools/content/shared/theme-switching.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script>
     "use strict";
     /* import-globals-from ../../../toolkit/content/globalOverlay.js */
@@ -86,65 +86,61 @@
 
   <keyset id="sourceEditorKeys"/>
 
-	<keyset>
-		<key id="find-key" modifiers="control" key="F" oncommand="sourceEditor.codeMirror.execCommand('find')"/>
-		<key id="save-key" modifiers="control" key="S" oncommand="save()"/>
-		<key id="close-key" modifiers="control" key="W" oncommand="window.close()"/>
-	</keyset>
+  <keyset>
+    <key id="find-key" modifiers="control" key="F" oncommand="sourceEditor.codeMirror.execCommand('find')"/>
+    <key id="save-key" modifiers="control" key="S" oncommand="save()"/>
+    <key id="close-key" modifiers="control" key="W" oncommand="window.close()"/>
+  </keyset>
 
-	<vbox id="main-area" flex="1" class="theme-toolbar">
-		<hbox id="editor-tools">
-			<button class="devtools-toolbarbutton" id="save-button" label="Save" accesskey="S" oncommand="save()" disabled="true"/>
-			<button class="devtools-toolbarbutton" id="preview-button" label="Preview" accesskey="P" oncommand="preview()" disabled="true"/>
-			<button class="devtools-toolbarbutton" id="check-for-errors-button" label="Check for Errors" accesskey="C" oncommand="checkForErrors()"/>
+  <vbox id="main-area" flex="1" class="theme-toolbar">
+    <hbox id="editor-tools">
+      <button class="devtools-toolbarbutton" id="save-button" label="Save" accesskey="S" oncommand="save()" disabled="true"/>
+      <button class="devtools-toolbarbutton" id="preview-button" label="Preview" accesskey="P" oncommand="preview()" disabled="true"/>
+      <button class="devtools-toolbarbutton" id="check-for-errors-button" label="Check for Errors" accesskey="C" oncommand="checkForErrors()"/>
 
-			<vbox class="devtools-separator"></vbox>
+      <vbox class="devtools-separator"></vbox>
 
-			<button class="devtools-toolbarbutton" label="Insert" accesskey="I" type="menu">
-				<menupopup>
-					<menuitem label="Firefox chrome URL" accesskey="F" oncommand="insertCodeAtStart('@-moz-document url(\u0022' + _uc.BROWSERCHROME + '\u0022) {\n\n\n}')"/>
-					<menuitem label="Current Tab URL" accesskey="T" oncommand="insertCodeAtStart('@-moz-document url(\u0022' + Services.wm.getMostRecentBrowserWindow().gBrowser.currentURI.specIgnoringRef + '\u0022) {\n\n\n}')"/>
-					<menuitem label="Current Tab domain" accesskey="D" oncommand="let uri = Services.wm.getMostRecentBrowserWindow().gBrowser.currentURI; let host = uri.asciiHost; insertCodeAtStart('@-moz-document ' + (host ? 'domain' : 'url') + '(\u0022' + (host || uri.currentURI.specIgnoringRef) + '\u0022) {\n\n\n}')"/>
-					<menuitem label="HTML namespace as default" accesskey="H" oncommand="insertCodeAtStart('@namespace url(\u0022http://www.w3.org/1999/xhtml\u0022);')"/>
-					<menuitem label="XUL namespace as default" accesskey="X" oncommand="insertCodeAtStart('@namespace url(\u0022http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul\u0022);');"/>
-					<menuitem label="Chrome folder path" accesskey="C" oncommand="insertCodeAtCaret('resource://userchromejs/')"/>
-					<menuitem label="Data URI…" accesskey="D" oncommand="insertDataURI()"/>
-				</menupopup>
-			</button>
-			<checkbox id="wrap-lines" label="Wrap lines" accesskey="W" oncommand="changeWordWrap(this.checked)"/>
-			<checkbox id="instant-preview" label="Instant Preview" accesskey="R" oncommand="instantPreview(this.checked)"/>
-			<checkbox id="instant-check" label="Instant Check for Errors" accesskey="T" oncommand="instantCheck(this.checked)"/>
+      <button class="devtools-toolbarbutton" label="Insert" accesskey="I" type="menu">
+        <menupopup>
+          <menuitem label="Firefox chrome URL" accesskey="F" oncommand="insertCodeAtStart('@-moz-document url(\u0022' + _uc.BROWSERCHROME + '\u0022) {\n\n\n}')"/>
+          <menuitem label="Current Tab URL" accesskey="T" oncommand="insertCodeAtStart('@-moz-document url(\u0022' + Services.wm.getMostRecentBrowserWindow().gBrowser.currentURI.specIgnoringRef + '\u0022) {\n\n\n}')"/>
+          <menuitem label="Current Tab domain" accesskey="D" oncommand="let uri = Services.wm.getMostRecentBrowserWindow().gBrowser.currentURI; let host = uri.asciiHost; insertCodeAtStart('@-moz-document ' + (host ? 'domain' : 'url') + '(\u0022' + (host || uri.currentURI.specIgnoringRef) + '\u0022) {\n\n\n}')"/>
+          <menuitem label="HTML namespace as default" accesskey="H" oncommand="insertCodeAtStart('@namespace url(\u0022http://www.w3.org/1999/xhtml\u0022);')"/>
+          <menuitem label="XUL namespace as default" accesskey="X" oncommand="insertCodeAtStart('@namespace url(\u0022http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul\u0022);');"/>
+          <menuitem label="Chrome folder path" accesskey="C" oncommand="insertCodeAtCaret('resource://userchromejs/')"/>
+          <menuitem label="Data URI…" accesskey="D" oncommand="insertDataURI()"/>
+        </menupopup>
+      </button>
+      <checkbox id="wrap-lines" label="Wrap lines" accesskey="W" oncommand="changeWordWrap(this.checked)"/>
+      <checkbox id="instant-preview" label="Instant Preview" accesskey="R" oncommand="instantPreview(this.checked)"/>
+      <checkbox id="instant-check" label="Instant Check for Errors" accesskey="T" oncommand="instantCheck(this.checked)"/>
       <spacer flex="1"/>
       <label>Origin:</label>
       <menulist id="origin" oncommand="val = Number(this.value); if (origin != val) { toggleUI('save-button', true); origin = val; unsaved = true;}">
-				<menupopup>
-					<menuitem label="AGENT_SHEET" value="0"/>
-					<menuitem label="USER_SHEET" value="1"/>
-					<menuitem label="AUTHOR_SHEET" value="2" selected="true"/>
-				</menupopup>
+        <menupopup>
+          <menuitem label="AGENT_SHEET" value="0"/>
+          <menuitem label="USER_SHEET" value="1"/>
+          <menuitem label="AUTHOR_SHEET" value="2" selected="true"/>
+        </menupopup>
       </menulist>
-		</hbox>
-		<separator orient="horizontal" class="devtools-horizontal-splitter"/>
-		<grid>
-			<columns>
-				<column/>
-				<column flex="1"/>
-			</columns>
-			<rows>
-				<row align="center">
-					<label control="name" accesskey="N">Name:</label>
-					<html:input class="devtools-textinput" id="name"/>
-				</row>
-			</rows>
-		</grid>
-		<separator orient="horizontal" class="devtools-horizontal-splitter"/>
-		<deck id="editor" flex="1">
-			<hbox flex="1" style="display: flex; margin: 1px 4px;">
-				<html:textarea id="internal-code" style="width: 100%;box-sizing: border-box; resize: none;"/>
-			</hbox>
-			<hbox id="sourceeditor" flex="1"/>
-		</deck>
-		<vbox class="theme-toolbar" id="errors" style="display:none;"/>
-	</vbox>
+    </hbox>
+    <separator orient="horizontal" class="devtools-horizontal-splitter"/>
+    <hbox align="center" style="margin-bottom: 4px;">
+      <hbox style="margin-bottom: 2px;">
+        <label control="name" accesskey="N">Name:</label>
+      </hbox>
+      <hbox flex="1">
+        <html:input class="devtools-textinput" id="name"/>
+      </hbox>
+    </hbox>
+    <separator orient="horizontal" class="devtools-horizontal-splitter"/>
+    <deck id="editor" flex="1">
+      <hbox flex="1" style="display: flex; margin: 1px 4px;">
+        <html:textarea id="internal-code" style="width: 100%;box-sizing: border-box; resize: none;"/>
+      </hbox>
+      <hbox id="sourceeditor" flex="1"/>
+    </deck>
+    <vbox class="theme-toolbar" id="errors" style="display:none;"/>
+  </vbox>
 
 </window>
