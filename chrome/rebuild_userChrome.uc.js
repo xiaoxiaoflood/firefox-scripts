@@ -323,13 +323,14 @@ UC.rebuild = {
         let sep = mp.appendChild(aDocument.createXULElement('menuseparator'));
         sep.setAttribute('id', 'uc-menuseparator');
 
-        let menuitem = aDocument.getElementById('menu_ToolsPopup').insertBefore(UC.rebuild.elBuilder(aDocument, 'menu', {
+        let mi = UC.rebuild.elBuilder(aDocument, 'menu', {
           id: 'userChromejs_Tools_Menu',
           label: 'userChromeJS Manager',
           tooltiptext: 'UC Script Manager',
           class: 'menu-iconic',
           image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABeSURBVDhPY6AKSCms+x+SkPMfREOFwACXOAYYNQBVITrGJQ7CUO0IA0jFUO0QA3BhkEJs4iAM1Y4bgBTBDIAKkQYGlwHYMFQZbgBSBDIAF4Yqww3QbUTHUGWUAAYGAEyi7ERKirMnAAAAAElFTkSuQmCC',
-        }), aDocument.getElementById('menu_preferences'));
+        });
+        aDocument.getElementById('devToolsSeparator').insertAdjacentElement('afterend', mi);
 
         let menupopup = aDocument.getElementById('userChromejs_options');
         UC.rebuild.menues.forEach(menu => {
