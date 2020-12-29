@@ -38,7 +38,7 @@ UC.extensionOptionsMenu = {
         });
         btn.appendChild(mp);
 
-        mp.addEventListener('popupshowing', UC.extensionOptionsMenu.populateMenu);
+        mp.addEventListener('popupshowing', UC.extensionOptionsMenu.evalPopulateMenu);
 
         return btn;
       }
@@ -48,7 +48,14 @@ UC.extensionOptionsMenu = {
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
   },
 
-  populateMenu: async function (e) {
+  evalPopulateMenu: function (e) {
+    let win = e.view;
+    new win.Function('e', `
+      AddonManager.getAddonsByTypes(['extension']).then(addons => UC.extensionOptionsMenu.populateMenu(e, addons));
+    `).call(null, e);
+  },
+
+  populateMenu: function (e, addons) {
     let prevState;
     let popup = e.target;
     let doc = e.view.document;
@@ -59,8 +66,6 @@ UC.extensionOptionsMenu = {
 
     while (popup.hasChildNodes())
       popup.removeChild(popup.firstChild);
-
-    let addons = await AddonManager.getAddonsByTypes(['extension']);
 
     addons.sort((a, b) => {
       let ka = (enabledFirst ? a.isActive ? '0' : '1' : '') + a.name.toLowerCase();
