@@ -21,6 +21,10 @@ XPIDatabase.isDisabledLegacy = function (addon) {
   return false;
 }
 
+XPIDatabase.mustSign = function (aType) {
+  return false;
+}
+
 XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS", () => {
   const {XPIProvider} = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm");
   return XPIProvider.BOOTSTRAP_REASONS;
