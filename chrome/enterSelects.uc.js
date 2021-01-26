@@ -32,7 +32,7 @@ UC.enterSelects = {
   controller: ChromeUtils.import('resource:///modules/UrlbarController.jsm').UrlbarController.prototype,
 
   shouldSelect: function (gURLBar, queryContext) {
-    if (queryContext.results.length < 2 || gURLBar.view.selectedRowIndex > 0)
+    if (gURLBar.searchMode?.engineName || queryContext.results.length < 2 || gURLBar.view.selectedRowIndex > 0)
       return false;
 
     let {value} = gURLBar;

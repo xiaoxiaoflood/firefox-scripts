@@ -151,28 +151,25 @@ UC.privateTab = {
     gBrowser.tabContainer.addEventListener('TabSelect', this.onTabSelect);
 
     gBrowser.privateListener = (e) => {
-        let browser = e.target;
-        let tab = gBrowser.getTabForBrowser(browser);
-        if (!tab)
-          return;
-        let isPrivate = this.isPrivate(tab);
-      
-        if (!isPrivate) {
-          if (this.observePrivateTabs) {
-            this.openTabs.delete(tab);
-            if (!this.openTabs.size)
-              this.clearData();
-          }
-          return;
+      let browser = e.target;
+      let tab = gBrowser.getTabForBrowser(browser);
+      if (!tab)
+        return;
+      let isPrivate = this.isPrivate(tab);
+    
+      if (!isPrivate) {
+        if (this.observePrivateTabs) {
+          this.openTabs.delete(tab);
+          if (!this.openTabs.size)
+            this.clearData();
         }
+        return;
+      }
 
-        if (this.observePrivateTabs)
-          this.openTabs.add(tab)
+      if (this.observePrivateTabs)
+        this.openTabs.add(tab)
 
-        if ('useGlobalHistory' in browser.browsingContext) // fx78+
-          browser.browsingContext.useGlobalHistory = false;
-        else // fx77-
-          browser.messageManager.loadFrameScript(this.frameScript, false);
+      browser.browsingContext.useGlobalHistory = false;
     }
 
     win.addEventListener('XULFrameLoaderCreated', gBrowser.privateListener);
@@ -439,10 +436,6 @@ UC.privateTab = {
   orig__updateNewTabVisibility: customElements.get('tabbrowser-tabs').prototype._updateNewTabVisibility,
   orig_openTabset: PlacesUIUtils.openTabset,
   orig__openNodeIn: PlacesUIUtils._openNodeIn,
-
-  frameScript: 'data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (() => {
-    content.docShell.useGlobalHistory = false;
-  }).toString() + ')();'),
 
   BTN_ID: 'privateTab-button',
   BTN2_ID: 'newPrivateTab-button',
