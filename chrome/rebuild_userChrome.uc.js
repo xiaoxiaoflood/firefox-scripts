@@ -218,7 +218,7 @@ UC.rebuild = {
           try {
             eval(script.shutdown);
           } catch (ex) {
-            console.error(ex);
+            Cu.reportError(ex);
           }
           if (script.onlyonce)
             return true;

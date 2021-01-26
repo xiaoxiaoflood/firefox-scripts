@@ -116,7 +116,7 @@ let _uc = {
         this.everLoaded.push(script.id);
       }
     } catch (ex) {
-      this.error(script.filename, ex);
+      Cu.reportError(ex);
     }
   },
 
@@ -150,16 +150,6 @@ let _uc = {
       el.setAttribute(att, atts[att]);
     }
     return el
-  },
-
-  error: function (aMsg, err) {
-    let error = Cc['@mozilla.org/scripterror;1'].createInstance(Ci.nsIScriptError);
-    if (typeof err == 'object') {
-      error.init(aMsg + '\n' + err.name + ' : ' + err.message, err.fileName || null, null, err.lineNumber, null, 2, err.name);
-    } else {
-      error.init(aMsg + '\n' + err + '\n', null, null, null, null, 2, null);
-    }
-    Services.console.logMessage(error);
   }
 };
 
