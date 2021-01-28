@@ -60,7 +60,7 @@ UC.WheelAutoScroll_1px = {
 
   frameScript: 'data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
     getScrollParent = el =>
-      el.scrollTop || el.scrollTopMax
+      el.clientWidth != el.offsetWidth
         ? el
         : el.parentElement
           ? getScrollParent(el.parentElement)
