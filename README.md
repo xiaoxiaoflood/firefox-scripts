@@ -195,7 +195,25 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/newtab-aboutconfig.uc.js).
 </details>
 
-Bonus: I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save [these files](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/passwordmgr), so that you can access the old password manager using chrome://userchromejs/content/passwordmgr/passwordManager.xhtml (bookmark this URL).
+## Removed pages
+
+<details>
+  <summary><code>about:config</code></summary>
+  The new <code>about:config</code> is way worse than the classic page. Although the new version was introduced in Fx 71, the old one was still accessible for a while via direct URL, but it was removed in Fx 87. To continue using it, save all three files from the link below, then bookmark the following URL:
+ 
+  <i>chrome://userchromejs/content/aboutconfig/aboutconfig.xhtml</i>
+  
+ → [about:config folder](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/aboutconfig)
+</details>
+
+<details>
+  <summary>Password Manager</summary>
+  I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save all three files from the link below , so that you can access the old password manager using the following URL (bookmark it):
+ 
+ <i>chrome://userchromejs/content/passwordmgr/passwordManager.xhtml</i>
+ 
+ → [Password Manager folder](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome/utils/passwordmgr)
+</details>
 
 ## Screenshots
 
