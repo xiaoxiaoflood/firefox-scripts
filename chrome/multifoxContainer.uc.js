@@ -110,6 +110,8 @@ UC.multifoxContainer = {
     gBrowser.toUserContextId = id;
     let tab = gBrowser.selectedTab;
     gBrowser.selectedTab = gBrowser.duplicateTab(tab);
+    const { TabStateInternal } = Cu.import('resource:///modules/sessionstore/TabState.jsm');
+    TabStateInternal.update(gBrowser.selectedBrowser, { data: { userContextId: id } });
     if (btn == 0)
       gBrowser.removeTab(tab);
   },
