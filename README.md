@@ -208,7 +208,7 @@
 
 <details>
   <summary>Password Manager</summary>
-  I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save all three files from the link below , so that you can access the old password manager using the following URL (bookmark it):
+  I don't like the new password manager and the old one was removed in Fx 77. I'm still using it. If you want it too, save all three files from the link below, so that you can access the old password manager using the following URL (bookmark it):
  
  <i>chrome://userchromejs/content/passwordmgr/passwordManager.xhtml</i>
  
