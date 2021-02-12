@@ -5,14 +5,16 @@ const {xPref} = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
 
 let UC = {};
 
+let scriptsDir = '';
+
 let _uc = {
   ALWAYSEXECUTE: 'rebuild_userChrome.uc.js',
   BROWSERCHROME: 'chrome://browser/content/browser.xhtml',
   PREF_ENABLED: 'userChromeJS.enabled',
   PREF_SCRIPTSDISABLED: 'userChromeJS.scriptsDisabled',
-  BASE_FILEURI: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromDir(Services.dirsvc.get('UChrm', Ci.nsIFile)),
 
   chromedir: Services.dirsvc.get('UChrm', Ci.nsIFile),
+
   sss: Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService),
 
   getScripts: function () {
@@ -49,7 +51,7 @@ let _uc = {
     return this.scripts[filename] = {
       filename: filename,
       file: aFile,
-      url: this.BASE_FILEURI + filename,
+      url: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromDir(this.chromedir) + filename,
       name: (header.match(/\/\/ @name\s+(.+)\s*$/im) || def)[1],
       charset: (header.match(/\/\/ @charset\s+(.+)\s*$/im) || def)[1],
       description: (header.match(/\/\/ @description\s+(.+)\s*$/im) || def)[1],
@@ -161,12 +163,7 @@ if (xPref.get(_uc.PREF_SCRIPTSDISABLED) === undefined) {
   xPref.set(_uc.PREF_SCRIPTSDISABLED, '', true);
 }
 
-function UserChrome_js() {
-  _uc.getScripts();
-  Services.obs.addObserver(this, 'chrome-document-global-created', false);
-}
-
-UserChrome_js.prototype = {
+let UserChrome_js = {
   observe: function (aSubject) {
     aSubject.addEventListener('DOMContentLoaded', this, {once: true});
   },
@@ -193,5 +190,8 @@ UserChrome_js.prototype = {
   }
 };
 
-if (!Services.appinfo.inSafeMode)
-  new UserChrome_js();
+if (!Services.appinfo.inSafeMode) {
+  _uc.chromedir.append(scriptsDir);
+  _uc.getScripts();
+  Services.obs.addObserver(UserChrome_js, 'chrome-document-global-created', false);
+}
