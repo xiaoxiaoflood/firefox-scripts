@@ -11,7 +11,7 @@
 
 UC.MGest = {  
   exec: function (win) {
-    const { customElements, document, gBrowser,  Object } = win;
+    const { customElements, document, gBrowser, Object } = win;
 
     ['mousedown', 'mouseup', 'contextmenu', 'drop', 'click'].forEach(type => {
       document.addEventListener(type, this, true);
@@ -139,7 +139,7 @@ UC.MGest = {
       cmd: function (win) {
         const { gBrowser } = win;
         let previousTab = gBrowser.selectedTab;
-        let lastAccessed  = 0;
+        let lastAccessed = 0;
         for (let tab of gBrowser.tabs) {
           if (tab.everSelected && tab._lastAccessed > lastAccessed && tab != gBrowser.selectedTab) {
             lastAccessed = tab._lastAccessed;

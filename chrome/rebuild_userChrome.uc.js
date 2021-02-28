@@ -150,6 +150,21 @@ UC.rebuild = {
     }
   },
 
+  restart: function () {
+    Services.appinfo.invalidateCachesOnRestart();
+
+    let cancelQuit = Cc['@mozilla.org/supports-PRBool;1'].createInstance(Ci.nsISupportsPRBool);
+    Services.obs.notifyObservers(cancelQuit, 'quit-application-requested', 'restart');
+
+    if (cancelQuit.data)
+      return;
+
+    if (Services.appinfo.inSafeMode)
+      Services.startup.restartInSafeMode(Ci.nsIAppStartup.eAttemptQuit);
+    else
+      Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart);
+  },
+
   toggleScript: function (script) {
     if (script.isEnabled) {
       xPref.set(_uc.PREF_SCRIPTSDISABLED, script.filename + ',' + xPref.get(_uc.PREF_SCRIPTSDISABLED));
@@ -297,7 +312,7 @@ UC.rebuild = {
           id: 'userChromejs_restartApp',
           tooltiptext: 'Restart Firefox',
           style: 'list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB20lEQVQ4jY2Tv2sUURDHZ/bX7eW0ChJBRFKIRRCRIEHuzVvfrYmkSiFXSSoLERERy5B/wcIuqG9mN5VecUWwCqkOEQsLKysLsQgSxEJEgsVYeJfsHXuY4tvN9zMzzHxBVXFS8Gy1kRaZi8U+iCV7HIq73Xqez9XWThoDsRvg6QDY6Ji8+RMK9dLSztcCoMhnkc27YxPth0I7oVAPhT5WYD9ScfkYALYWYxQa/OvU/h5ztg5bi3G1U2vbXUFPb4fT/EzELRwBYraPRvSE7eW6XVUV4en1JjLtARtFoYGqInRfd0Nk8wXYaCzZ/WnmkZrengc2v4GNNr1bglPiFoaj/5orV1r/A6gqhkI9YKMB0yY0OF9GsV/jIts9iVlVMeJscwhgOKmpqoDpGNDg5YuB0HYg9lUotINCuxFn/bN+9czUFZj6wEYDsRsQle7W+NPQ/uhEdUpLOw/cPgQ2OlPcvAoJZ90qICnc2tQzlist9GYAbDRk2lNVhFDs3YmXPUjkxp3JR2qWbgk9fRj9S+Olu6SqCJHYJ+DN5xnOryHT+wrsG7J9g0x9ZPup2iAS1z6aKi076+mLzoVRmKJpYeL2YSC2aBadc1PTOB7n3AXe3guYHiberZ0u8tm62r99Gyd0lo7sIAAAAABJRU5ErkJggg==)',
-          oncommand: 'Services.appinfo.invalidateCachesOnRestart();BrowserUtils.restartApplication();'
+          oncommand: 'UC.rebuild.restart();'
         });
         mg.appendChild(tb);
 
