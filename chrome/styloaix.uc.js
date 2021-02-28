@@ -293,7 +293,8 @@
       cssFolder.append('UserStyles');
       if (!cssFolder.exists() || !cssFolder.isDirectory())
         cssFolder.create(Ci.nsIFile.DIRECTORY_TYPE, 0664);
-      return this.CSSDIR = cssFolder;
+      Object.defineProperty(this, 'CSSDIR', { value: cssFolder });
+      return cssFolder;
     },
 
     btnClasses: ['icon-white', 'icon-colored'],
@@ -320,6 +321,7 @@
     PREF_LINEWRAPPING: 'userChromeJS.styloaix.lineWrapping',
     PREF_MOZDOCUMENT: 'layout.css.moz-document.content.enabled',
     EDITOR_URI: 'chrome://userchromejs/content/styloaix/edit.xhtml',
+    STYLESDIR: 'resource://userchromejs/' + (_uc.scriptsDir ? _uc.scriptsDir + '/' : '') + 'UserStyles/',
 
     STYLE: {
       url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
@@ -384,7 +386,7 @@
       this.file = file;
       this.fullName = file.leafName;
       this.name = file.leafName.replace(/(?:\.(?:user|as|us))?\.css$/, '');
-      this.url = Services.io.newURI('resource://userchromejs/UserStyles/' + file.leafName);
+      this.url = Services.io.newURI(UC.styloaix.STYLESDIR + file.leafName);
       this.enabled = !UC.styloaix.disabledStyles.has(this.fullName);
       UC.styloaix.styles.set(this.fullName, this);
     }

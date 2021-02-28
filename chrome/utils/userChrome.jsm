@@ -5,8 +5,6 @@ const {xPref} = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
 
 let UC = {};
 
-let scriptsDir = '';
-
 let _uc = {
   ALWAYSEXECUTE: 'rebuild_userChrome.uc.js',
   BROWSERCHROME: 'chrome://browser/content/browser.xhtml',
@@ -14,6 +12,7 @@ let _uc = {
   PREF_SCRIPTSDISABLED: 'userChromeJS.scriptsDisabled',
 
   chromedir: Services.dirsvc.get('UChrm', Ci.nsIFile),
+  scriptsDir: '',
 
   sss: Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService),
 
@@ -191,7 +190,7 @@ let UserChrome_js = {
 };
 
 if (!Services.appinfo.inSafeMode) {
-  _uc.chromedir.append(scriptsDir);
+  _uc.chromedir.append(_uc.scriptsDir);
   _uc.getScripts();
   Services.obs.addObserver(UserChrome_js, 'chrome-document-global-created', false);
 }
