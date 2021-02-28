@@ -9,6 +9,7 @@
 <?xml-stylesheet href="chrome://userchromejs/content/aboutconfig/config.css" type="text/css"?>
 
 <window id="config"
+        title="about:config"
         csp="default-src chrome:; object-src 'none'"
         data-l10n-id="config-window"
         aria-describedby="warningTitle warningText"
@@ -27,7 +28,7 @@
   <menuitem id="toggleSelected" label="Toggle" accesskey="T" default="true"/>
   <menuitem id="modifySelected" label="Modify" accesskey="M" default="true"/>
   <menuseparator/>
-  <menuitem id="copyPref" key="C" label="Copy" accesskey="C"/>
+  <menuitem id="copyPref" label="Copy" accesskey="C"/>
   <menuitem id="copyName" label="Copy Name" accesskey="N"/>
   <menuitem id="copyValue" label="Copy Value" accesskey="V"/>
   <menu label="New" accesskey="w">
@@ -42,8 +43,8 @@
 
 <keyset id="configTreeKeyset" disabled="true">
   <key id="keyVKReturn" keycode="VK_RETURN"/>
-  <key id="configFocuSearch" modifiers="accel" accesskey="r"/>
-  <key id="configFocuSearch2" modifiers="accel" accesskey="f"/>
+  <key id="configFocuSearch" modifiers="accel" key="r"/>
+  <key id="configFocuSearch2" modifiers="accel" key="f"/>
 </keyset>
 <deck id="configDeck" flex="1">
   <vbox id="warningScreen" flex="1" align="center" style="overflow: auto;">
@@ -53,7 +54,7 @@
         <label id="warningTitle" value="This might void your warranty!" class="title-text" flex="1"></label>
       </hbox>
       <vbox class="description" flex="1">
-        <label id="warningText" value="Changing these advanced settings can be harmful to the stability, security, and performance of this application. You should only continue if you are sure of what you are doing."></label>
+        <label id="warningText">Changing these advanced settings can be harmful to the stability, security, and performance of this application. You should only continue if you are sure of what you are doing.</label>
         <checkbox id="showWarningNextTime" label="Show this warning next time" checked="true"/>
         <hbox class="button-container">
           <button id="warningButton" label="I accept the risk!" class="primary"/>
