@@ -375,7 +375,7 @@ UC.rebuild = {
           const subviewBody = aDocument.createXULElement('vbox');
           subviewBody.className = 'panel-subview-body';
           subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'openChrome', 'url(chrome://browser/skin/folder.svg)', 'Open chrome directory', 'Services.dirsvc.get(\'UChrm\', Ci.nsIFile).launch();'));
-          subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'restart', 'url(chrome://browser/skin/reload.svg)', 'Restart Firefox', 'Services.appinfo.invalidateCachesOnRestart();BrowserUtils.restartApplication();'));
+          subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'restart', 'url(chrome://browser/skin/reload.svg)', 'Restart Firefox', 'UC.rebuild.restart();'));
           subviewBody.appendChild(aDocument.createXULElement('toolbarseparator'));
           const enabledMenuItem = UC.rebuild.createMenuItem(aDocument, 'enabled', null, 'Enabled', 'xPref.set(_uc.PREF_ENABLED, !!this.checked)');
           enabledMenuItem.type = 'checkbox';
