@@ -1,7 +1,7 @@
 "use strict";
 //console.log("AutoPlainTextLinks framescript loading");
 
-Cu.import("resource://gre/modules/BrowserUtils.jsm");
+Cu.import("resource://gre/modules/SelectionUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("chrome://userchromejs/content/hookFunction.jsm");
 
@@ -10,10 +10,10 @@ const LastClickedPlainTextUrl = "AutoPlainTextLinks.LastClickedPlainTextUrl";
 
 var unHookFunction; // Only set if the function is hooked
 
-if (!BrowserUtils[HookFlag]) {
-    BrowserUtils[HookFlag] = true;
+if (!SelectionUtils[HookFlag]) {
+    SelectionUtils[HookFlag] = true;
     
-    unHookFunction = hookFunction(BrowserUtils, "getSelectionDetails", null, function (preResult, baseArgs, baseResult) {
+    unHookFunction = hookFunction(SelectionUtils, "getSelectionDetails", null, function (preResult, baseArgs, baseResult) {
         let originalContent = baseArgs[0].content; // The current content may not be the one the context menu was triggered from, so get the actual content that was passed as an arg.
         
         const lastClickedPlainTextUrl = originalContent[LastClickedPlainTextUrl] 
@@ -41,7 +41,7 @@ const onContextMenu = function (event) {
             endSearch = text.length;
         }
         
-        // Find a url where the click position is within it (using similar strict constraints to Firefox in BrowserUtils.jsm - for forcing a url that doesn't match, user can still use selection)
+        // Find a url where the click position is within it (using similar strict constraints to Firefox in SelectionUtils.jsm - for forcing a url that doesn't match, user can still use selection)
         const re = /(?:https?|ftp):[!#$&-;=?-[\]_a-z~%]+/ig;
         re.lastIndex = startSearch;
         let match;
@@ -67,7 +67,7 @@ function unload() {
         unHookFunction();
     }
     removeEventListener("contextmenu", onContextMenu, { passive: true });
-    delete BrowserUtils[HookFlag];
+    delete SelectionUtils[HookFlag];
     removeMessageListener("AutoPlainTextLinks@byalexv.co.uk:disable", unload);
     
     //console.log("AutoPlainTextLinks unloaded");

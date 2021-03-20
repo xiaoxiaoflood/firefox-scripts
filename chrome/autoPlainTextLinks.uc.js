@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name            Auto Plain Text Links
 // @author          Alex Vallat
-// @version         0.9
+// @version         0.10
 // @description     Allow opening right-clicked plain text links without requiring selection.
 // @include         main
 // @shutdown        UC.autoPlainTextLinks.unload();
@@ -11,7 +11,7 @@
 
 
 UC.autoPlainTextLinks = {
-    frameScriptUri: _uc.BASE_FILEURI + "autoPlainTextLinks.framescript.js",
+    frameScriptUri: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromDir(_uc.chromedir) + "autoPlainTextLinks.framescript.js",
     init: function() {
         const globalMessageManager = Cc["@mozilla.org/globalmessagemanager;1"].getService();
         globalMessageManager.loadFrameScript(this.frameScriptUri, true);
