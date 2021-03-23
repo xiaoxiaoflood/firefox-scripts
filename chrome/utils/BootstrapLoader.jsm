@@ -17,13 +17,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
 });
 
-XPIDatabase.isDisabledLegacy = function (addon) {
-  return false;
-}
-
-XPIDatabase.mustSign = function (aType) {
-  return false;
-}
+XPIDatabase.isDisabledLegacy = () => false;
 
 XPCOMUtils.defineLazyGetter(this, "BOOTSTRAP_REASONS", () => {
   const {XPIProvider} = ChromeUtils.import("resource://gre/modules/addons/XPIProvider.jsm");

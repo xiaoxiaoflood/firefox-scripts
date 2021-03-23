@@ -8,8 +8,6 @@ Main compatibility target: [Firefox Developer Edition](https://www.mozilla.org/f
    
 2. Install the desired legacy addons from the folders above (*.xpi* files).
 
-Note: if you're using normal Firefox, Beta or ESR, which theoretically don't allow legacy addons, Add-ons Manager will always display a warn that installed and enabled legacy addons were disabled because they could not be verified, but that's wrong, just ignore it, these extensions are running. You can normally enable or disable them by toggling the switch.
-
 ### Other legacy extensions fixed for current versions
 
 - [Tab Groups](https://github.com/117649/Tab-Groups/releases/latest)
