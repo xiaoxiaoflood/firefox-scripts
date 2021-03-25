@@ -396,7 +396,8 @@ UC.privateTab = {
   },
 
   hideContext: function (e) {
-    e.view.document.getElementById('openLinkInPrivateTab').hidden = true;
+    if (e.target == this)
+      e.view.document.getElementById('openLinkInPrivateTab').hidden = true;
   },
 
   tabContext: function (e) {

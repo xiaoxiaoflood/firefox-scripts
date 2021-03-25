@@ -126,6 +126,11 @@ UC.openInUnloadedTab = {
     gContextMenu.showItem('openLinkInUnloadedTab', gContextMenu.onSaveableLink || gContextMenu.onPlainTextLink);
   },
 
+  hideContext: function (e) {
+    if (e.target == this)
+      e.view.document.getElementById('openLinkInUnloadedTab').hidden = true;
+  },
+
   placesContext: function (e) {
     let win = e.view;
     let {document} = win;
