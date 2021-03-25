@@ -100,6 +100,7 @@ UC.privateTab = {
       label: 'Open Link in New Private Tab',
       accesskey: 'v',
       class: 'menuitem-iconic privatetab-icon',
+      hidden: true
     });
 
     openLink.addEventListener('command', (e) => {
@@ -111,6 +112,7 @@ UC.privateTab = {
     }, false);
 
     document.getElementById('contentAreaContextMenu').addEventListener('popupshowing', this.contentContext);
+    document.getElementById('contentAreaContextMenu').addEventListener('popuphidden', this.hideContext);
     document.getElementById('context-openlinkintab').insertAdjacentElement('afterend', openLink);
 
     let toggleTab = _uc.createElement(document, 'menuitem', {
@@ -393,6 +395,10 @@ UC.privateTab = {
       gContextMenu.showItem('context-openlinkincontainertab', false);
   },
 
+  hideContext: function (e) {
+    e.view.document.getElementById('openLinkInPrivateTab').hidden = true;
+  },
+
   tabContext: function (e) {
     let win = e.view;
     win.document.getElementById('toggleTabPrivateState').setAttribute('checked', win.TabContextMenu.contextTab.userContextId == UC.privateTab.container.userContextId);
@@ -528,6 +534,7 @@ UC.privateTab = {
       gBrowser.tabContainer.removeEventListener('TabClose', this.onTabClose);
       win.addEventListener('XULFrameLoaderCreated', gBrowser.privateListener);
       doc.getElementById('contentAreaContextMenu').removeEventListener('popupshowing', this.contentContext);
+      doc.getElementById('contentAreaContextMenu').removeEventListener('popuphidden', this.hideContext);
       doc.getElementById('tabContextMenu').removeEventListener('popupshowing', this.tabContext);
       win.MozElements.MozTab.prototype.getAttribute = this.orig_getAttribute;
       win.Object.defineProperty(gBrowser.tabContainer, 'allTabs', {

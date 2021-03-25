@@ -59,12 +59,14 @@ UC.openInUnloadedTab = {
     let menuitem = _uc.createElement(document, 'menuitem', {
           id: 'openLinkInUnloadedTab',
           label: 'Open Link in Unloaded Tab',
+          hidden: true
         });
     menuitem.addEventListener('command', () => this.openTab(win, win.gContextMenu.linkURL, win.gContextMenu.linkTextStr));
 
     let contextMenu = document.getElementById('contentAreaContextMenu');
     document.getElementById('context-openlinkintab').insertAdjacentElement('afterend', menuitem);
     contextMenu.addEventListener('popupshowing', this.contentContext);
+    contextMenu.addEventListener('popuphidden', this.hideContext);
   },
 
   openTab: async function (win, url, linkText) {
@@ -172,6 +174,7 @@ UC.openInUnloadedTab = {
       doc.getElementById('placesContext').removeEventListener('popupshowing', this.placesContext);
       doc.getElementById('openLinkInUnloadedTab')?.remove();
       doc.getElementById('contentAreaContextMenu')?.removeEventListener('popupshowing', this.contentContext);
+      doc.getElementById('contentAreaContextMenu')?.removeEventListener('popuphidden', this.hideContext);
     }, false);
 
     delete UC.openInUnloadedTab;
