@@ -27,7 +27,7 @@ UC.privateTab = {
 
     let {document} = win;
 
-    let openAll = document.getElementById('placesContext_openContainer:tabs');
+    let openAll = document.getElementById('placesContext_openBookmarkContainer:tabs');
     let openAllPrivate = _uc.createElement(document, 'menuitem', {
       id: 'openAllPrivate',
       label: 'Open All in Private Tabs',
@@ -410,8 +410,8 @@ UC.privateTab = {
     let {document} = win;
     document.getElementById('openPrivate').disabled = document.getElementById('placesContext_open:newtab').disabled;
     document.getElementById('openPrivate').hidden = document.getElementById('placesContext_open:newtab').hidden;
-    document.getElementById('openAllPrivate').disabled = document.getElementById('placesContext_openContainer:tabs').disabled;
-    document.getElementById('openAllPrivate').hidden = document.getElementById('placesContext_openContainer:tabs').hidden;
+    document.getElementById('openAllPrivate').disabled = document.getElementById('placesContext_openBookmarkContainer:tabs').disabled;
+    document.getElementById('openAllPrivate').hidden = document.getElementById('placesContext_openBookmarkContainer:tabs').hidden;
     document.getElementById('openAllLinksPrivate').disabled = document.getElementById('placesContext_openLinks:tabs').disabled;
     document.getElementById('openAllLinksPrivate').hidden = document.getElementById('placesContext_openLinks:tabs').hidden;
   },
