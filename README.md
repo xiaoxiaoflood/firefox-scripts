@@ -1,6 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox Developer Edition 87.0b4, Windows 10
+#### Tested on Firefox Developer Edition 88.0b4, Windows 10
 
 ## Instructions
 
