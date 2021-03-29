@@ -84,7 +84,7 @@ UC.MGest = {
         if (selection)
           Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(selection);
         else
-          win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'getSelection', fallback: 'copyImage' });
+          win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'copySelection', fallback: 'copyImage' });
       }
     },
     '2U': {
@@ -252,7 +252,7 @@ UC.MGest = {
 
   addListener: function (id) {
     switch (id) {
-      case 'treestyletab@piro.sakura.ne.jp':
+      case this.webExts.get('TST').id:
         this.webExts.get('TST').browser = UC.webExts.get(id);
         this.webExts.get('TST').browser.messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
           let { browser, Tab } = content.wrappedJSObject;
@@ -277,7 +277,7 @@ UC.MGest = {
           addMessageListener('UCJS:MGest', contentListener);
         }).toString() + ')();'), false);
         break;
-      case '{dcdaadfa-21f1-4853-9b34-aad681fff6f3}':
+      case this.webExts.get('TTG').id:
         this.webExts.get('TTG').browser = UC.webExts.get(id);
         this.webExts.get('TTG').browser.messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
           let { cycleGroup } = content.wrappedJSObject;
@@ -288,6 +288,10 @@ UC.MGest = {
                 break;
               case 'previous-group':
                 cycleGroup(-1);
+                break;
+              case 'destroy':
+                removeMessageListener('UCJS:MGest', contentListener);
+                delete contentListener;
             }
           }
 
@@ -368,7 +372,7 @@ UC.MGest = {
       }
 
       let clickedElement;
-      let data;
+      let data = {};
 
       let mouseDown = function (e) {
         data = {};
@@ -511,13 +515,17 @@ UC.MGest = {
 
       contentListener = async function (msg) {
         let { action, code, direction, encode, fallback, name, type, templateURL, url } = msg.data;
+        let useFallback = false;
+
         if (type == 'image')
           url = data.bgImageURL || data.imageURL;
-        let useFallback = false;
+        else if (type)
+          url = data[type];
+        else
+          url = data.videoURL || data.audioURL || data.bgImageURL || data.imageURL || data.linkURL;
 
         switch (action) {
           case 'copyURL':
-            url = url || data[type] || data.videoURL || data.audioURL || data.bgImageURL || data.imageURL || data.linkURL;
             if (url)
               Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(url);
             else
@@ -567,7 +575,7 @@ UC.MGest = {
             transferable.setTransferData(kNativeImageMime, img);
             Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
             break;
-          case 'getSelection':
+          case 'copySelection':
             let focusedWindow = {};
             let focusedElement = Services.focus.getFocusedElementForWindow(content, true, focusedWindow);
             focusedWindow = focusedWindow.value;
@@ -593,7 +601,6 @@ UC.MGest = {
               useFallback = true;
             break;
           case 'newTab':
-            url = url || data[type] || data.videoURL || data.audioURL || data.bgImageURL || data.imageURL || data.linkURL;
             if (url)
               sendAsyncMessage('contentToChrome', { action, url: parseTemplate(url, templateURL, encode) });
             else
@@ -605,11 +612,10 @@ UC.MGest = {
             sendAsyncMessage('contentToChrome', {cmd: 'scroll-' + direction});
             break;
           case 'eval':
-            if (evalCache[name]) {
+            if (evalCache[name])
               evalCache[name]();
-            } else {
+            else
               eval('(evalCache["' + name + '"] = ' + code + ').call()');
-            }
             break;
           case 'destroy':
             removeEventListener('mousedown', mouseDown, true);
@@ -674,7 +680,7 @@ UC.MGest = {
 
     switch (event.type) {
       case 'mousedown':
-        if (event.ctrlKey)
+        if (event.ctrlKey || event.composedTarget.localName == 'resizer')
           return;
         if (this.directionChain) {
           delX = screenX - this.lastX;
@@ -794,7 +800,9 @@ UC.MGest = {
     });
 
     Services.obs.removeObserver(this, 'UCJS:WebExtLoaded');
-    this.TST?.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
+    this.webExts.forEach(obj => {
+      obj?.browser.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
+    });
     delete UC.MGest;
   },
 };
