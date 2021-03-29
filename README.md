@@ -105,6 +105,31 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/minMaxCloseButton.uc.js).
 </details>
 <details>
+  <summary>Mouse Gestures</summary>
+  More powerful than any mouse gestures WebExtensions. But it doesn't have user interface and I have only included actions I use, so unless the default set of actions suits you, knowledge in JavaScript is required to write extra actions. However, it's easy to change gestures for available actions. You can view default gestures at the beginning of the code (search for <code>GESTURES:</code>). Some of them:
+ 
+ - <b>Hold right-click, then mouse wheel up or down</b> to switch to next/previous tab.
+ - <b>Hold right-click, move down and release</b> to scroll to bottom of the page (or move up to go the top). If the cursor was over an image, moving down will open a new tab for reverse image Google search instead of scrolling to bottom.
+ - <b>Hold right-click, then left-click</b> to switch to the last selected tab.
+ - <b>Hold left-click, then right-click</b> to reload current tab.
+ - <b>Hold right-click, then middle-click (wheel button)</b> to close current tab.
+ - <b>Hold right-click, move left and release</b> to copy URL of link or media under the cursor.
+ - <b>Hold right-click, move left and release</b> to open a new tab with the link or media under the cursor.
+ - <b>Hold middle-click, move left and release</b> to copy selected text or image under the cursor.
+ - <b>Hold middle-click, move right and release</b> to paste.
+ - <b>Hold left-click, then press forward button</b> (for mouse with extra buttons) to switch to next group (specific compatibility with <b>Tiled Tab Groups</b> extension).
+
+ Gestures are cumulative if possible, so right-click (hold) + left-click + left-click + left-click will toggle between the two most recently used tabs.
+ 
+ Advantages over existing extensions:
+ - Extensions can't run over Firefox interface, so gestures don't work over Firefox toolbars.
+ - Extensions can't run on privileged pages like <i>about:config</i>.
+ - Extensiosn can't set gestures for 4th and 5th mouse buttons (Back and Forward).
+ - UserChromeJS has unlimited power, so you can do almost whatever you want if you write code for that. For example, I have a gesture that forces an extension (Tiled Tab Groups) to execute part of its own code that is not exposed to other addons by an API.
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/mouseGestures.uc.js).
+</details>
+<details>
   <summary>multifoxContainer</summary>
   When Firefox introduced containers, I created this script to get some features that I missed from Multifox, the legacy addon that implemented "containers" years before Firefox having this feature by default.
   Since then, Firefox has added some things this script had, so I removed them. But I still use it for two things:

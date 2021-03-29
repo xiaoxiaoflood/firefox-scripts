@@ -2,8 +2,12 @@ let EXPORTED_SYMBOLS = [];
 
 const {Services} = ChromeUtils.import('resource://gre/modules/Services.jsm');
 const {xPref} = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
+const {Management} = ChromeUtils.import('resource://gre/modules/Extension.jsm');
 
-let UC = {};
+let UC = {
+  webExts: new Map(),
+  sidebar: new Map()
+};
 
 let _uc = {
   ALWAYSEXECUTE: 'rebuild_userChrome.uc.js',
@@ -171,7 +175,14 @@ let UserChrome_js = {
     let document = aEvent.originalTarget;
     let window = document.defaultView;
     let location = window.location;
-    if (/^(chrome:(?!\/\/(global\/content\/commonDialog|browser\/content\/webext-panels)\.x?html)|about:(?!blank))/i.test(location.href)) {
+
+    if (!this.sharedWindowOpened && location.href == 'chrome://extensions/content/dummy.xhtml') {
+      this.sharedWindowOpened = true;
+
+      Management.on('extension-browser-inserted', function (topic, browser) {
+        browser.messageManager.addMessageListener('Extension:ExtensionViewLoaded', this.messageListener.bind(this));
+      }.bind(this));
+    } else if (/^(chrome:(?!\/\/global\/content\/commonDialog\.x?html)|about:(?!blank))/i.test(location.href)) {
       window.UC = UC;
       window._uc = _uc;
       window.xPref = xPref;
@@ -185,6 +196,22 @@ let UserChrome_js = {
       } else if (!UC.rebuild) {
         _uc.loadScript(_uc.scripts[_uc.ALWAYSEXECUTE], window);
       }
+    }
+  },
+
+  messageListener: function (msg) {
+    const browser = msg.target;
+    const { addonId } = browser._contentPrincipal;
+
+    browser.messageManager.removeMessageListener('Extension:ExtensionViewLoaded', this.messageListener);
+
+    if (browser.ownerGlobal.location.href == 'chrome://extensions/content/dummy.xhtml') {
+      UC.webExts.set(addonId, browser);
+      Services.obs.notifyObservers(null, 'UCJS:WebExtLoaded', addonId);
+    } else {
+      let win = browser.ownerGlobal.windowRoot.ownerGlobal;
+      UC.sidebar.get(addonId)?.set(win, browser) || UC.sidebar.set(addonId, new Map([[win, browser]]));
+      Services.obs.notifyObservers(win, 'UCJS:SidebarLoaded', addonId);
     }
   }
 };

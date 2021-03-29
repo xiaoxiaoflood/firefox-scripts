@@ -7,108 +7,19 @@
 // @onlyonce
 // ==/UserScript==
 
-// initially forked from http://www.cnblogs.com/ziyunfei/archive/2011/12/15/2289504.html
+// initially forked from https://web.archive.org/web/20131025160814/http://www.cnblogs.com/ziyunfei/archive/2011/12/15/2289504.html
 
-UC.MGest = {  
-  exec: function (win) {
-    const { customElements, document, gBrowser, Object } = win;
+XPCOMUtils.defineLazyGetter(this, 'SelectionUtils', function() {
+  let { SelectionUtils } = Cu.import('resource://gre/modules/SelectionUtils.jsm');
+  return SelectionUtils;
+});
 
-    ['mousedown', 'mouseup', 'contextmenu', 'drop', 'click'].forEach(type => {
-      document.addEventListener(type, this, true);
-    });
-    document.addEventListener('wheel', this, { passive: false, capture: true });
-    ['mouseleave', 'mousemove'].forEach(type => {
-      document.addEventListener(type, this, false);
-    });
-
-    win.orig_selected = Object.getOwnPropertyDescriptor(customElements.get('tabbrowser-tab').prototype, '_selected').set;
-    Object.defineProperty(customElements.get('tabbrowser-tab').prototype, '_selected', {
-      set: function (val) {
-        if (val && !this.everSelected)
-          this.everSelected = true;
-
-        return win.orig_selected.call(this, val);
-      }
-    });
-  },
-
-  init: function () {
-    Services.mm.loadFrameScript(this.frameScript, true);
-    Services.mm.addMessageListener('contentToChrome', this.chromeListener);
-  },
-
-  chromeListener: function (message) {
-    const { document, gBrowser } = message.target.ownerGlobal;
-
-    if (message.data.cmd) {
-      if (message.data.cmd == 'scroll-up') {
-        document.commandDispatcher.getControllerForCommand('cmd_moveTop').doCommand('cmd_moveTop');
-      } else if(message.data.cmd == 'scroll-down') {
-        document.commandDispatcher.getControllerForCommand('cmd_moveBottom').doCommand('cmd_moveBottom');
-      }
-    } else if (message.data.url) {
-      gBrowser.addTab(message.data.url, {
-        owner: gBrowser.selectedTab,
-        relatedToCurrent: true,
-        triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal
-      });
-    }
-  },
-
-  frameScript: 'data:application/javascript;charset=UTF-8,' + 
-    encodeURIComponent('(' + (function () {
-      let clickedElement;
-      var imgSrc = function (e) {
-        clickedElement = e.target;
-        if (clickedElement.src) {
-          img = clickedElement.src;
-        } else if (clickedElement.tagName == 'AREA') {
-          let uM = clickedElement.ownerDocument.querySelector('[usemap]');
-          if (uM && uM.useMap == '#' + clickedElement.parentElement.name) {
-            img = uM.src;
-          } else {
-            img = undefined;
-          }
-        } else {
-          img = undefined;
-        }
-      }
-      addEventListener('mousedown', imgSrc, true);
-      contentListener = function (msg) {
-        if (msg.data == 'img' && typeof img != 'undefined') {
-          sendAsyncMessage('contentToChrome', {url: img});
-        } else if (msg.data == 'down' && typeof img != 'undefined') {
-            sendAsyncMessage('contentToChrome', {url: 'http://www.google.com.br/searchbyimage?image_url=' + encodeURIComponent(img)});
-        } else if (msg.data == 'down' || msg.data == 'up') {
-          clickedElement.tabIndex = -1;
-          clickedElement.focus();
-          sendAsyncMessage('contentToChrome', {cmd: 'scroll-' + msg.data});
-        } else if (msg.data == 'deselect') {
-          content.getSelection().removeAllRanges();
-        } else if (msg.data == 'destroy') {
-          removeEventListener('mousedown', imgSrc);
-          removeMessageListener('chromeToContent', contentListener);
-          delete imgSrc;
-          delete contentListener;
-        }
-      }
-      addMessageListener('chromeToContent', contentListener);
-    }).toString() + ')();'),
-
-  lastX: 0,
-  lastY: 0,
-  directionChain: '',
-  isMouseDownL: false,
-  isMouseDownM: false,
-  isMouseDownR: false,
-  isMouseUpL: false,
-  isMouseUpM: false,
-  isMouseUpR: false,
-  isRelatedL: false,
-  isRelatedM: false,
-  isRelatedR: false,
-  hideFireContext: false,
-
+UC.MGest = {
+  // 0, 1, 2: mouse buttons
+  // -, +: mousewheel direction
+  // UDLR: up, down, left, right / gesture direction
+  // FB: forward, back / for mouses with extra buttons
+  // note: extra buttons must be the last part of the gesture because they are only triggered on 'click' (button release), there's no 'mousedown' for them
   GESTURES: {
     '1-': {
       name: 'Zoom in',
@@ -122,19 +33,79 @@ UC.MGest = {
         win.FullZoom.reduce();
       }
     },
-    'R': {
-      name: 'Open image URL',
-      cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', 'img');
-      }
-    },
-    'M>L': {
+    '10': {
       name: 'Zoom reset',
       cmd: function (win) {
         win.FullZoom.reset();
       }
     },
-    'R>L': {
+    '2+': {
+      name: 'Next tab',
+      cmd: function (win) {
+        let TST = UC.MGest.webExts.get('TST').browser;
+        if (TST?.messageManager)
+          TST.messageManager.sendAsyncMessage('UCJS:MGest', 'next-visible-tab');
+        else
+          win.gBrowser.tabContainer.advanceSelectedTab(1, true);
+      }
+    },
+    '2-': {
+      name: 'Previous tab',
+      cmd: function (win) {
+        let TST = UC.MGest.webExts.get('TST').browser;
+        if (TST?.messageManager)
+          TST.messageManager.sendAsyncMessage('UCJS:MGest', 'previous-visible-tab');
+        else
+          win.gBrowser.tabContainer.advanceSelectedTab(-1, true);
+      }
+    },
+    '2R': {
+      name: 'Open URL in new tab',
+      cmd: function (win) {
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'newTab' });
+      }
+    },
+    '2L': {
+      name: 'Copy URL from element',
+      cmd: function (win) {
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'copyURL' });
+      }
+    },
+    '1R': {
+      name: 'Paste',
+      cmd: function (win) {
+        win.goDoCommand('cmd_paste');
+      }
+    },
+    '1L': {
+      name: 'Copy text / Image',
+      cmd: function (win) {
+        let selection = SelectionUtils.getSelectionDetails(win).text;
+        if (selection)
+          Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(selection);
+        else
+          win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'getSelection', fallback: 'copyImage' });
+      }
+    },
+    '2U': {
+      name: 'Go to top of page (strict)',
+      cmd: function (win) {
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'scroll', direction: 'up' });
+      }
+    },
+    '2D': {
+      name: 'Go to bottom of page (strict) / Image search',
+      cmd: function (win) {
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', {
+          action: 'newTab',
+          type: 'image',
+          templateURL: 'http://www.google.com.br/searchbyimage?image_url=%s',
+          encode: true,
+          fallback: 'scroll',
+          direction: 'down' });
+      }
+    },
+    '20': {
       name: 'Switch to last selected tab',
       cmd: function (win) {
         const { gBrowser } = win;
@@ -149,26 +120,14 @@ UC.MGest = {
         gBrowser.selectedTab = previousTab;
       }
     },
-    'L>M': {
+    '01': {
       name: 'Duplicate tab',
       cmd: function (win) {
         const { gBrowser } = win;
         gBrowser.selectedTab = gBrowser.duplicateTab(gBrowser.selectedTab);
       }
     },
-    '2+': {
-      name: 'Next tab',
-      cmd: function (win) {
-        win.gBrowser.tabContainer.advanceSelectedTab(1, true);
-      }
-    },
-    '2-': {
-      name: 'Previous tab',
-      cmd: function (win) {
-        win.gBrowser.tabContainer.advanceSelectedTab(-1, true);
-      }
-    },
-    'L>R': {
+    '02': {
       name: 'Reload current tab',
       cmd: function (win) {
         const { gBrowser, openLinkIn } = win;
@@ -181,264 +140,661 @@ UC.MGest = {
         });
       }
     },
-    'R>M': {
+    '21': {
       name: 'Close current tab',
       cmd: function (win) {
         win.gBrowser.removeCurrentTab();
       }
     },
-    'U': {
-      name: 'Go to top of page (strict)',
+    '0F': {
+      name: 'Switch to next group',
       cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', 'up');
+        UC.MGest.webExts.get('TTG').browser.messageManager.sendAsyncMessage('UCJS:MGest', 'next-group');
       }
     },
-    'D': {
-      name: 'Go to bottom of page (strict) / Image search',
+    '0B': {
+      name: 'Switch to previous group',
       cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', 'down');
+        UC.MGest.webExts.get('TTG').browser.messageManager.sendAsyncMessage('UCJS:MGest', 'previous-group');
+      }
+    },
+    '1F': {
+      name: 'Video 2× speed',
+      cmd: function (win) {
+        function speedUpVideo () {
+          let video = content.document.querySelector('html > div > video');
+          if (video)
+            video.playbackRate = video.playbackRate == video.defaultPlaybackRate ? 2 : video.defaultPlaybackRate;
+        };
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'eval', code: speedUpVideo.toString(), name: this.name });
+      }
+    },
+    '2F': {
+      name: 'Video advance 5 seconds',
+      cmd: function (win) {
+        function advanceVideo () {
+          let video = content.document.querySelector('html > div > video');
+          if (video)
+            video.currentTime += 5;
+        };
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'eval', code: advanceVideo.toString(), name: this.name });
+      }
+    },
+    '2B': {
+      name: 'Video rewind 5 seconds',
+      cmd: function (win) {
+        function rewindVideo () {
+          let video = content.document.querySelector('html > div > video');
+          if (video)
+            video.currentTime -= 5;
+        };
+        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'eval', code: rewindVideo.toString(), name: this.name });
+      }
+    },
+  },
+
+  webExts: new Map([
+    ['TST', { id: 'treestyletab@piro.sakura.ne.jp' }],
+    ['TTG', { id: '{dcdaadfa-21f1-4853-9b34-aad681fff6f3}' }]//Tiled Tab Groups
+  ]),
+
+  exec: function (win) {
+    const { customElements, document, gBrowser } = win;
+
+    ['contextmenu', 'mousedown', 'mouseup'].forEach(type => {
+      document.addEventListener(type, this, true);
+    });
+
+    win._HandleAppCommandEvent = win.HandleAppCommandEvent;
+    win.removeEventListener('AppCommand', win.HandleAppCommandEvent, true);
+
+    win.orig_selected = Object.getOwnPropertyDescriptor(customElements.get('tabbrowser-tab').prototype, '_selected').set;
+    Object.defineProperty(customElements.get('tabbrowser-tab').prototype, '_selected', {
+      set: function (val) {
+        if (val && !this.everSelected)
+          this.everSelected = true;
+
+        return win.orig_selected.call(this, val);
+      }
+    });
+
+    win.HandleAppCommandEvent = (evt) => {
+      if (UC.MGest.directionChain) {
+        let executed;
+        switch (evt.command) {
+          case 'Forward':
+            executed = this.checkAndRunGest('F', win);
+            break;
+          case 'Back':
+            executed = this.checkAndRunGest('B', win);
+        }
+
+        if (executed)
+          return;
+      }
+
+      return win._HandleAppCommandEvent.call(win, evt);
+    };
+    win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
+  },
+
+  init: function () {
+    this.webExts.forEach(obj => {
+      if (UC.webExts.get(obj.id))
+        this.addListener(obj.id);
+    });
+
+    Services.obs.addObserver(this, 'UCJS:WebExtLoaded');
+
+    Services.mm.loadFrameScript(this.frameScript, true);
+    Services.mm.addMessageListener('contentToChrome', this.chromeListener);
+  },
+
+  addListener: function (id) {
+    switch (id) {
+      case 'treestyletab@piro.sakura.ne.jp':
+        this.webExts.get('TST').browser = UC.webExts.get(id);
+        this.webExts.get('TST').browser.messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
+          let { browser, Tab } = content.wrappedJSObject;
+          let contentListener = async function (msg) {
+            let w = await browser.windows.getLastFocused();
+            let tab;
+            switch (msg.data) {
+              case 'next-visible-tab':
+                tab = Tab.getActiveTab(w.id).$TST.nearestVisibleFollowingTab || Tab.getFirstVisibleTab(w.id);
+                browser.tabs.update(tab.id, { active: true });
+                break;
+              case 'previous-visible-tab':
+                tab = Tab.getActiveTab(w.id).$TST.nearestVisiblePrecedingTab || Tab.getLastVisibleTab(w.id);
+                browser.tabs.update(tab.id, { active: true });
+                break;
+              case 'destroy':
+                removeMessageListener('UCJS:MGest', contentListener);
+                delete contentListener;
+            }
+          }
+
+          addMessageListener('UCJS:MGest', contentListener);
+        }).toString() + ')();'), false);
+        break;
+      case '{dcdaadfa-21f1-4853-9b34-aad681fff6f3}':
+        this.webExts.get('TTG').browser = UC.webExts.get(id);
+        this.webExts.get('TTG').browser.messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
+          let { cycleGroup } = content.wrappedJSObject;
+          let contentListener = async function (msg) {
+            switch (msg.data) {
+              case 'next-group':
+                cycleGroup(1);
+                break;
+              case 'previous-group':
+                cycleGroup(-1);
+            }
+          }
+
+          addMessageListener('UCJS:MGest', contentListener);
+        }).toString() + ')();'), false);        
+    }
+  },
+
+  observe: function (subject, topic, data) {
+    for (let obj of this.webExts.values()) {
+      if (obj.id == data) {
+        this.addListener(data);
+        break;
       }
     }
   },
 
-  stopGesture: function (gst, win) {
-    if (this.GESTURES[gst])
-      this.GESTURES[gst].cmd(win.windowRoot.ownerGlobal);
+  chromeListener: function (message) {
+    const { document, gBrowser } = message.target.ownerGlobal;
+    const { action, cmd, url } = message.data;
+
+    switch (cmd) {
+      case 'scroll-up':
+        document.commandDispatcher.getControllerForCommand('cmd_moveTop').doCommand('cmd_moveTop');
+        break;
+      case 'scroll-down':
+        document.commandDispatcher.getControllerForCommand('cmd_moveBottom').doCommand('cmd_moveBottom');
+        break;
+      default:
+        if (action == 'newTab') {
+          gBrowser.addTab(url, {
+            owner: gBrowser.selectedTab,
+            relatedToCurrent: true,
+            triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal
+          });
+        }
+    }
+  },
+
+  frameScript: 'data:application/javascript;charset=UTF-8,' + 
+    encodeURIComponent('(' + (function () {
+      // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#1141-1202
+      // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#307-320
+      // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#973-1114
+
+      function _isXULTextLinkLabel (aNode) {
+        return (
+          aNode.namespaceURI == 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' &&
+          aNode.tagName == 'label' &&
+          aNode.classList.contains('text-link') &&
+          aNode.href
+        );
+      }
+
+      function _isMediaURLReusable (aURL) {
+        if (aURL.startsWith('blob:')) {
+          return URL.isValidURL(aURL);
+        }
+        return true;
+      }
+      
+      function _makeURLAbsolute (aBase, aUrl) {
+        return Services.io.newURI(aUrl, null, Services.io.newURI(aBase)).spec;
+      }
+
+      function _getComputedURL (aElem, aProp) {
+        let urls = aElem.ownerGlobal.getComputedStyle(aElem).getCSSImageURLs(aProp);
+
+        if (!urls.length) {
+          return null;
+        }
+
+        if (urls.length != 1) {
+          throw new Error('found multiple URLs');
+        }
+
+        return urls[0];
+      }
+
+      let clickedElement;
+      let data;
+
+      let mouseDown = function (e) {
+        data = {};
+        clickedElement = e.composedTarget;
+
+        if (clickedElement.nodeType != clickedElement.ELEMENT_NODE)
+          return;
+
+        const XLINK_NS = 'http://www.w3.org/1999/xlink';
+
+        let elem = clickedElement;
+        let hasBGImage;
+        let hasMultipleBGImages;
+        let win = elem.ownerDocument.defaultView;
+
+        while (elem) {
+          if (elem.nodeType == elem.ELEMENT_NODE) {
+            if (
+              (_isXULTextLinkLabel(elem) ||
+                (elem instanceof content.HTMLAnchorElement &&
+                  elem.href) ||
+                (elem instanceof content.SVGAElement &&
+                  (elem.href || elem.hasAttributeNS(XLINK_NS, 'href'))) ||
+                (elem instanceof content.HTMLAreaElement && elem.href) ||
+                elem instanceof content.HTMLLinkElement ||
+                elem.getAttributeNS(XLINK_NS, 'type') == 'simple')
+            ) {
+              // Target is a link or a descendant of a link.
+              let href = elem.href;
+
+              if (href) {
+                // Handle SVG links:
+                if (typeof href == 'object' && href.animVal) {
+                  data.linkURL = _makeURLAbsolute(elem.baseURI, elem.animVal);
+                }
+
+                data.linkURL = href;
+              } else {
+                href =
+                  elem.getAttribute('href') ||
+                  elem.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+
+                data.linkURL = _makeURLAbsolute(elem.baseURI, href);
+              }
+            }
+
+            // Background image?  Don't bother if we've already found a
+            // background image further down the hierarchy.  Otherwise,
+            // we look for the computed background-image style.
+            if (!hasBGImage && !hasMultipleBGImages) {
+              let bgImgUrl = null;
+
+              try {
+                bgImgUrl = _getComputedURL(elem, 'background-image');
+                hasMultipleBGImages = false;
+              } catch (e) {
+                hasMultipleBGImages = true;
+              }
+
+              if (bgImgUrl &&
+                  elem != win.document.body &&
+                  elem != win.document.documentElement &&
+                  win.getComputedStyle(elem).height == win.getComputedStyle(elem.parentElement).height &&
+                  win.getComputedStyle(elem).width == win.getComputedStyle(elem.parentElement).width) {
+                hasBGImage = true;
+                data.bgImageURL = _makeURLAbsolute(elem.baseURI, bgImgUrl);
+              }
+            }
+          }
+
+          elem = elem.parentNode;
+        }
+
+        if (
+          clickedElement instanceof Ci.nsIImageLoadingContent &&
+          (clickedElement.currentRequestFinalURI || clickedElement.currentURI)
+        ) {
+          // The actual URL the image was loaded from (after redirects) is the
+          // currentRequestFinalURI.  We should use that as the URL for purposes of
+          // deciding on the filename, if it is present. It might not be present
+          // if images are blocked.
+          //
+          // It is important to check both the final and the current URI, as they
+          // could be different blob URIs, see bug 1625786.
+          data.imageURL = (() => {
+            let finalURI = clickedElement.currentRequestFinalURI?.spec;
+            if (finalURI && _isMediaURLReusable(finalURI)) {
+              return finalURI;
+            }
+            let currentURI = clickedElement.currentURI?.spec;
+            if (currentURI && _isMediaURLReusable(currentURI)) {
+              return currentURI;
+            }
+            return '';
+          })();
+        } else if (clickedElement instanceof content.HTMLVideoElement) {
+          const mediaURL = clickedElement.currentSrc || clickedElement.src;
+
+          if (_isMediaURLReusable(mediaURL)) {
+            data.videoURL = mediaURL;
+          }
+        } else if (clickedElement instanceof content.HTMLAudioElement) {
+          const mediaURL = clickedElement.currentSrc || clickedElement.src;
+
+          if (_isMediaURLReusable(mediaURL)) {
+            data.audioURL = mediaURL;
+          }
+        } else if (clickedElement instanceof content.HTMLHtmlElement) {
+          const bodyElt = clickedElement.ownerDocument.body;
+
+          if (bodyElt) {
+            let computedURL;
+
+            try {
+              computedURL = _getComputedURL(bodyElt, 'background-image');
+              hasMultipleBGImages = false;
+            } catch (e) {
+              hasMultipleBGImages = true;
+            }
+
+            if (computedURL) {
+              hasBGImage = true;
+              data.bgImageURL = _makeURLAbsolute(
+                bodyElt.baseURI,
+                computedURL
+              );
+            }
+          }
+        }
+      }
+      addEventListener('mousedown', mouseDown, true);
+
+      function parseTemplate(url, templateURL, encode) {
+        if (encode)
+          url = encodeURIComponent(url);
+        return templateURL?.replace(/%s/, url) || url;
+      }
+
+      let evalCache = {};
+
+      contentListener = async function (msg) {
+        let { action, code, direction, encode, fallback, name, type, templateURL, url } = msg.data;
+        if (type == 'image')
+          url = data.bgImageURL || data.imageURL;
+        let useFallback = false;
+
+        switch (action) {
+          case 'copyURL':
+            url = url || data[type] || data.videoURL || data.audioURL || data.bgImageURL || data.imageURL || data.linkURL;
+            if (url)
+              Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(url);
+            else
+              useFallback = true;
+            break;
+          case 'copyImage':
+            function request (url) {
+              return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', url);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function () {
+                  if (this.status >= 200 && this.status < 300)
+                    resolve(xhr);
+                  else
+                    reject();
+                };
+                xhr.onerror = reject;
+                xhr.send();
+              });
+            }
+
+            let response = await request(data.bgImageURL || data.imageURL);
+            let mimeType = response?.getResponseHeader('Content-Type');
+
+            let imageData;
+            if (mimeType?.startsWith('image')) {
+              imageData = response.response;
+            } else {
+              let canvas = content.document.createElement('canvas');
+              canvas.width = clickedElement.naturalWidth;
+              canvas.height = clickedElement.naturalHeight;
+              canvas.getContext('2d').drawImage(clickedElement, 0, 0);
+
+              mimeType = 'image/png';
+              let blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType));
+              imageData = await blob.arrayBuffer();
+            }
+
+            let imgTools = Cc['@mozilla.org/image/tools;1'].getService(Ci.imgITools);
+            let img = imgTools.decodeImageFromArrayBuffer(imageData, mimeType);
+
+            transferable = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);          
+            transferable.init(null);
+            kNativeImageMime = 'application/x-moz-nativeimage';
+            transferable.addDataFlavor(kNativeImageMime);
+            transferable.setTransferData(kNativeImageMime, img);
+            Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
+            break;
+          case 'getSelection':
+            let focusedWindow = {};
+            let focusedElement = Services.focus.getFocusedElementForWindow(content, true, focusedWindow);
+            focusedWindow = focusedWindow.value;
+            
+            let selectionStr = focusedWindow.getSelection().toString();
+
+            // https://searchfox.org/mozilla-central/rev/cc9d803f98625175ed20111d9736e77f3d430cd5/toolkit/modules/SelectionUtils.jsm#70-82
+            // try getting a selected text in text input.
+            if (!selectionStr && focusedElement) {
+              // Don't get the selection for password fields. See bug 565717.
+              if (
+                ChromeUtils.getClassName(focusedElement) === 'HTMLTextAreaElement' ||
+                (ChromeUtils.getClassName(focusedElement) === 'HTMLInputElement' &&
+                  focusedElement.mozIsTextField(true))
+              ) {
+                selectionStr = focusedElement.editor.selection.toString();
+              }
+            }
+
+            if (selectionStr)
+              Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(selectionStr);
+            else
+              useFallback = true;
+            break;
+          case 'newTab':
+            url = url || data[type] || data.videoURL || data.audioURL || data.bgImageURL || data.imageURL || data.linkURL;
+            if (url)
+              sendAsyncMessage('contentToChrome', { action, url: parseTemplate(url, templateURL, encode) });
+            else
+              useFallback = true;
+            break;
+          case 'scroll':
+            clickedElement.tabIndex = -1;
+            clickedElement.focus();
+            sendAsyncMessage('contentToChrome', {cmd: 'scroll-' + direction});
+            break;
+          case 'eval':
+            if (evalCache[name]) {
+              evalCache[name]();
+            } else {
+              eval('(evalCache["' + name + '"] = ' + code + ').call()');
+            }
+            break;
+          case 'destroy':
+            removeEventListener('mousedown', mouseDown, true);
+            removeMessageListener('chromeToContent', contentListener);
+            delete mouseDown;
+            delete contentListener;
+        }
+
+        if (fallback && useFallback) {
+          msg.data.action = fallback;
+          delete msg.data.fallback;
+          contentListener(msg);
+        }
+      }
+      addMessageListener('chromeToContent', contentListener);
+    }).toString() + ')();'),
+
+  directionChain: '',
+  firstButton: undefined,
+
+  stoppedOutside: async function (win) {
+    return new Promise(resolve => {
+      let start = undefined;
+      const step = (timestamp) => {
+        if (start === undefined && timestamp)
+          start = timestamp;
+
+        if (timestamp - start < 20 && !this.cancel) { // Stop the animation after 20ms
+          win.requestAnimationFrame(step);
+        } else {
+          resolve();
+        }
+      }
+
+      win.requestAnimationFrame(step);
+    });
+  },
+
+  stopGesture: async function (gst, win) {
+    if (this.GESTURES[gst]) {
+      let topWin = win.windowRoot.ownerGlobal;
+      this.prevent = true;
+      this.hideAutoScroll(topWin.gBrowser);
+      if  (/[UDLR]/.test(gst))
+        await this.stoppedOutside(win);
+      win.document.documentElement.removeEventListener('mouseleave', this, false);
+      if (!this.cancel) {
+        this.GESTURES[gst].cmd(topWin);
+      }
+    }
   },
 
   handleEvent: function (event) {
+    const { button, screenX, screenY } = event;
+    const win = event.view.windowRoot.ownerGlobal;
+    const { document: doc } = win;
+    let delX,
+        delY,
+        absDX,
+        absDY,
+        direction;
+
     switch (event.type) {
-    case 'mousedown':
-      [this.lastX, this.lastY, this.directionChain] = [event.screenX, event.screenY, ''];
-      if (event.button == 2) {
-        if (this.isMouseUpR) {
-          this.isMouseUpR = false;
-        }
-        this.hideFireContext = false;
-        if (this.isMouseDownL) {
-          this.hideFireContext = true;
-          this.isRelatedL = true;
-          this.isRelatedR = true;
-          this.stopGesture('L>R', event.view);
-          event.preventDefault();
-          event.stopPropagation();
-        } else if (this.isMouseDownM) {
-          this.hideFireContext = true;
-          this.isRelatedM = true;
-          this.isRelatedR = true;
-          this.stopGesture('M>R', event.view);
-          event.preventDefault();
-          event.stopPropagation();
+      case 'mousedown':
+        if (event.ctrlKey)
+          return;
+        if (this.directionChain) {
+          delX = screenX - this.lastX;
+          delY = screenY - this.lastY;
+          if (Math.abs(delX) > 30 || Math.abs(delY) > 30) {
+            return;
+          } else {
+            this.stopGesture(this.directionChain + button, win);
+            event.preventDefault();
+            event.stopPropagation();
+          }
         } else {
-          this.isMouseDownR = true;
+          this.lastX = screenX;
+          this.lastY = screenY;
+          this.firstButton = button;
+          this.directionChain += button;
+          this.cancel = false;
+          this.prevent = false;
+          doc.addEventListener('mousemove', this, false);
+          doc.addEventListener('wheel', this, { capture: true, passive: false });
+          doc.addEventListener('dragend', this, { capture: true, once: true });
+          doc.documentElement.addEventListener('mouseleave', this, false);
         }
-      } else if (event.button == 0) {
-        if (this.isMouseUpL) {
-          this.isMouseUpL = false;
-        }
-        if (this.isMouseDownR) {
-          this.hideFireContext = true;
-          this.directionChain = '';
-          this.isRelatedR = true;
-          this.isRelatedL = true;
-          this.stopGesture('R>L', event.view);
-          event.preventDefault();
-          event.stopPropagation();
-        } else if (this.isMouseDownM) {
-          this.hideFireContext = true;
-          this.isRelatedM = true;
-          this.isRelatedL = true;
-          this.stopGesture('M>L', event.view);
-          event.preventDefault();
-          event.stopPropagation();
-        } else {
-          this.isMouseDownL = true;
-        }
-      } else if (event.button == 1) {
-        if (this.isMouseUpM) {
-          this.isMouseUpM = false;
-        }
-        if (this.isMouseDownR) {
-          this.hideFireContext = true;
-          this.directionChain = '';
-          this.isRelatedR = true;
-          this.isRelatedM = true;
-          this.stopGesture('R>M', event.view);
-          event.preventDefault();
-          event.stopPropagation();
-        } else if (this.isMouseDownL) {
-          this.hideFireContext = true;
-          this.isRelatedL = true;
-          this.isRelatedM = true;
-          this.stopGesture('L>M', event.view);
-          event.preventDefault();
-          event.stopPropagation();
-        } else {
-          this.isMouseDownM = true;
-        }
-      }
-      break;
-    case 'mousemove':
-      if (this.isMouseDownR) {
-        this.hideFireContext = true;
-        var [delX, delY] = [event.screenX - this.lastX, event.screenY - this.lastY];
-        var [absDX, absDY] = [Math.abs(delX), Math.abs(delY)];
-        var direction;
+        break;
+      case 'mousemove':
+        delX = screenX - this.lastX;
+        delY = screenY - this.lastY;
+        absDX = Math.abs(delX);
+        absDY = Math.abs(delY);
+        direction;
         if (absDX < 10 && absDY < 10)
           return;
-        if (absDX > absDY) {
+        if (absDX > absDY)
           direction = delX < 0 ? 'L' : 'R';
-        } else {
+        else
           direction = delY < 0 ? 'U' : 'D';
-        }
-        if (direction != this.directionChain.charAt(this.directionChain.length - 1)) {
+        if (direction != this.directionChain[this.directionChain.length - 1])
           this.directionChain += direction;
-        }
-        this.lastX = event.screenX;
-        this.lastY = event.screenY;
-      }
-      if (this.isMouseDownL) {
-        var [delX, delY] = [event.screenX - this.lastX, event.screenY - this.lastY];
-        if (Math.abs(delX) > 30 || Math.abs(delY) > 30) {
-          this.isMouseDownL = false;
-        }
-      }
-      if (this.isMouseDownM) {
-        this.isMouseDownM = false;
-      }
-      break;
-    case 'mouseup':
-      if (event.ctrlKey && event.button == 2) {
-        this.isMouseDownR = false;
-        this.hideFireContext = false;
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      if (event.button == 2) {
-        if (this.isMouseDownR) {
-          this.isMouseDownR = false;
-        }
-        if (this.isRelatedR) {
-          this.isMouseUpR = true;
-          this.isRelatedR = false;
-          event.preventDefault();
-          event.stopPropagation();
-        }
+        this.lastX = screenX;
+        this.lastY = screenY;
+        break;
+      case 'dragend':
+      case 'mouseup':
         if (this.directionChain) {
-          this.stopGesture(this.directionChain, event.view);
+          this.stopGesture(this.directionChain, win);
+          if (this.firstButton == button) {
+            this.directionChain = '';
+            doc.removeEventListener('mousemove', this, false);
+            ['dragend', 'wheel'].forEach(type => doc.removeEventListener(type, this, true));
+            if (this.prevent) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }
         }
-      } else if (event.button == 0) {
-        if (this.isMouseDownL) {
-          this.isMouseDownL = false;
-        }
-        if (this.isRelatedL) {
-          this.isMouseUpL = true;
-          this.isRelatedL = false;
-          gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', 'deselect');
+        break;
+      case 'contextmenu':
+        if (this.prevent) {
           event.preventDefault();
           event.stopPropagation();
         }
-      } else if (event.button == 1) {
-        if (this.isMouseDownM) {
-          this.isMouseDownM = false;
-        }
-        if (this.isRelatedM) {
-          this.isMouseUpM = true;
-          this.isRelatedM = false;
+        break;
+      case 'wheel':
+        if (this.directionChain) {
           event.preventDefault();
           event.stopPropagation();
+          const { gBrowser } = win;
+          this.stopGesture(this.directionChain + (event.deltaY > 0 ? '+' : '-'), win);
         }
-      }
-      break;
-    case 'click':
-      if (event.button == 2) {
-        if (this.isMouseUpR) {
-          this.isMouseUpR = false;
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      } else if (event.button == 0) {
-        if (this.isMouseUpL) {
-          this.isMouseUpL = false;
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      } else if (event.button == 1) {
-        if (this.isMouseUpM) {
-          this.isMouseUpM = false;
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
-      break;
-    case 'contextmenu':
-      if (this.isMouseDownL || this.isMouseDownR || this.isMouseDownM || this.hideFireContext) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.hideFireContext = false;
-      }
-      break;
-    case 'wheel':
-      if (this.isMouseDownR) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.hideFireContext = true;
-        this.directionChain = '';
-        this.isRelatedR = true;
-        this.stopGesture('2' + (event.deltaY > 0 ? '+' : '-'), event.view);
-      } else if (this.isMouseDownL) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.isRelatedL = true;
-        this.stopGesture('0' + (event.deltaY > 0 ? '+' : '-'), event.view);
-      } else if (this.isMouseDownM) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup && gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup.state == 'open')
-          gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup.hidePopup();
-        this.isRelatedM = true;
-        this.stopGesture('1' + (event.deltaY > 0 ? '+' : '-'), event.view);
-      }
-      break;
-    case 'mouseleave':
-      if (this.isMouseDownL) {
-        this.isMouseDownL = false;
-      }
-      if (this.isMouseDownM)
-        this.isMouseDownM = false;
-      if (this.isMouseDownR) {
-        this.isMouseDownR = false;
-        this.directionChain = '';
-      }
-      break;
-    case 'drop':
-      this.isMouseDownL = false;
+        break;
+      case 'mouseleave':
+        this.cancel = true;
     }
   },
 
+  checkAndRunGest: function (command, win) {
+    if (this.GESTURES[this.directionChain + command]) {
+      this.prevent = true;
+      this.hideAutoScroll(win.gBrowser);
+      this.GESTURES[this.directionChain + command].cmd(win.windowRoot.ownerGlobal);
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  hideAutoScroll: function (gBrowser) {
+    if (this.directionChain[0] == '1' && gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup?.state == 'open')
+      gBrowser.getBrowserForTab(gBrowser._selectedTab)._autoScrollPopup.hidePopup();
+  },
+
   destroy: function () {
-    Services.mm.broadcastAsyncMessage('chromeToContent', 'destroy');
+    Services.mm.broadcastAsyncMessage('chromeToContent', { action: 'destroy' });
     Services.mm.removeDelayedFrameScript(this.frameScript);
     Services.mm.removeMessageListener('contentToChrome', this.chromeListener);
 
     _uc.windows((doc, win) => {
-      const { document, messageManager, Object } = win;
+      const { messageManager } = win;
 
-      ['mousedown', 'wheel', 'mouseup', 'contextmenu', 'drop', 'click'].forEach(type => {
-        document.removeEventListener(type, this, true);
+      ['contextmenu', 'dragend', 'mousedown', 'mouseup', 'wheel'].forEach(type => {
+        doc.removeEventListener(type, this, true);
       });
-      ['mouseleave', 'mousemove'].forEach(type => {
-        document.removeEventListener(type, this, false);
-      });
+      doc.removeEventListener('mousemove', this, false);
+      doc.documentElement.removeEventListener('mouseleave', this, false);
 
       Object.defineProperty(customElements.get('tabbrowser-tab').prototype, '_selected', {
         set: win.orig_selected,
         configurable: true
       });
 
+      win.removeEventListener('AppCommand', win.HandleAppCommandEvent, true);
+      win.HandleAppCommandEvent = win._HandleAppCommandEvent;
+      delete win._HandleAppCommandEvent;
+      win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
+
       delete win.orig_selected;
     });
 
+    Services.obs.removeObserver(this, 'UCJS:WebExtLoaded');
+    this.TST?.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
     delete UC.MGest;
   },
 };
