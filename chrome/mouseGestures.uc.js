@@ -149,13 +149,13 @@ UC.MGest = {
     '0F': {
       name: 'Switch to next group',
       cmd: function (win) {
-        UC.MGest.webExts.get('TTG').browser.messageManager.sendAsyncMessage('UCJS:MGest', 'next-group');
+        UC.MGest.webExts.get('TTG').browser?.messageManager.sendAsyncMessage('UCJS:MGest', 'next-group');
       }
     },
     '0B': {
       name: 'Switch to previous group',
       cmd: function (win) {
-        UC.MGest.webExts.get('TTG').browser.messageManager.sendAsyncMessage('UCJS:MGest', 'previous-group');
+        UC.MGest.webExts.get('TTG').browser?.messageManager.sendAsyncMessage('UCJS:MGest', 'previous-group');
       }
     },
     '1F': {
@@ -240,7 +240,7 @@ UC.MGest = {
 
   init: function () {
     this.webExts.forEach(obj => {
-      if (UC.webExts.get(obj.id))
+      if (UC.webExts.get(obj.id)?.messageManager)
         this.addListener(obj.id);
     });
 
@@ -730,12 +730,22 @@ UC.MGest = {
             this.directionChain = '';
             doc.removeEventListener('mousemove', this, false);
             ['dragend', 'wheel'].forEach(type => doc.removeEventListener(type, this, true));
-            if (this.prevent) {
+          }
+          if (this.prevent && button != 2) {
+            if (event.composedTarget.isRemoteBrowser) {
+              doc.documentElement.focus();
+              win.gBrowser.selectedBrowser.focus();
               event.preventDefault();
               event.stopPropagation();
+            } else {
+              win.addEventListener('click', this, { capture: true, once: true});
             }
           }
         }
+        break;
+      case 'click':
+        event.preventDefault();
+        event.stopPropagation();
         break;
       case 'contextmenu':
         if (this.prevent) {
@@ -801,7 +811,7 @@ UC.MGest = {
 
     Services.obs.removeObserver(this, 'UCJS:WebExtLoaded');
     this.webExts.forEach(obj => {
-      obj?.browser.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
+      obj.browser?.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
     });
     delete UC.MGest;
   },
