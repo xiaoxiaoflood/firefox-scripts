@@ -18,7 +18,7 @@ UC.openInUnloadedTab = {
   exec: function (win) {
     let {document} = win;
 
-    let openAll = document.getElementById('placesContext_openBookmarkContainer:tabs');
+    let openAll = document.getElementById("placesContext_openContainer:tabs") || document.getElementById('placesContext_openBookmarkContainer:tabs');
     let openAllUnloaded = _uc.createElement(document, 'menuitem', {
       id: 'openAllUnloaded',
       label: 'Open All in Unloaded Tabs',
@@ -135,8 +135,8 @@ UC.openInUnloadedTab = {
     let win = e.view;
     let {document} = win;
     let browserWindow = BrowserWindowTracker.getTopWindow();
-    document.getElementById('openAllUnloaded').disabled = !browserWindow || document.getElementById('placesContext_openBookmarkContainer:tabs').disabled;
-    document.getElementById('openAllUnloaded').hidden = !browserWindow || document.getElementById('placesContext_openBookmarkContainer:tabs').hidden;
+    document.getElementById('openAllUnloaded').disabled = !browserWindow || (document.getElementById("placesContext_openContainer:tabs") || document.getElementById('placesContext_openBookmarkContainer:tabs')).disabled;
+    document.getElementById('openAllUnloaded').hidden = !browserWindow || (document.getElementById("placesContext_openContainer:tabs") || document.getElementById('placesContext_openBookmarkContainer:tabs')).hidden;
     document.getElementById('openAllLinksUnloaded').disabled = !browserWindow || document.getElementById('placesContext_openLinks:tabs').disabled;
     document.getElementById('openAllLinksUnloaded').hidden = !browserWindow || document.getElementById('placesContext_openLinks:tabs').hidden;
     document.getElementById('openUnloaded').disabled = !browserWindow || document.getElementById('placesContext_open:newtab').disabled;

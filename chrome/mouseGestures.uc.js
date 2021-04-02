@@ -296,7 +296,7 @@ UC.MGest = {
           }
 
           addMessageListener('UCJS:MGest', contentListener);
-        }).toString() + ')();'), false);        
+        }).toString() + ')();'), false);
     }
   },
 
@@ -320,14 +320,12 @@ UC.MGest = {
       case 'scroll-down':
         document.commandDispatcher.getControllerForCommand('cmd_moveBottom').doCommand('cmd_moveBottom');
         break;
-      default:
-        if (action == 'newTab') {
-          gBrowser.addTab(url, {
-            owner: gBrowser.selectedTab,
-            relatedToCurrent: true,
-            triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal
-          });
-        }
+      case 'newTab':
+        gBrowser.addTab(url, {
+          owner: gBrowser.selectedTab,
+          relatedToCurrent: true,
+          triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal
+        });
     }
   },
 
@@ -568,9 +566,9 @@ UC.MGest = {
             let imgTools = Cc['@mozilla.org/image/tools;1'].getService(Ci.imgITools);
             let img = imgTools.decodeImageFromArrayBuffer(imageData, mimeType);
 
-            transferable = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);          
+            let transferable = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);          
             transferable.init(null);
-            kNativeImageMime = 'application/x-moz-nativeimage';
+            let kNativeImageMime = 'application/x-moz-nativeimage';
             transferable.addDataFlavor(kNativeImageMime);
             transferable.setTransferData(kNativeImageMime, img);
             Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
@@ -602,14 +600,14 @@ UC.MGest = {
             break;
           case 'newTab':
             if (url)
-              sendAsyncMessage('contentToChrome', { action, url: parseTemplate(url, templateURL, encode) });
+              sendAsyncMessage('contentToChrome', { cmd: action, url: parseTemplate(url, templateURL, encode) });
             else
               useFallback = true;
             break;
           case 'scroll':
             clickedElement.tabIndex = -1;
             clickedElement.focus();
-            sendAsyncMessage('contentToChrome', {cmd: 'scroll-' + direction});
+            sendAsyncMessage('contentToChrome', { cmd: 'scroll-' + direction });
             break;
           case 'eval':
             if (evalCache[name])
@@ -639,15 +637,14 @@ UC.MGest = {
   stoppedOutside: async function (win) {
     return new Promise(resolve => {
       let start = undefined;
-      const step = (timestamp) => {
+      const step = function (timestamp) {
         if (start === undefined && timestamp)
           start = timestamp;
 
-        if (timestamp - start < 20 && !this.cancel) { // Stop the animation after 20ms
+        if (timestamp - start < 20 && !this.cancel) // Stop the animation after 20ms
           win.requestAnimationFrame(step);
-        } else {
+        else
           resolve();
-        }
       }
 
       win.requestAnimationFrame(step);
@@ -662,14 +659,13 @@ UC.MGest = {
       if  (/[UDLR]/.test(gst))
         await this.stoppedOutside(win);
       win.document.documentElement.removeEventListener('mouseleave', this, false);
-      if (!this.cancel) {
+      if (!this.cancel)
         this.GESTURES[gst].cmd(topWin);
-      }
     }
   },
 
   handleEvent: function (event) {
-    const { button, screenX, screenY } = event;
+    const { button, composedTarget, screenX, screenY } = event;
     const win = event.view.windowRoot.ownerGlobal;
     const { document: doc } = win;
     let delX,
@@ -680,7 +676,7 @@ UC.MGest = {
 
     switch (event.type) {
       case 'mousedown':
-        if (event.ctrlKey || event.composedTarget.localName == 'resizer')
+        if (event.ctrlKey || composedTarget.localName == 'resizer')
           return;
         if (this.directionChain) {
           delX = screenX - this.lastX;
@@ -732,7 +728,7 @@ UC.MGest = {
             ['dragend', 'wheel'].forEach(type => doc.removeEventListener(type, this, true));
           }
           if (this.prevent && button != 2) {
-            if (event.composedTarget.isRemoteBrowser) {
+            if (composedTarget.isRemoteBrowser) {
               doc.documentElement.focus();
               win.gBrowser.selectedBrowser.focus();
               event.preventDefault();
