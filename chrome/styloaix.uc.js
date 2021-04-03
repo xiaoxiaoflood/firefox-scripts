@@ -2,8 +2,6 @@
 // @name            StyloaiX
 // @author          xiaoxiaoflood
 // @include         main
-// @include         chrome://userchromejs/content/styloaix/edit.xhtml
-// @startup         UC.styloaix.tbAddButton(win);
 // @shutdown        UC.styloaix.destroy();
 // @onlyonce
 // ==/UserScript==
@@ -69,29 +67,23 @@
             return this.createButton(doc);
           }
         });
+      } else {
+        let btn = this.createButton(document);
+        btn.setAttribute('removable', true);
+        const currentSet = Services.xulStore.getValue('chrome://messenger/content/messenger.xhtml', 'mail-bar3', 'currentset').split(',');
+        const position = currentSet.indexOf('styloaix-button');
+        if (position !== -1)
+          document.getElementById('mail-bar3').insertBefore(btn, document.getElementById(currentSet[position + 1]));
+        else
+          document.getElementById('mail-bar3').insertBefore(btn, document.getElementById('gloda-search'));
+        this.tbButton = btn;
+
+        this.rebuildMenu();
       }
 
       this.loadStyles();
 
       _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
-    },
-
-    tbAddButton (win) {
-      if (AppConstants.MOZ_APP_NAME !== 'thunderbird' || win.location.href !== _uc.BROWSERCHROME)
-        return;
-
-      const doc = win.document;
-      let btn = this.createButton(doc);
-      btn.setAttribute('removable', true);
-      const currentSet = Services.xulStore.getValue('chrome://messenger/content/messenger.xhtml', 'mail-bar3', 'currentset').split(',');
-      const position = currentSet.indexOf('styloaix-button');
-      if (position !== -1)
-        doc.getElementById('mail-bar3').insertBefore(btn, doc.getElementById(currentSet[position + 1]));
-      else
-        doc.getElementById('mail-bar3').insertBefore(btn, doc.getElementById('gloda-search'));
-      this.tbButton = btn;
-
-      this.rebuildMenu();
     },
 
     createButton (doc) {
@@ -281,7 +273,6 @@
     },
 
     rebuildMenu () {
-      // remove styles from menupopup to avoid duplicates
       let buttons = this.buttons;
       if (buttons.length) {
         buttons.forEach(btn => {
@@ -328,7 +319,7 @@
     get buttons () {
       let arr = [];
       let widget = CustomizableUI.getWidget('styloaix-button');
-      if (widget?.label) { // check if button exists
+      if (widget?.label) {
         widget.instances.forEach(btnWidget => {
           let btn = btnWidget.node;
           btn._separator.hidden = !this.styles.size;
