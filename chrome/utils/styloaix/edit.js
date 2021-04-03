@@ -329,13 +329,16 @@ function insertCodeAtCaret (snippet) {
 	sourceEditor.focus();
 }
 
-function changeWordWrap (bool) {
-	xPref.set(UC.styloaix.PREF_LINEWRAPPING, bool);
+function changeWordWrap (bool, persist) {
+	if (persist)
+    xPref.set(UC.styloaix.PREF_LINEWRAPPING, bool);
 	sourceEditor.setOption('lineWrapping', bool);
   sourceEditor.focus();
 }
 
-function instantPreview (bool) {
+function instantPreview (bool, persist) {
+  if (persist)
+    xPref.set(UC.styloaix.PREF_INSTANTPREVIEW, bool);
   isInstantPreview = bool
   if (isInstantPreview && !timeoutRunning)
     instantTimeout();
@@ -343,7 +346,9 @@ function instantPreview (bool) {
   sourceEditor.focus();
 }
 
-function instantCheck (bool) {
+function instantCheck (bool, persist) {
+  if (persist)
+    xPref.set(UC.styloaix.PREF_INSTANTCHECK, bool);
   isInstantCheck = bool
   if (isInstantCheck && !timeoutRunning)
     instantTimeout();
@@ -401,7 +406,7 @@ if (isChromeWindow) {
   window.close = function () {
     if (!unsaved || confirm('Do you want to close and lose unsaved changes?')) {
       shouldHandle = false;
-      setTimeout(closeFn);// por algum motivo precisa do setTimeout no Ctrl+W.
+      setTimeout(closeFn);
     }
   }
 }

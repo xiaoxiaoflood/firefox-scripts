@@ -31,6 +31,7 @@
 ¹: Not all scripts are restartless. These have `@shutdown` at the beginning of the code. Almost all scripts on this page were written by me to be restartless, but almost all scripts you get from other sources are not.
 
 ## userChromeJS scripts
+ᵀᴮ: also compatible with Thunderbird
 
 (click to expand)
 <details>
@@ -77,7 +78,7 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/extensionsUpdateChecker.uc.js).
 </details>
 <details>
-  <summary>Master Password+</summary>
+  <summary>ᵀᴮ Master Password+</summary>
   Locks Firefox with password. This will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
   You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a Primary Password</i>.
@@ -187,7 +188,7 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/status-bar.uc.js).
 </details>
 <details>
-  <summary>StyloaiX</summary>
+  <summary>ᵀᴮ StyloaiX</summary>
   UserStyle manager to reskin Firefox window and websites. Replacement for legacy Stylish. More convenient than userChrome.css and userContent.css, as it has a powerful editor with instant preview, error checking, code autocomplete and you can enable/disable individual styles without restarting Firefox.
 
   Screenshots (yes, I'm using the old Stylish icon):

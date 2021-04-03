@@ -1,8 +1,9 @@
 let EXPORTED_SYMBOLS = [];
 
-const {Services} = ChromeUtils.import('resource://gre/modules/Services.jsm');
-const {xPref} = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
-const {Management} = ChromeUtils.import('resource://gre/modules/Extension.jsm');
+const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
+const { xPref } = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
+const { Management } = ChromeUtils.import('resource://gre/modules/Extension.jsm');
+const { AppConstants } = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
 
 let UC = {
   webExts: new Map(),
@@ -11,7 +12,7 @@ let UC = {
 
 let _uc = {
   ALWAYSEXECUTE: 'rebuild_userChrome.uc.js',
-  BROWSERCHROME: 'chrome://browser/content/browser.xhtml',
+  BROWSERCHROME: AppConstants.MOZ_APP_NAME == 'thunderbird' ? 'chrome://messenger/content/messenger.xhtml' : 'chrome://browser/content/browser.xhtml',
   PREF_ENABLED: 'userChromeJS.enabled',
   PREF_SCRIPTSDISABLED: 'userChromeJS.scriptsDisabled',
 

@@ -3,6 +3,7 @@
 // @author          xiaoxiaoflood
 // @include         main
 // @include         chrome://userchromejs/content/styloaix/edit.xhtml
+// @startup         UC.styloaix.tbAddButton(win);
 // @shutdown        UC.styloaix.destroy();
 // @onlyonce
 // ==/UserScript==
@@ -59,119 +60,143 @@
       if (!this.enabled)
         this.btnClasses.reverse();
 
+      if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
+        CustomizableUI.createWidget({
+          id: 'styloaix-button',
+          type: 'custom',
+          defaultArea: CustomizableUI.AREA_NAVBAR,
+          onBuild: (doc) => {
+            return this.createButton(doc);
+          }
+        });
+      }
+
       this.loadStyles();
 
-      CustomizableUI.createWidget({
+      _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
+    },
+
+    tbAddButton (win) {
+      if (AppConstants.MOZ_APP_NAME !== 'thunderbird' || win.location.href !== _uc.BROWSERCHROME)
+        return;
+
+      const doc = win.document;
+      let btn = this.createButton(doc);
+      btn.setAttribute('removable', true);
+      const currentSet = Services.xulStore.getValue('chrome://messenger/content/messenger.xhtml', 'mail-bar3', 'currentset').split(',');
+      const position = currentSet.indexOf('styloaix-button');
+      if (position !== -1)
+        doc.getElementById('mail-bar3').insertBefore(btn, doc.getElementById(currentSet[position + 1]));
+      else
+        doc.getElementById('mail-bar3').insertBefore(btn, doc.getElementById('gloda-search'));
+      this.tbButton = btn;
+
+      this.rebuildMenu();
+    },
+
+    createButton (doc) {
+      let btn = _uc.createElement(doc, 'toolbarbutton', {
         id: 'styloaix-button',
-        type: 'custom',
-        defaultArea: CustomizableUI.AREA_NAVBAR,
-        onBuild: (doc) => {
-          let btn = _uc.createElement(doc, 'toolbarbutton', {
-            id: 'styloaix-button',
-            label: 'StyloaiX',
-            tooltiptext: 'StyloaiX',
-            type: 'menu',
-            class: 'toolbarbutton-1 chromeclass-toolbar-additional ' + this.btnClasses[1],
-            onclick: 'if (event.button === 1 && event.target.id == this.id) UC.styloaix.enabled = !UC.styloaix.enabled;'
-          });
-
-          let popup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-popup'});
-          btn.appendChild(popup);
-
-          let disabled = xPref.get(this.PREF_DISABLED);
-          let toggleBtn = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-enabled',
-            label: disabled ? 'Disabled' : 'Enabled',
-            type: 'checkbox',
-            checked: !disabled,
-            oncommand: 'UC.styloaix.enabled = !UC.styloaix.enabled;'
-          });
-          popup.appendChild(toggleBtn);
-          
-          let menuseparator = _uc.createElement(doc, 'menuseparator');
-          popup.appendChild(menuseparator);
-
-          let reloadAllBtn = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-reload-all',
-            label: 'Reload All Styles',
-            oncommand: 'UC.styloaix.toggleAll({reload: true});'
-          });
-          popup.appendChild(reloadAllBtn);
-
-          let openFolderBtn = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-open-folder',
-            label: 'Open folder',
-            oncommand: 'UC.styloaix.CSSDIR.launch();'
-          });
-          popup.appendChild(openFolderBtn);
-
-          let newStyleMenu = _uc.createElement(doc, 'menu', {
-            id: 'styloaix-new-style',
-            label: 'New Style'
-          });
-
-          let newStylePopup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-newstyle-popup'});
-
-          let newPageStyleBtn = _uc.createElement(doc, 'menuitem', {
-            label: 'For this page',
-            oncommand: 'UC.styloaix.openEditor({url: gBrowser.currentURI.specIgnoringRef, type: "url"});'
-          });
-          newStylePopup.appendChild(newPageStyleBtn);
-
-          let newSiteStyleBtn = _uc.createElement(doc, 'menuitem', {
-            label: 'For this site',
-            oncommand: 'let host = gBrowser.currentURI.asciiHost; UC.styloaix.openEditor({url: host || gBrowser.currentURI.specIgnoringRef, type: host ? "domain" : "url"});'
-          });
-          newStylePopup.appendChild(newSiteStyleBtn);
-
-          let newStyle = _uc.createElement(doc, 'menuitem', {
-            label: 'Blank Style',
-            oncommand: 'UC.styloaix.openEditor();'
-          });
-          newStylePopup.appendChild(newStyle);
-
-          newStyleMenu.appendChild(newStylePopup);
-          popup.appendChild(newStyleMenu);
-
-          let separatorBeforeStyles = _uc.createElement(doc, 'menuseparator');
-          separatorBeforeStyles.hidden = !this.styles.size;
-          popup.appendChild(separatorBeforeStyles);
-          btn._separator = separatorBeforeStyles;
-
-          let stylePopup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-style-context'});
-
-          let styleEdit = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-style-edit',
-            label: 'Edit',
-            oncommand: 'UC.styloaix.openEditor({id: document.popupNode._style.fullName})'
-          });
-          stylePopup.appendChild(styleEdit);
-
-          let styleReload = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-style-reload',
-            label: 'Reload',
-            oncommand: 'document.popupNode._style.reload()'
-          });
-          stylePopup.appendChild(styleReload);
-
-          let styleDelete = _uc.createElement(doc, 'menuitem', {
-            id: 'styloaix-style-delete',
-            label: 'Delete',
-            oncommand: 'document.popupNode._style.delete()'
-          });
-          stylePopup.appendChild(styleDelete);
-
-          doc.getElementById('mainPopupSet').appendChild(stylePopup);
-
-          this.styles.forEach(style => {
-            this.addStyleInMenu(style, popup);
-          });
-
-          return btn;
-        }
+        label: 'StyloaiX',
+        tooltiptext: 'StyloaiX',
+        type: 'menu',
+        class: 'toolbarbutton-1 chromeclass-toolbar-additional ' + this.btnClasses[1],
+        onclick: 'if (event.button === 1 && event.target.id == this.id) UC.styloaix.enabled = !UC.styloaix.enabled;'
       });
 
-      _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
+      let popup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-popup'});
+      btn.appendChild(popup);
+
+      let disabled = xPref.get(this.PREF_DISABLED);
+      let toggleBtn = _uc.createElement(doc, 'menuitem', {
+        id: 'styloaix-enabled',
+        label: disabled ? 'Disabled' : 'Enabled',
+        type: 'checkbox',
+        checked: !disabled,
+        oncommand: 'UC.styloaix.enabled = !UC.styloaix.enabled;'
+      });
+      popup.appendChild(toggleBtn);
+      
+      let menuseparator = _uc.createElement(doc, 'menuseparator');
+      popup.appendChild(menuseparator);
+
+      let reloadAllBtn = _uc.createElement(doc, 'menuitem', {
+        id: 'styloaix-reload-all',
+        label: 'Reload All Styles',
+        oncommand: 'UC.styloaix.toggleAll({reload: true});'
+      });
+      popup.appendChild(reloadAllBtn);
+
+      let openFolderBtn = _uc.createElement(doc, 'menuitem', {
+        id: 'styloaix-open-folder',
+        label: 'Open folder',
+        oncommand: 'UC.styloaix.CSSDIR.launch();'
+      });
+      popup.appendChild(openFolderBtn);
+
+      let newStyleMenu = _uc.createElement(doc, 'menu', {
+        id: 'styloaix-new-style',
+        label: 'New Style'
+      });
+
+      let newStylePopup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-newstyle-popup'});
+
+      let newPageStyleBtn = _uc.createElement(doc, 'menuitem', {
+        label: 'For this page',
+        oncommand: 'UC.styloaix.openEditor({url: gBrowser.currentURI.specIgnoringRef, type: "url"});'
+      });
+      newStylePopup.appendChild(newPageStyleBtn);
+
+      let newSiteStyleBtn = _uc.createElement(doc, 'menuitem', {
+        label: 'For this site',
+        oncommand: 'let host = gBrowser.currentURI.asciiHost; UC.styloaix.openEditor({url: host || gBrowser.currentURI.specIgnoringRef, type: host ? "domain" : "url"});'
+      });
+      newStylePopup.appendChild(newSiteStyleBtn);
+
+      let newStyle = _uc.createElement(doc, 'menuitem', {
+        label: 'Blank Style',
+        oncommand: 'UC.styloaix.openEditor();'
+      });
+      newStylePopup.appendChild(newStyle);
+
+      newStyleMenu.appendChild(newStylePopup);
+      popup.appendChild(newStyleMenu);
+
+      let separatorBeforeStyles = _uc.createElement(doc, 'menuseparator');
+      separatorBeforeStyles.hidden = !this.styles.size;
+      popup.appendChild(separatorBeforeStyles);
+      btn._separator = separatorBeforeStyles;
+
+      let stylePopup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-style-context'});
+
+      let styleEdit = _uc.createElement(doc, 'menuitem', {
+        id: 'styloaix-style-edit',
+        label: 'Edit',
+        oncommand: 'UC.styloaix.openEditor({id: document.popupNode._style.fullName})'
+      });
+      stylePopup.appendChild(styleEdit);
+
+      let styleReload = _uc.createElement(doc, 'menuitem', {
+        id: 'styloaix-style-reload',
+        label: 'Reload',
+        oncommand: 'document.popupNode._style.reload()'
+      });
+      stylePopup.appendChild(styleReload);
+
+      let styleDelete = _uc.createElement(doc, 'menuitem', {
+        id: 'styloaix-style-delete',
+        label: 'Delete',
+        oncommand: 'document.popupNode._style.delete()'
+      });
+      stylePopup.appendChild(styleDelete);
+
+      doc.getElementById('mainPopupSet').appendChild(stylePopup);
+
+      this.styles.forEach(style => {
+        this.addStyleInMenu(style, popup);
+      });
+      
+      return btn;
     },
 
     get enabled () {
@@ -256,6 +281,7 @@
     },
 
     rebuildMenu () {
+      // remove styles from menupopup to avoid duplicates
       let buttons = this.buttons;
       if (buttons.length) {
         buttons.forEach(btn => {
@@ -302,13 +328,16 @@
     get buttons () {
       let arr = [];
       let widget = CustomizableUI.getWidget('styloaix-button');
-      if (widget && 'label' in widget) {
+      if (widget?.label) { // check if button exists
         widget.instances.forEach(btnWidget => {
           let btn = btnWidget.node;
           btn._separator.hidden = !this.styles.size;
           arr.push(btn);
         });
+      } else if (this.tbButton) {
+        arr.push(this.tbButton)
       }
+
       return arr;
     },
 
@@ -325,13 +354,15 @@
 
     STYLE: {
       url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
-        @-moz-document url('${_uc.BROWSERCHROME}') {
+        @-moz-document url('${_uc.BROWSERCHROME}'), url('chrome://messenger/content/customizeToolbar.xhtml') {
           #styloaix-button.icon-white {
             list-style-image: url('chrome://userchromejs/content/styloaix/16w.png');
           }
           #styloaix-button.icon-colored {
             list-style-image: url('chrome://userchromejs/content/styloaix/16.png');
           }
+        }
+        @-moz-document url('${_uc.BROWSERCHROME}') {
           .styloaix-usersheet label:after {
             content:"US";
             color: blue;
@@ -352,6 +383,7 @@
       xPref.removeListener(this.prefListener);
       xPref.removeListener(this.prefListenerAll);
       CustomizableUI.destroyWidget('styloaix-button');
+      this.tbButton?.remove();
       _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
       this.toggleAll({disable: true});
       delete UC.styloaix;

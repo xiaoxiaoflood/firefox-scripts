@@ -111,9 +111,9 @@
           <menuitem label="Data URI…" accesskey="D" oncommand="insertDataURI()"/>
         </menupopup>
       </button>
-      <checkbox id="wrap-lines" label="Wrap lines" accesskey="W" oncommand="changeWordWrap(this.checked)"/>
-      <checkbox id="instant-preview" label="Instant Preview" accesskey="R" oncommand="instantPreview(this.checked)"/>
-      <checkbox id="instant-check" label="Instant Check for Errors" accesskey="T" oncommand="instantCheck(this.checked)"/>
+      <checkbox id="wrap-lines" label="Wrap lines" accesskey="W" oncommand="changeWordWrap(this.checked, event.shiftKey)" tooltiptext="Press holding Shift to save setting" />
+      <checkbox id="instant-preview" label="Instant Preview" accesskey="R" oncommand="instantPreview(this.checked, event.shiftKey)" tooltiptext="Press holding Shift to save setting" />
+      <checkbox id="instant-check" label="Instant Check for Errors" accesskey="T" oncommand="instantCheck(this.checked, event.shiftKey)" tooltiptext="Press holding Shift to save setting" />
       <spacer flex="1"/>
       <label>Origin:</label>
       <menulist id="origin" oncommand="val = Number(this.value); if (origin != val) { toggleUI('save-button', true); origin = val; unsaved = true;}">
