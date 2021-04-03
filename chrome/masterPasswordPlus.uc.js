@@ -48,40 +48,56 @@ UC.masterPasswordPlus = {
       });
     });
 
-    if (this.mp.hasPassword && this.locked) {
+    if (this.mp.hasPassword && !this.mp.isLoggedIn()) {
       this.lock(document, win);
     }
   },
 
   mp: Cc['@mozilla.org/security/pk11tokendb;1'].getService(Ci.nsIPK11TokenDB).getInternalKeyToken(),
 
-  keydownFunc: function (e) {
-    let input = this.document.getElementById('mpPinput');
-    if (e.key == 'Enter') {
-      if (UC.masterPasswordPlus.mp.checkPassword(input.value)) {
-        _uc.sss.unregisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
+  handleEvent (ev) {
+    const value = ev.composedTarget.value;
+    switch (ev.type) {
+      case 'keydown':
+        const { altKey, code, ctrlKey, key } = ev;
+        if (key == 'Enter') {
+          if (UC.masterPasswordPlus.mp.checkPassword(value)) {
+            _uc.sss.unregisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
 
+            _uc.windows((doc, win) => {
+              if (!'UC' in win || !win.isChromeWindow || win != win.top)
+                return;
+              const input = doc.getElementById('mpPinput');
+              input.value = '';
+              doc.getElementById('mpPlus').style.display = 'none';
+              [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
+              win.titObs.disconnect();
+              doc.title = win.titulo;
+              win.removeEventListener('keydown', UC.masterPasswordPlus, true);
+              input.removeEventListener('input', UC.masterPasswordPlus, true);
+              win.removeEventListener('activate', UC.masterPasswordPlus.setFocus);
+              win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
+            }, false);
+          } else {
+            _uc.windows((doc, win) => {
+              if (!'UC' in win || !win.isChromeWindow || win !== win.top || win === this)
+                return;
+              doc.getElementById('mpPinput').value = '';
+            }, false);
+          }
+        } else if ((key.length > 2 && // teclas digitáveis quase sempre =1, exceto acento seguido de char não acentuável, aí =2.
+                    code.length == 2 && // F1 a F9 possuem key.length =2, mas são as únicas com code.length = 2, demais são > (como KeyA).
+                    key != 'Dead' && // teclas de acento, que aguardam a tecla seguinte
+                    key != 'Backspace' && key != 'Delete' && key != 'ArrowLeft' && key != 'ArrowRight' && key != 'Home' && key != 'End') || altKey || (ctrlKey && code != 'KeyA')) {
+          ev.preventDefault();
+        }
+        break;
+      case 'input':
         _uc.windows((doc, win) => {
-          if (!'UC' in win || !win.isChromeWindow || win != win.top)
+          if (!'UC' in win || !win.isChromeWindow || win !== win.top || win === this)
             return;
-          doc.getElementById('mpPinput').value = '';
-          doc.getElementById('mpPlus').style.display = 'none';
-          [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
-          win.titObs.disconnect();
-          doc.title = win.titulo;
-          win.removeEventListener('keydown', UC.masterPasswordPlus.keydownFunc, true);
-          win.removeEventListener('activate', UC.masterPasswordPlus.setFocus);
-          win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
+          doc.getElementById('mpPinput').value = value;
         }, false);
-        UC.masterPasswordPlus.locked = false;
-      } else {
-        input.value = '';
-      }
-    } else if ((e.key.length > 2 && // teclas digitáveis quase sempre =1, exceto acento seguido de char não acentuável, aí =2.
-                e.code.length == 2 && // F1 a F9 possuem key.length =2, mas são as únicas com code.length = 2, demais são > (como KeyA).
-                e.key != 'Dead' && // teclas de acento, que aguardam a tecla seguinte
-                e.key != 'Backspace' && e.key != 'Delete' && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Home' && e.key != 'End') || e.altKey || (e.ctrlKey && e.code != 'KeyA')) {
-      e.preventDefault();
     }
   },
 
@@ -107,9 +123,10 @@ UC.masterPasswordPlus = {
   },
 
   lock: function (doc, win) {
-    win.addEventListener('keydown', this.keydownFunc, true);
+    win.addEventListener('keydown', this, true);
     let input = doc.getElementById('mpPinput');
     input.value = '';
+    input.addEventListener('input', this, true);
     [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = 'none');
     doc.getElementById('mpPlus').style.display = 'block';
     win.titulo = doc.title;
@@ -124,7 +141,6 @@ UC.masterPasswordPlus = {
     if (!this.mp.hasPassword)
       return;
 
-    this.locked = true;
     _uc.windows((doc, win) => {
       if ('UC' in win && win.isChromeWindow && win == win.top)
         this.lock(doc, win);
@@ -132,8 +148,6 @@ UC.masterPasswordPlus = {
 
     _uc.sss.loadAndRegisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
   },
-
-  locked: true,
 
   LOCKED_STYLE: {
     url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
@@ -158,4 +172,5 @@ UC.masterPasswordPlus = {
   }
 }
 
-_uc.sss.loadAndRegisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
+if (!UC.masterPasswordPlus.mp.isLoggedIn())
+  _uc.sss.loadAndRegisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
