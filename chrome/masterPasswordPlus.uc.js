@@ -38,6 +38,7 @@ UC.masterPasswordPlus = {
     let input = _uc.createElement(document, 'input', {
       id: 'mpPinput',
       type: 'password',
+      value: this.typed,
       style: 'border: 1px solid black; text-align: center; position: absolute; top:0; bottom: 0; left: 0; right: 0; margin: auto;'
     }, false);
     ovl.appendChild(input);
@@ -50,6 +51,7 @@ UC.masterPasswordPlus = {
 
     if (this.mp.hasPassword && !this.mp.isLoggedIn()) {
       this.lock(document, win);
+      input.selectionStart = input.value.length;
     }
   },
 
@@ -61,6 +63,7 @@ UC.masterPasswordPlus = {
       case 'keydown':
         const { altKey, code, ctrlKey, key } = ev;
         if (key == 'Enter') {
+          this.typed = '';
           if (UC.masterPasswordPlus.mp.checkPassword(value)) {
             _uc.sss.unregisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
 
@@ -85,14 +88,15 @@ UC.masterPasswordPlus = {
               doc.getElementById('mpPinput').value = '';
             }, false);
           }
-        } else if ((key.length > 2 && // teclas digitáveis quase sempre =1, exceto acento seguido de char não acentuável, aí =2.
-                    code.length == 2 && // F1 a F9 possuem key.length =2, mas são as únicas com code.length = 2, demais são > (como KeyA).
-                    key != 'Dead' && // teclas de acento, que aguardam a tecla seguinte
+        } else if ((key.length > 2 &&
+                    code.length == 2 &&
+                    key != 'Dead' &&
                     key != 'Backspace' && key != 'Delete' && key != 'ArrowLeft' && key != 'ArrowRight' && key != 'Home' && key != 'End') || altKey || (ctrlKey && code != 'KeyA')) {
           ev.preventDefault();
         }
         break;
       case 'input':
+        this.typed = value;
         _uc.windows((doc, win) => {
           if (!'UC' in win || !win.isChromeWindow || win !== win.top || win === this)
             return;
@@ -100,6 +104,8 @@ UC.masterPasswordPlus = {
         }, false);
     }
   },
+
+  typed: '',
 
   setFocus: function (e) {
     e.target.document.getElementById('mpPinput').focus();
@@ -125,7 +131,6 @@ UC.masterPasswordPlus = {
   lock: function (doc, win) {
     win.addEventListener('keydown', this, true);
     let input = doc.getElementById('mpPinput');
-    input.value = '';
     input.addEventListener('input', this, true);
     [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = 'none');
     doc.getElementById('mpPlus').style.display = 'block';
