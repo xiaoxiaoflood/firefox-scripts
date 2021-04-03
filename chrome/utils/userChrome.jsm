@@ -13,6 +13,8 @@ let UC = {
 let _uc = {
   ALWAYSEXECUTE: 'rebuild_userChrome.uc.js',
   BROWSERCHROME: AppConstants.MOZ_APP_NAME == 'thunderbird' ? 'chrome://messenger/content/messenger.xhtml' : 'chrome://browser/content/browser.xhtml',
+  BROWSERTYPE: AppConstants.MOZ_APP_NAME == 'thunderbird' ? 'mail:3pane' : 'navigator:browser',
+  BROWSERNAME: AppConstants.MOZ_APP_NAME.charAt(0).toUpperCase() + AppConstants.MOZ_APP_NAME.slice(1),
   PREF_ENABLED: 'userChromeJS.enabled',
   PREF_SCRIPTSDISABLED: 'userChromeJS.scriptsDisabled',
 
@@ -127,7 +129,7 @@ let _uc = {
   },
 
   windows: function (fun, onlyBrowsers = true) {
-    let windows = Services.wm.getEnumerator(onlyBrowsers ? 'navigator:browser' : null);
+    let windows = Services.wm.getEnumerator(onlyBrowsers ? this.BROWSERTYPE : null);
     while (windows.hasMoreElements()) {
       let win = windows.getNext();
       if (!win._uc)

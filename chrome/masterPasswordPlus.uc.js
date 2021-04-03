@@ -177,5 +177,5 @@ UC.masterPasswordPlus = {
   }
 }
 
-if (!UC.masterPasswordPlus.mp.isLoggedIn())
+if (UC.masterPasswordPlus.mp.hasPassword && !UC.masterPasswordPlus.mp.isLoggedIn())
   _uc.sss.loadAndRegisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);

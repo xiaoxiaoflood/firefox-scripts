@@ -22,7 +22,7 @@
 
 4. Save the desired [userChromeJS scripts](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/chrome) into **chrome**. Read below the description of some of them.
 
-5. If you want a button to manage your scripts, including the ability to disable/enable scripts without needing to restart Firefox¹, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
+5. If you want a button to manage your scripts, including the ability to disable/enable scripts without needing to restart¹ Firefox or Thunderbird, save [rebuild_userChrome.uc.js](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/rebuild_userChrome.uc.js) into **chrome**.
 
 6. Open **about:support** and click "*Clear startup cache…*" to force Firefox to load userChromeJS on the next startup.
 
