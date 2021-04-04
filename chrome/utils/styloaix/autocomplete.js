@@ -310,4 +310,4 @@ function onEditorKeypress({ ed, Editor }, cm, event) {
 
 // Export functions
 
-module.exports.initializeAutoCompletion = initializeAutoCompletion;
+exports.initializeAutoCompletion = initializeAutoCompletion;

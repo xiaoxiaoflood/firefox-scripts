@@ -4,15 +4,11 @@ const {NetUtil} = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
 
 docShell.cssErrorReportingEnabled = true;
 
-let require2 = function require_mini (m) {
+function require_mini (m) {
 	let scope = {
-		exports: {}
-	};
-	scope.module = {
-		exports: scope.exports
+    exports: {}
   };
-	let module = 'chrome://' + m + '.js';
-	Services.scriptloader.loadSubScript(module, scope);
+	Services.scriptloader.loadSubScript('chrome://' + m + '.js', scope);
 	return scope.exports;
 };
 
@@ -20,6 +16,7 @@ let url;
 let type;
 let id;
 let style;
+
 if (isChromeWindow) {
   let params = window.arguments[0];
   url = params.url;
@@ -34,8 +31,8 @@ if (isChromeWindow) {
 
 origin = 2;
 let unsaved = false;
-let previewCode = Services.io.newURI('data:text/css;charset=UTF-8,');
-let previewOrigin = 0;
+let previewCode;
+let previewOrigin;
 let previewActive = false;
 let isInstantPreview;
 let isInstantCheck;
@@ -58,7 +55,7 @@ function init () {
         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
       },
       async function (stream) {
-        let bstream = Cc['@mozilla.org/binaryinputstream;1'].createInstance(Ci.nsIBinaryInputStream);
+        const bstream = Cc['@mozilla.org/binaryinputstream;1'].createInstance(Ci.nsIBinaryInputStream);
         bstream.setInputStream(stream);
 
         try {
@@ -68,7 +65,7 @@ function init () {
         stream.close();
 
         try {
-          let converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
+          const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
           converter.charset = 'utf-8';
           initialCode = converter.ConvertToUnicode(initialCode);
         } catch {}
@@ -85,11 +82,12 @@ function init () {
 	nameE = document.getElementById('name');
   nameE.value = style?.name || '';
   updateTitle();
-  document.getElementById('origin').value = origin;
 	nameE.addEventListener('input', function () {
     unsaved = true;
     toggleUI('save-button', true);
   });
+
+  document.getElementById('origin').value = origin;
 
   document.getElementById('errors').addEventListener('click', function (e) {
     if (e.target == this)
@@ -100,7 +98,7 @@ function init () {
   document.getElementById('instant-preview').checked = isInstantPreview;
   isInstantCheck = xPref.get(UC.styloaix.PREF_INSTANTCHECK);
   document.getElementById('instant-check').checked = isInstantCheck;
-  if (style?.enabled == false)
+  if (style?.enabled === false)
     toggleUI('preview-button', true);
   interval = xPref.get(UC.styloaix.PREF_INSTANTINTERVAL);
   xPref.addListener(UC.styloaix.PREF_INSTANTINTERVAL, function (ms) {
@@ -109,15 +107,17 @@ function init () {
 }
 
 function initEditor () {
-  let Editor = require('devtools/client/shared/sourceeditor/editor');
+  const Editor = require('devtools/client/shared/sourceeditor/editor');
 
-  let extraKeys = {};
-  extraKeys[Editor.accel('S')] = save;
-  extraKeys['F3'] = 'findNext';
-  extraKeys['Shift-F3'] = 'findPrev';
+  const extraKeys = {
+    [Editor.accel('S')]: save,
+    'F3': 'findNext',
+    'Shift-F3': 'findPrev'
+  };
 
-  let lineWrapping = xPref.get(UC.styloaix.PREF_LINEWRAPPING);
+  const lineWrapping = xPref.get(UC.styloaix.PREF_LINEWRAPPING);
   document.getElementById('wrap-lines').checked = lineWrapping;
+
   sourceEditor = new Editor({
     mode: Editor.modes.css,
     contextMenu: 'sourceEditorContextMenu',
@@ -128,7 +128,7 @@ function initEditor () {
   });
   
   sourceEditor.setupAutoCompletion = function () {
-    this.extend(require2('userchromejs/content/styloaix/autocomplete'));
+    this.extend(require_mini('userchromejs/content/styloaix/autocomplete'));
     this.initializeAutoCompletion();
   };
 
@@ -142,7 +142,7 @@ function initEditor () {
   });
 
   sourceEditor.on('change', function () {
-    if (!timeoutRunning)
+    if ((isInstantPreview || isInstantCheck) && !timeoutRunning)
       instantTimeout();
 
     unsaved = true;
@@ -150,7 +150,7 @@ function initEditor () {
     if (!isInstantPreview)
       toggleUI('preview-button', true);
     if (!isInstantCheck)
-    toggleUI('check-for-errors-button', true);
+      toggleUI('check-for-errors-button', true);
   });
 }
 
@@ -181,25 +181,26 @@ function save () {
   if (style)
     style.unregister();
 
-  let finalTitle = nameE.value + (origin == 0 ? '.as' : origin == 1 ? '.us' : '') + '.css';
-  let file = UC.styloaix.CSSDIR.clone();
+  const finalTitle = nameE.value + (origin == 0 ? '.as' : origin == 1 ? '.us' : '') + '.css';
+  const file = UC.styloaix.CSSDIR.clone();
   file.append(finalTitle);
-  if(!file.exists())
+  if (!file.exists())
     file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
 
-  let ostream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
+  const ostream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
   ostream.init(file, -1, -1, 0);
 
-  let converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
+  const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
   converter.charset = 'UTF-8';
-  let istream = converter.convertToInputStream(codeElementWrapper.value);
+
+  const istream = converter.convertToInputStream(codeElementWrapper.value);
 
   NetUtil.asyncCopy(istream, ostream, function (aResult) {
     if (Components.isSuccessCode(aResult)) {
-      let enabled = style ? style.enabled : true;
+      const enabled = style ? style.enabled : true;
 
       if (style && finalTitle != style.fullName) {
-        let oldFile = UC.styloaix.CSSDIR.clone()
+        const oldFile = UC.styloaix.CSSDIR.clone()
         oldFile.append(style.fullName);
         oldFile.remove(false);
         UC.styloaix.styles.delete(style.fullName);
@@ -223,6 +224,7 @@ function save () {
         _uc.sss.unregisterSheet(previewCode, previewOrigin);
         previewActive = false;
       }
+
       toggleUI('save-button', false);
       if (enabled)
         toggleUI('preview-button', false);
@@ -243,7 +245,9 @@ function toggleUI (id, state) {
 }
 
 function preview () {
-  if (style?.enabled)
+  if (previewActive)
+    _uc.sss.unregisterSheet(previewCode, previewOrigin);
+  else if (style?.enabled)
     style.unregister();
 	previewCode = Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(codeElementWrapper.value));
   previewOrigin = origin;
@@ -256,24 +260,24 @@ function preview () {
 }
 
 function checkForErrors () {
-	let errors = document.getElementById('errors');
+	const errors = document.getElementById('errors');
 	errors.style.display = 'none';
 
 	while (errors.hasChildNodes())
-		errors.removeChild(errors.lastChild);
+		errors.lastChild.remove();
 
   let count = 0;
 
-	let errorListener = {
-		observe: function (message) {
+	const errorListener = {
+		observe: (message) => {
       if (!count)
         errors.style.display = 'block';
 
-      let error = message.QueryInterface(Ci.nsIScriptError);
-      let newmessage = error.lineNumber + ':' + error.columnNumber + ' - ' + error.errorMessage;
+      const error = message.QueryInterface(Ci.nsIScriptError);
+      const errMsg = error.lineNumber + ':' + error.columnNumber + ' - ' + error.errorMessage;
 
-      let label = document.createElement('label');
-      label.appendChild(document.createTextNode(newmessage));
+      const label = document.createElement('label');
+      label.appendChild(document.createTextNode(errMsg));
       label.addEventListener('click', function () {
         goToLine(error.lineNumber, error.columnNumber);
       });
@@ -290,7 +294,7 @@ function checkForErrors () {
 
   Services.console.registerListener(errorListener);
 
-  let styleEl = document.createElement('style');
+  const styleEl = document.createElement('style');
   styleEl.appendChild(document.createTextNode(codeElementWrapper.value));
   document.documentElement.appendChild(styleEl);
   styleEl.remove();
@@ -315,15 +319,15 @@ function insertCodeAtStart (snippet) {
 		codeElementWrapper.value = snippet + '\n' + codeElementWrapper.value;
     position = 0;
 	}
-  let positionEnd = position + snippet.length;
+  const positionEnd = position + snippet.length;
 
 	codeElementWrapper.setSelectionRange(positionEnd, positionEnd);
 	sourceEditor.focus();
 }
 
 function insertCodeAtCaret (snippet) {
-	let selectionStart = codeElementWrapper.selectionStart;
-	let selectionEnd = selectionStart + snippet.length;
+	const selectionStart = codeElementWrapper.selectionStart;
+	const selectionEnd = selectionStart + snippet.length;
 	codeElementWrapper.value = codeElementWrapper.value.substring(0, codeElementWrapper.selectionStart) + snippet + codeElementWrapper.value.substring(codeElementWrapper.selectionEnd, codeElementWrapper.value.length);
 	codeElementWrapper.setSelectionRange(selectionEnd, selectionEnd);
 	sourceEditor.focus();
@@ -357,26 +361,25 @@ function instantCheck (bool, persist) {
 }
 
 function insertDataURI() {
-	let fp = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
+	const fp = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
 	fp.init(window, 'Choose File…', Ci.nsIFilePicker.modeOpen);
 	fp.open(res => {
-    if (res != Ci.nsIFilePicker.returnOK) {  
+    if (res != Ci.nsIFilePicker.returnOK)
       return;
-    }
-    let file = fp.file;
-    let contentType = Cc['@mozilla.org/mime;1'].getService(Ci.nsIMIMEService).getTypeFromFile(file);
-    let inputStream = Cc['@mozilla.org/network/file-input-stream;1'].createInstance(Ci.nsIFileInputStream);
-    inputStream.init(file, parseInt('01', 16), parseInt('0600', 8), 0);
-    let stream = Cc['@mozilla.org/binaryinputstream;1'].createInstance(Ci.nsIBinaryInputStream);
+
+    const contentType = Cc['@mozilla.org/mime;1'].getService(Ci.nsIMIMEService).getTypeFromFile(fp.file);
+    const inputStream = Cc['@mozilla.org/network/file-input-stream;1'].createInstance(Ci.nsIFileInputStream);
+    inputStream.init(fp.file, parseInt('01', 16), parseInt('0600', 8), 0);
+    const stream = Cc['@mozilla.org/binaryinputstream;1'].createInstance(Ci.nsIBinaryInputStream);
     stream.setInputStream(inputStream);
-    let encoded = btoa(stream.readBytes(stream.available()));
+    const encoded = btoa(stream.readBytes(stream.available()));
     stream.close();
     inputStream.close();
     insertCodeAtCaret('data:' + contentType + ';base64,' + encoded);
   });
 }
 
-let codeElementWrapper = {
+const codeElementWrapper = {
 	get value() {
 		return sourceEditor.getText();
 	},
@@ -399,7 +402,7 @@ let codeElementWrapper = {
 
 }
 
-let closeFn = window.close;
+const closeFn = window.close;
 let shouldHandle = true;
 
 if (isChromeWindow) {
@@ -417,14 +420,14 @@ window.addEventListener('close', function (e) {
 })
 
 window.addEventListener('beforeunload', function (e) {
-  if (shouldHandle && unsaved) {
+  if (shouldHandle && unsaved)
     e.preventDefault();
-  }
 });
 
 window.addEventListener('unload', function (event) {
   if (previewActive)
     _uc.sss.unregisterSheet(previewCode, previewOrigin);
+
   if (style?.enabled && previewActive)
     style.register();
 });

@@ -210,8 +210,6 @@
 
       if (this.enabled)
         this.toggleAll({disable: false});
-
-      this.rebuildMenu();
     },
 
     toggleAll: function ({disable = this.enabled, reload = false} = {}) {
@@ -222,6 +220,7 @@
       if (reload) {
         this.styles = new Map();
         this.loadStyles();
+        this.rebuildMenu();
       }
     },
 
@@ -319,7 +318,8 @@
     get buttons () {
       let arr = [];
       let widget = CustomizableUI.getWidget('styloaix-button');
-      if (widget?.label) {
+
+      if (widget.instances.length && widget.instances[0].label) {
         widget.instances.forEach(btnWidget => {
           let btn = btnWidget.node;
           btn._separator.hidden = !this.styles.size;
