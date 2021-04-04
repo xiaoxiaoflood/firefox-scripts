@@ -383,7 +383,7 @@ UC.rebuild = {
 
     aDocument.defaultView.setTimeout((() => UC.rebuild.toggleUI(false, true)), 1000);
 
-    const viewCache = aDocument.getElementById('appMenu-viewCache')?.content || aDocument.getElementById('appMenu-multiView');console.log(viewCache);
+    const viewCache = aDocument.getElementById('appMenu-viewCache')?.content || aDocument.getElementById('appMenu-multiView');
 
     if (viewCache) {          
       const userChromeJsPanel = aDocument.createXULElement('panelview');

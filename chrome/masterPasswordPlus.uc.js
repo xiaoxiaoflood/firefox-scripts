@@ -151,6 +151,7 @@ UC.masterPasswordPlus = {
         this.lock(doc, win);
     }, false);
 
+    this.mp.logoutSimple();
     _uc.sss.loadAndRegisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
   },
 
