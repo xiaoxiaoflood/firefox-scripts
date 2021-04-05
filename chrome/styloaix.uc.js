@@ -58,6 +58,8 @@
       if (!this.enabled)
         this.btnClasses.reverse();
 
+      this.loadStyles();
+
       if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
         CustomizableUI.createWidget({
           id: 'styloaix-button',
@@ -80,8 +82,6 @@
 
         this.rebuildMenu();
       }
-
-      this.loadStyles();
 
       _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
     },
@@ -275,6 +275,7 @@
       let buttons = this.buttons;
       if (buttons.length) {
         buttons.forEach(btn => {
+          btn._separator.hidden = !this.styles.size;
           let styles = btn.getElementsByClassName('styloaix-style');
           while (styles.length) {
             styles[0].remove();
@@ -319,10 +320,9 @@
       let arr = [];
       let widget = CustomizableUI.getWidget('styloaix-button');
 
-      if (widget.instances.length && widget.instances[0].label) {
+      if (widget?.instances.length && widget.instances[0].label) {
         widget.instances.forEach(btnWidget => {
           let btn = btnWidget.node;
-          btn._separator.hidden = !this.styles.size;
           arr.push(btn);
         });
       } else if (this.tbButton) {
@@ -415,6 +415,10 @@
     }
     register () {
       _uc.sss.loadAndRegisterSheet(this.url, this.type);
+      if (AppConstants.MOZ_APP_NAME === 'thunderbird') { // https://bugzilla.mozilla.org/show_bug.cgi?id=1702947
+        this.unregister();
+        _uc.sss.loadAndRegisterSheet(this.url, this.type);
+      }
     }
     unregister () {
       _uc.sss.unregisterSheet(this.url, this.type);
