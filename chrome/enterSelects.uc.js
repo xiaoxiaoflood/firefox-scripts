@@ -10,6 +10,8 @@
 // inspired by: https://addons.mozilla.org/firefox/addon/enter-selects/
 
 UC.enterSelects = {
+  AUTOSELECT_WITH_SPACE: false,
+
   init: function () {
     this.orig_receiveResults = this.controller.receiveResults;
     this.controller.receiveResults = function (queryContext) {
@@ -35,15 +37,15 @@ UC.enterSelects = {
     if (gURLBar.searchMode?.engineName || queryContext.results.length < 2 || gURLBar.view.selectedRowIndex > 0)
       return false;
 
-    let {value} = gURLBar;
-    if (gURLBar.selectionEnd == value.length)
-      value = value.slice(0, gURLBar.selectionStart);
-    let search = value.trim();
+    let search = gURLBar.value.trim();
 
     try {
       // Test if is URL
       return !Services.eTLD.getBaseDomainFromHost(search);
     } catch (ex) {}
+
+    if (!this.AUTOSELECT_WITH_SPACE && /\s/.test(search))
+      return false;
 
     // Test about:about, chrome://blabla ... 
     if (/[a-zA-Z][\w-]*:(\/\/)?[\w-]+/.test(search))

@@ -93,7 +93,7 @@
 </details>
 <details>
   <summary>MinMaxClose Button</summary>
-  Toolbar button to replace window buttons (minimize, maximize and close). I'm a Windows user and use Tree Style Tab with hidden titlebar, so I need this.
+  Toolbar button to replace native window buttons (minimize, maximize and close). I'm a Windows user and use Tree Style Tab with hidden titlebar, so I need this.
  
  - <i>Left-click</i> to minimize (so I can't close it accidentally).
  
@@ -109,13 +109,13 @@
   <summary>Mouse Gestures</summary>
   More powerful than any mouse gestures WebExtensions. But it doesn't have user interface and I have only included actions I use, so unless the default set of actions suits you, knowledge in JavaScript is required to write extra actions. However, it's easy to change gestures for available actions. You can view default gestures at the beginning of the code (search for <code>GESTURES:</code>). Some of them:
  
- - <b>Hold right-click, then mouse wheel up or down</b> to switch to next/previous tab.
+ - <b>Hold right-click, then roll mouse wheel up or down</b> to switch to next/previous tab.
  - <b>Hold right-click, move down and release</b> to scroll to bottom of the page (or move up to go the top). If the cursor was over an image, moving down will open a new tab for reverse image Google search instead of scrolling to bottom.
  - <b>Hold right-click, then left-click</b> to switch to the last selected tab.
  - <b>Hold left-click, then right-click</b> to reload current tab.
  - <b>Hold right-click, then middle-click (wheel button)</b> to close current tab.
  - <b>Hold right-click, move left and release</b> to copy URL of link or media under the cursor.
- - <b>Hold right-click, move left and release</b> to open a new tab with the link or media under the cursor.
+ - <b>Hold right-click, move right and release</b> to open a new tab with the link or media under the cursor.
  - <b>Hold middle-click, move left and release</b> to copy selected text or image under the cursor.
  - <b>Hold middle-click, move right and release</b> to paste.
  - <b>Hold left-click, then press forward button</b> (for mouse with extra buttons) to switch to next group (specific compatibility with <b>Tiled Tab Groups</b> extension).
