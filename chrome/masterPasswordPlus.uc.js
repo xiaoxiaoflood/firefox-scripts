@@ -173,9 +173,17 @@ UC.masterPasswordPlus = {
 
     _uc.sss.unregisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
 
-    _uc.windows((doc, win) => {
-      if (!'UC' in win || !win.isChromeWindow || win != win.top)
-        return;
+    const windows = Services.wm.getEnumerator(null);
+    while (windows.hasMoreElements()) {
+      const win = windows.getNext();
+      const doc = win.document;
+      if (win.location.href === 'chrome://global/content/commonDialog.xhtml' &&
+          win.args?.promptType === 'promptPassword')
+        doc.getElementById('commonDialog').getButton('accept').click();
+      
+      if (!('UC' in win) || !win.isChromeWindow || win != win.top)
+        continue;
+
       const input = doc.getElementById('mpPinput');
       input.value = '';
       doc.getElementById('mpPlus').style.display = 'none';
@@ -187,7 +195,7 @@ UC.masterPasswordPlus = {
       input.removeEventListener('input', this, true);
       win.removeEventListener('activate', this.setFocus);
       win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
-    }, false);
+    }
   },
 
   LOCKED_STYLE: {
