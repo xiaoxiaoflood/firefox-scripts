@@ -87,8 +87,15 @@ UC.masterPasswordPlus = {
             return;
           doc.getElementById('mpPinput').value = value;
         }, false);
+        break;
+      case 'DOMAudioPlaybackStarted':
+        const browser = ev.composedTarget;
+        browser.mute();
+        UC.masterPasswordPlus.muted.add(browser);
     }
   },
+
+  muted: new Set(),
 
   typed: '',
 
@@ -118,6 +125,16 @@ UC.masterPasswordPlus = {
   },
 
   lock: function (doc, win) {
+    const { gBrowser } = win;
+    gBrowser?._tabs?.forEach(tab => {
+      if (!tab.muted) {
+        const browser = tab.linkedBrowser;
+        browser.mute();
+        this.muted.add(browser);
+      }
+    });
+    gBrowser?.addEventListener('DOMAudioPlaybackStarted', this);
+
     win.addEventListener('keydown', this, true);
     let input = doc.getElementById('mpPinput');
     input.addEventListener('input', this, true);
@@ -149,6 +166,11 @@ UC.masterPasswordPlus = {
   unlock: function () {
     Services.obs.removeObserver(this, 'passwordmgr-crypto-login');
 
+    this.muted.forEach(browser => {
+      browser.unmute();
+      this.muted.delete(browser);
+    });
+
     _uc.sss.unregisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
 
     _uc.windows((doc, win) => {
@@ -160,6 +182,7 @@ UC.masterPasswordPlus = {
       [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
       win.titObs.disconnect();
       doc.title = win.titulo;
+      win.gBrowser?.removeEventListener('DOMAudioPlaybackStarted', this);
       win.removeEventListener('keydown', this, true);
       input.removeEventListener('input', this, true);
       win.removeEventListener('activate', this.setFocus);
