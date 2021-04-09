@@ -65,22 +65,7 @@ UC.masterPasswordPlus = {
         if (key == 'Enter') {
           this.typed = '';
           if (UC.masterPasswordPlus.mp.checkPassword(value)) {
-            _uc.sss.unregisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
-
-            _uc.windows((doc, win) => {
-              if (!'UC' in win || !win.isChromeWindow || win != win.top)
-                return;
-              const input = doc.getElementById('mpPinput');
-              input.value = '';
-              doc.getElementById('mpPlus').style.display = 'none';
-              [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
-              win.titObs.disconnect();
-              doc.title = win.titulo;
-              win.removeEventListener('keydown', UC.masterPasswordPlus, true);
-              input.removeEventListener('input', UC.masterPasswordPlus, true);
-              win.removeEventListener('activate', UC.masterPasswordPlus.setFocus);
-              win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
-            }, false);
+            UC.masterPasswordPlus.unlock();
           } else {
             _uc.windows((doc, win) => {
               if (!'UC' in win || !win.isChromeWindow || win !== win.top || win === this)
@@ -128,6 +113,10 @@ UC.masterPasswordPlus = {
     return observer;
   },
 
+  observe: function () {
+    this.unlock();
+  },
+
   lock: function (doc, win) {
     win.addEventListener('keydown', this, true);
     let input = doc.getElementById('mpPinput');
@@ -146,6 +135,8 @@ UC.masterPasswordPlus = {
     if (!this.mp.hasPassword)
       return;
 
+    Services.obs.addObserver(this, 'passwordmgr-crypto-login');
+
     _uc.windows((doc, win) => {
       if ('UC' in win && win.isChromeWindow && win == win.top)
         this.lock(doc, win);
@@ -153,6 +144,27 @@ UC.masterPasswordPlus = {
 
     this.mp.logoutSimple();
     _uc.sss.loadAndRegisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
+  },
+
+  unlock: function () {
+    Services.obs.removeObserver(this, 'passwordmgr-crypto-login');
+
+    _uc.sss.unregisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
+
+    _uc.windows((doc, win) => {
+      if (!'UC' in win || !win.isChromeWindow || win != win.top)
+        return;
+      const input = doc.getElementById('mpPinput');
+      input.value = '';
+      doc.getElementById('mpPlus').style.display = 'none';
+      [...doc.getElementsByTagName('panel')].forEach(el => el.style.display = '');
+      win.titObs.disconnect();
+      doc.title = win.titulo;
+      win.removeEventListener('keydown', this, true);
+      input.removeEventListener('input', this, true);
+      win.removeEventListener('activate', this.setFocus);
+      win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
+    }, false);
   },
 
   LOCKED_STYLE: {
@@ -178,5 +190,7 @@ UC.masterPasswordPlus = {
   }
 }
 
-if (UC.masterPasswordPlus.mp.hasPassword && !UC.masterPasswordPlus.mp.isLoggedIn())
+if (UC.masterPasswordPlus.mp.hasPassword && !UC.masterPasswordPlus.mp.isLoggedIn()) {
+  Services.obs.addObserver(UC.masterPasswordPlus, 'passwordmgr-crypto-login');
   _uc.sss.loadAndRegisterSheet(UC.masterPasswordPlus.LOCKED_STYLE.url, UC.masterPasswordPlus.LOCKED_STYLE.type);
+}
