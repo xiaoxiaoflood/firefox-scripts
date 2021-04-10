@@ -90,8 +90,9 @@ UC.masterPasswordPlus = {
         break;
       case 'DOMAudioPlaybackStarted':
         const browser = ev.composedTarget;
-        browser.mute();
-        UC.masterPasswordPlus.muted.add(browser);
+        const tab = browser.ownerGlobal.gBrowser.getTabForBrowser(browser);
+        tab.toggleMuteAudio();
+        UC.masterPasswordPlus.muted.add(tab);
     }
   },
 
@@ -140,9 +141,8 @@ UC.masterPasswordPlus = {
     const { gBrowser } = win;
     gBrowser?._tabs?.forEach(tab => {
       if (!tab.muted) {
-        const browser = tab.linkedBrowser;
-        browser.mute();
-        this.muted.add(browser);
+        tab.toggleMuteAudio();
+        this.muted.add(tab);
       }
     });
     gBrowser?.addEventListener('DOMAudioPlaybackStarted', this);
@@ -192,9 +192,9 @@ UC.masterPasswordPlus = {
       win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
     }
 
-    this.muted.forEach(browser => {
-      browser.unmute();
-      this.muted.delete(browser);
+    this.muted.forEach(tab => {
+      tab.toggleMuteAudio();
+      this.muted.delete(tab);
     });
   },
 
