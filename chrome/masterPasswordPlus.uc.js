@@ -125,16 +125,6 @@ UC.masterPasswordPlus = {
   },
 
   lock: function (doc, win) {
-    const { gBrowser } = win;
-    gBrowser?._tabs?.forEach(tab => {
-      if (!tab.muted) {
-        const browser = tab.linkedBrowser;
-        browser.mute();
-        this.muted.add(browser);
-      }
-    });
-    gBrowser?.addEventListener('DOMAudioPlaybackStarted', this);
-
     win.addEventListener('keydown', this, true);
     let input = doc.getElementById('mpPinput');
     input.addEventListener('input', this, true);
@@ -146,6 +136,16 @@ UC.masterPasswordPlus = {
     win.addEventListener('activate', this.setFocus);
     win.removeEventListener('AppCommand', win.HandleAppCommandEvent, true);
     input.focus();
+
+    const { gBrowser } = win;
+    gBrowser?._tabs?.forEach(tab => {
+      if (!tab.muted) {
+        const browser = tab.linkedBrowser;
+        browser.mute();
+        this.muted.add(browser);
+      }
+    });
+    gBrowser?.addEventListener('DOMAudioPlaybackStarted', this);
   },
 
   lockAll: function () {
@@ -165,11 +165,6 @@ UC.masterPasswordPlus = {
 
   unlock: function () {
     Services.obs.removeObserver(this, 'passwordmgr-crypto-login');
-
-    this.muted.forEach(browser => {
-      browser.unmute();
-      this.muted.delete(browser);
-    });
 
     _uc.sss.unregisterSheet(this.LOCKED_STYLE.url, this.LOCKED_STYLE.type);
 
@@ -196,6 +191,11 @@ UC.masterPasswordPlus = {
       win.removeEventListener('activate', this.setFocus);
       win.addEventListener('AppCommand', win.HandleAppCommandEvent, true);
     }
+
+    this.muted.forEach(browser => {
+      browser.unmute();
+      this.muted.delete(browser);
+    });
   },
 
   LOCKED_STYLE: {
