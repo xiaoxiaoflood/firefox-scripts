@@ -140,7 +140,7 @@ UC.masterPasswordPlus = {
 
     const { gBrowser } = win;
     gBrowser?._tabs?.forEach(tab => {
-      if (!tab.muted) {
+      if (tab.soundPlaying) {
         tab.toggleMuteAudio();
         this.muted.add(tab);
       }
