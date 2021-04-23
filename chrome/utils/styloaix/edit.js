@@ -51,7 +51,7 @@ function init () {
       {
         uri: style.url,
         loadingNode: document,
-        securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_INHERITS_SEC_CONTEXT,
+        securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_INHERITS_SEC_CONTEXT || Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_INHERITS,
         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
       },
       async function (stream) {
@@ -125,6 +125,7 @@ function initEditor () {
     lineNumbers: true,
     lineWrapping: lineWrapping,
     value: initialCode,
+    maxHighlightLength: 10000
   });
   
   sourceEditor.setupAutoCompletion = function () {
