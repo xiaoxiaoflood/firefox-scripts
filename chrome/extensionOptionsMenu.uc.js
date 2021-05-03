@@ -49,8 +49,7 @@ UC.extensionOptionsMenu = {
   },
 
   evalPopulateMenu: function (e) {
-    let win = e.view;
-    new win.Function('e', `
+    new e.view.Function('e', `
       AddonManager.getAddonsByTypes(['extension']).then(addons => UC.extensionOptionsMenu.populateMenu(e, addons));
     `).call(null, e);
   },
@@ -196,6 +195,23 @@ UC.extensionOptionsMenu = {
         break;
       case 3:
         win.switchToTabHavingURI(addon.optionsURL, true);
+        break;
+      case 1:
+        var windows = Services.wm.getEnumerator(null);
+        while (windows.hasMoreElements()) {
+          var win2 = windows.getNext();
+          if (win2.closed) {
+            continue;
+          }
+          if (win2.document.documentURI == addon.optionsURL) {
+            win2.focus();
+            return;
+          }
+        }
+        var features = 'chrome,titlebar,toolbar,centerscreen';
+        var instantApply = Services.prefs.getBoolPref('browser.preferences.instantApply');
+        features += instantApply ? ',dialog=no' : '';
+        win.openDialog(addon.optionsURL, addon.id, features);
     }
   },
 
