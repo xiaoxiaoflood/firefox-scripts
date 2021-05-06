@@ -127,7 +127,7 @@ UC.rebuild = {
           closeMenus(target);
         } else {
           this.toggleScript(script);
-          if (target.tagName === 'toolbarbutton' || Services.vc.compare(Services.appinfo.platformVersion, 89.0) < 0)
+          if (target.tagName === 'toolbarbutton' || AppConstants.MOZ_APP_NAME === 'thunderbird')
             target.setAttribute('checked', script.isEnabled);
         }
         break;
