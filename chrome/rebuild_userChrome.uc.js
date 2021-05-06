@@ -41,8 +41,8 @@ UC.rebuild = {
 
       mi = event.target.appendChild(this.elBuilder(document, 'menuitem', {
         label: script.name ? script.name : script.filename,
-        oncommand: 'UC.rebuild.toggleScript(_uc.scripts[this.filename]);',
-        onclick: 'UC.rebuild.clickScriptMenu(event);',
+        onclick: 'UC.rebuild.clickScriptMenu(event)',
+        onmouseup: 'UC.rebuild.shouldPreventHide(event)',
         type: 'checkbox',
         checked: script.isEnabled,
         class: 'userChromejs_script',
@@ -84,8 +84,8 @@ UC.rebuild = {
       if (_uc.ALWAYSEXECUTE.includes(script.filename))
         return;
 
-      let scriptMenuItem = UC.rebuild.createMenuItem(scriptsSeparator.ownerDocument, null, null, script.name ? script.name : script.filename, 'UC.rebuild.toggleScript(_uc.scripts[this.filename]);');
-      scriptMenuItem.setAttribute('onclick', 'UC.rebuild.clickScriptMenu(event);');
+      let scriptMenuItem = UC.rebuild.createMenuItem(scriptsSeparator.ownerDocument, null, null, script.name ? script.name : script.filename);
+      scriptMenuItem.setAttribute('onclick', 'UC.rebuild.clickScriptMenu(event)');
       scriptMenuItem.type = 'checkbox';
       scriptMenuItem.checked = script.isEnabled;
       scriptMenuItem.setAttribute('restartless', !!script.shutdown);
@@ -109,26 +109,44 @@ UC.rebuild = {
 	},
 
   clickScriptMenu: function (event) {
-    let script = _uc.scripts[event.target.filename];
-    if (event.button == 1) {
-      if (event.ctrlKey) {
-        let url = event.target.getAttribute('homeURL');
-        if (url) {
-          gBrowser.addTab(url, {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
-        }
-      } else {
+    const { button, ctrlKey, target } = event;
+    const script = _uc.scripts[target.filename];
+    switch (button) {
+      case 0:
         this.toggleScript(script);
-        event.target.setAttribute('checked', script.isEnabled);
-      }
-    } else if (event.button == 2) {
-      if (event.ctrlKey) {
-        this.uninstall(script);
-      } else {
-        this.launchEditor(script);
-      }
-      closeMenus(event.target);
-    } else if (event.button == 0 && event.ctrlKey) {
-      this.toggleScript(script);
+        if (ctrlKey)
+          this.toggleScript(script);
+        closeMenus(target);
+        break;
+      case 1:
+        if (ctrlKey) {
+          let url = target.getAttribute('homeURL');
+          if (url) {
+            gBrowser.addTab(url, { triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({}) });
+          }
+          closeMenus(target);
+        } else {
+          this.toggleScript(script);
+          if (target.tagName === 'toolbarbutton' || Services.vc.compare(Services.appinfo.platformVersion, 89.0) < 0)
+            target.setAttribute('checked', script.isEnabled);
+        }
+        break;
+      case 2:
+        if (ctrlKey)
+          this.uninstall(script);
+        else
+          this.launchEditor(script);
+        closeMenus(target);
+    }
+  },
+
+  shouldPreventHide: function (event) {
+    if (event.button == 1 && !event.ctrlKey) {
+      const menuitem = event.target;
+      menuitem.setAttribute('closemenu', 'none');
+      menuitem.parentNode.addEventListener('popuphidden', () => {
+        menuitem.removeAttribute('closemenu');
+      }, { once: true });
     }
   },
 
@@ -203,7 +221,8 @@ UC.rebuild = {
       menuItem.id = 'appMenu-userChromeJS-' + id;
     menuItem.label = label;
     menuItem.style.listStyleImage = icon;
-    menuItem.setAttribute('oncommand', command);
+    if (command)
+      menuItem.setAttribute('oncommand', command);
     return menuItem;
   },
 

@@ -8,8 +8,9 @@
 // ==/UserScript==
 
 UC.KeepMenuOnMiddleClick = {
-  exec: (win) => win.eval('checkForMiddleClick = ' +
-                           checkForMiddleClick.toString().replace('closeMenus(event.target);', '')),
+  exec: function (win) {
+    win.document.getElementById('history-menu').addEventListener('mouseup', this.mouseupHandler);
+  },
 
   init: function () {
     if (this.prefHadUserValue = Services.prefs.prefHasUserValue(this.PREF))
@@ -17,8 +18,17 @@ UC.KeepMenuOnMiddleClick = {
     xPref.set(this.PREF, false);
   },
 
+  mouseupHandler: function (event) {
+    const elem = event.target;
+    if (event.button == 1 && elem.classList.contains('bookmark-item')) {
+      elem.setAttribute('closemenu', 'none');
+      elem.parentNode.addEventListener('popuphidden', () => {
+        elem.removeAttribute('closemenu');
+      }, { once: true });
+    }
+  },
+
   PREF: 'browser.bookmarks.openInTabClosesMenu',
-  orig: checkForMiddleClick.toString(),
 
   destroy: function () {
     if (this.prefHadUserValue)
@@ -27,7 +37,7 @@ UC.KeepMenuOnMiddleClick = {
       xPref.clear(this.PREF);
 
     _uc.windows((doc, win) => {
-      win.eval('checkForMiddleClick = ' + UC.KeepMenuOnMiddleClick.orig);
+      win.document.getElementById('history-menu').removeEventListener('mouseup', UC.KeepMenuOnMiddleClick.mouseupHandler);
     }, true);
 
     delete UC.KeepMenuOnMiddleClick;

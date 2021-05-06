@@ -75,13 +75,7 @@ UC.multifoxContainer = {
         class: 'menuitem-iconic identity-color-black identity-icon-fingerprint',
         'data-usercontextid': '0',
         label: 'Default',
-        oncommand: 'UC.multifoxContainer.openContainer(window, 0, 0);',
-      });
-      menuitem.addEventListener('click', function (e) {
-        if (e.button == 1) {
-          UC.multifoxContainer.openContainer(win, 1, 0);
-          menupopup.hidePopup();
-        }
+        oncommand: 'UC.multifoxContainer.openContainer(window, event.button, 0);',
       });
       menupopup.appendChild(menuitem);
     }
@@ -92,13 +86,7 @@ UC.multifoxContainer = {
           class: 'menuitem-iconic identity-color-' + context.color + ' identity-icon-' + context.icon,
           'data-usercontextid': userContextId,
           label: ContextualIdentityService.getUserContextLabel(context.userContextId),
-          oncommand: 'UC.multifoxContainer.openContainer(window, 0, ' + context.userContextId + ')',
-        });
-        menuitem.addEventListener('click', function (e) {
-          if (e.button == 1) {
-            UC.multifoxContainer.openContainer(win, 1, context.userContextId);
-            menupopup.hidePopup();
-          }
+          oncommand: 'UC.multifoxContainer.openContainer(window, event.button, ' + context.userContextId + ')',
         });
         menupopup.appendChild(menuitem);
       }
