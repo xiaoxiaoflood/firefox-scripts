@@ -10,4 +10,7 @@ Main compatibility target: [Firefox Developer Edition](https://www.mozilla.org/f
 
 ### Other legacy extensions fixed for current versions
 
+- [AdvancedLocationbar²](https://github.com/117649/AdvancedLocationbar2/releases/latest)
+- [Roomy Bookmarks Toolbar redux](https://github.com/p1usminus/roomybookmarksredux/releases/latest)
+- [Saved Password Editor Redux](https://github.com/117649/SavedPasswordEditorRedux/releases/latest)
 - [Tab Groups](https://github.com/117649/Tab-Groups/releases/latest)
