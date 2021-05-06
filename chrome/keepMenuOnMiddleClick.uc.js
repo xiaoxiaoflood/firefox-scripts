@@ -37,7 +37,7 @@ UC.KeepMenuOnMiddleClick = {
       xPref.clear(this.PREF);
 
     _uc.windows((doc, win) => {
-      win.document.getElementById('history-menu').removeEventListener('mouseup', UC.KeepMenuOnMiddleClick.mouseupHandler);
+      win.document.getElementById('history-menu').removeEventListener('mouseup', this.mouseupHandler);
     }, true);
 
     delete UC.KeepMenuOnMiddleClick;
