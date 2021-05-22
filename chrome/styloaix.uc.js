@@ -261,6 +261,7 @@
         checked: style.enabled,
         context: 'styloaix-style-context',
         oncommand: 'UC.styloaix.toggleStyle(this._style);',
+        onmouseup: 'UC.styloaix.shouldPreventHide(event, this._style);',
         styleid: style.fullName
       });
       menuitem.addEventListener('click', function (e) {
@@ -269,6 +270,19 @@
       });
       popup.appendChild(menuitem);
       menuitem._style = style;      
+    },
+
+    shouldPreventHide: function (event, style) {
+      const menuitem = event.target;
+      if (event.button == 1 && !event.ctrlKey) {
+        menuitem.setAttribute('closemenu', 'none');
+        menuitem.parentNode.addEventListener('popuphidden', () => {
+          menuitem.removeAttribute('closemenu');
+        }, { once: true });
+        UC.styloaix.toggleStyle(style);
+      } else {
+        menuitem.removeAttribute('closemenu');
+      }
     },
 
     rebuildMenu () {

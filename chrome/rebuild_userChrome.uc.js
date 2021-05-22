@@ -127,7 +127,7 @@ UC.rebuild = {
           closeMenus(target);
         } else {
           this.toggleScript(script);
-          if (target.tagName === 'toolbarbutton' || AppConstants.MOZ_APP_NAME === 'thunderbird')
+          if (target.tagName === 'toolbarbutton' || Services.vc.compare(79, AppConstants.MOZ_APP_VERSION) !== -1 /*TB78*/)
             target.setAttribute('checked', script.isEnabled);
         }
         break;
@@ -141,12 +141,14 @@ UC.rebuild = {
   },
 
   shouldPreventHide: function (event) {
+    const menuitem = event.target;
     if (event.button == 1 && !event.ctrlKey) {
-      const menuitem = event.target;
       menuitem.setAttribute('closemenu', 'none');
       menuitem.parentNode.addEventListener('popuphidden', () => {
         menuitem.removeAttribute('closemenu');
       }, { once: true });
+    } else {
+      menuitem.removeAttribute('closemenu');
     }
   },
 
