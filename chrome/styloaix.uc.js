@@ -164,21 +164,21 @@
       let styleEdit = _uc.createElement(doc, 'menuitem', {
         id: 'styloaix-style-edit',
         label: 'Edit',
-        oncommand: 'UC.styloaix.openEditor({id: document.popupNode._style.fullName})'
+        oncommand: 'UC.styloaix.openEditor({id: this.parentNode.triggerNode._style.fullName})'
       });
       stylePopup.appendChild(styleEdit);
 
       let styleReload = _uc.createElement(doc, 'menuitem', {
         id: 'styloaix-style-reload',
         label: 'Reload',
-        oncommand: 'document.popupNode._style.reload()'
+        oncommand: 'this.parentNode.triggerNode._style.reload()'
       });
       stylePopup.appendChild(styleReload);
 
       let styleDelete = _uc.createElement(doc, 'menuitem', {
         id: 'styloaix-style-delete',
         label: 'Delete',
-        oncommand: 'document.popupNode._style.delete()'
+        oncommand: 'this.parentNode.triggerNode._style.delete()'
       });
       stylePopup.appendChild(styleDelete);
 

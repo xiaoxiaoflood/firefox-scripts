@@ -25,7 +25,7 @@ UC.openInUnloadedTab = {
       accesskey: 'u',
       disabled: 'true',
       hidden: 'true',
-      oncommand: 'let view = PlacesUIUtils.getViewForNode(document.popupNode); UC.openInUnloadedTab.openTabs(window, view.selectedNode || view.selectedNodes || view.result.root);',
+      oncommand: 'let view = PlacesUIUtils.getViewForNode(PlacesUIUtils.lastContextMenuTriggerNode); UC.openInUnloadedTab.openTabs(window, view.selectedNode || view.selectedNodes || view.result.root);',
     });
     openAll.insertAdjacentElement('afterend', openAllUnloaded);
 
@@ -36,7 +36,7 @@ UC.openInUnloadedTab = {
       accesskey: 'u',
       disabled: 'true',
       hidden: 'true',
-      oncommand: 'let view = PlacesUIUtils.getViewForNode(document.popupNode); UC.openInUnloadedTab.openTabs(window, view.selectedNode || view.selectedNodes || view.result.root);',
+      oncommand: 'let view = PlacesUIUtils.getViewForNode(PlacesUIUtils.lastContextMenuTriggerNode); UC.openInUnloadedTab.openTabs(window, view.selectedNode || view.selectedNodes || view.result.root);',
     });
     openAllLinks.insertAdjacentElement('afterend', openAllLinksUnloaded);
 
@@ -47,7 +47,7 @@ UC.openInUnloadedTab = {
       accesskey: 'u',
       disabled: 'true',
       hidden: 'true',
-      oncommand: 'let view = PlacesUIUtils.getViewForNode(document.popupNode); UC.openInUnloadedTab.openTab(window, view.selectedNode.uri);',
+      oncommand: 'let view = PlacesUIUtils.getViewForNode(PlacesUIUtils.lastContextMenuTriggerNode); UC.openInUnloadedTab.openTab(window, view.selectedNode.uri);',
     });
     openTab.insertAdjacentElement('afterend', openUnloaded);
 

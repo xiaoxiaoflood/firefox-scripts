@@ -140,10 +140,9 @@ UC.privateTab = {
       if (e.button == 0) {
         UC.privateTab.BrowserOpenTabPrivate(win);
       } else if (e.button == 2) {
-        document.popupNode = document.getElementById(UC.privateTab.BTN_ID);
         document.getElementById('toolbar-context-menu').openPopup(this, 'after_start', 14, -10, false, false);
-        document.getElementsByClassName('customize-context-removeFromToolbar')[0].disabled = false;
-        document.getElementsByClassName('customize-context-moveToPanel')[0].disabled = false;
+        //document.getElementsByClassName('customize-context-removeFromToolbar')[0].disabled = false;
+        //document.getElementsByClassName('customize-context-moveToPanel')[0].disabled = false;
         e.preventDefault();
       }
     });
@@ -450,7 +449,7 @@ UC.privateTab = {
   setStyle: function () {
     this.STYLE = {
       url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
-        @-moz-document url('${_uc.BROWSERCHROME}') {
+        @-moz-document url('${_uc.BROWSERCHROME}'), url-prefix('chrome://browser/content/places/') {
           #private-mask[enabled="true"] {
             display: block !important;
           }
