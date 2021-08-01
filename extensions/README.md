@@ -14,3 +14,5 @@ Main compatibility target: [Firefox Developer Edition](https://www.mozilla.org/f
 - [Roomy Bookmarks Toolbar redux](https://github.com/p1usminus/roomybookmarksredux/releases/latest)
 - [Saved Password Editor Redux](https://github.com/117649/SavedPasswordEditorRedux/releases/latest)
 - [Tab Groups](https://github.com/117649/Tab-Groups/releases/latest)
+- [Undo Close Tab Replacement](https://github.com/p1usminus/undoclosetabreplacement/blob/main/undotab%40darktrojan.net.xpi)
+- [VimFx](https://github.com/akhodakivskiy/VimFx/releases/latest)
