@@ -34,7 +34,10 @@ UC.extensionOptionsMenu = {
 
         let mp = _uc.createElement(doc, 'menupopup', {
           id: 'eom-button-popup',
-          onclick: 'event.preventDefault()',
+          onclick: function() {
+              event.preventDefault();
+              event.stopPropagation();
+          },
         });
         btn.appendChild(mp);
 
@@ -86,6 +89,7 @@ UC.extensionOptionsMenu = {
         });
         mi.addEventListener('click', UC.extensionOptionsMenu.handleClick);
         mi._Addon = addon;
+        mi.setAttribute('context', '');
 
         UC.extensionOptionsMenu.setDisable(mi, addon, 0);
 
@@ -95,6 +99,8 @@ UC.extensionOptionsMenu = {
   },
 
   handleClick: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
     let win = e.view;
     let mi = e.target;
     if (!('_Addon' in mi)) {
