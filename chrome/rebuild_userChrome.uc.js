@@ -433,7 +433,7 @@ UC.rebuild = {
       scriptsButton.setAttribute('closemenu', 'none');
       scriptsButton.setAttribute('oncommand', 'PanelUI.showSubView(\'appMenu-userChromeJsView\', this)');
 
-      const addonsButton = aDocument.getElementById('appMenu-addons-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.getElementById('appMenu-addons-button');
+      const addonsButton = aDocument.getElementById('appMenu-addons-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.getElementById('appMenu-addons-button') ?? viewCache.getElementById('appMenu-extensions-themes-button');
       addonsButton.parentElement.insertBefore(scriptsButton, addonsButton);
     }
 
