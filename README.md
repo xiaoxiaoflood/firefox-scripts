@@ -4,6 +4,8 @@
 
 ## Instructions
 
+*Video running installation steps below*: https://youtu.be/_4fdUdp3G4o
+
 → For Linux and macOS paths, read [this](https://github.com/xiaoxiaoflood/firefox-scripts/issues/8#issuecomment-467619800) and [this](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Enterprise_deployment_before_60#Configuration).
 
 1. Download [this zip file](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/fx-folder.zip) and extract its content to Firefox installation folder (usually **C:\Program Files\Mozilla Firefox**).
