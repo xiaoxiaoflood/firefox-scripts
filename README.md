@@ -10,7 +10,7 @@
 
 1. Download [this zip file](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/fx-folder.zip) and extract its content to Firefox installation folder (usually **C:\Program Files\Mozilla Firefox**).
 
-2. Click Firefox menu button (☰) -> *Help* -> *Troubleshooting information* or simply open **about:support**. Find "*Profile Folder"*, then click "*Open folder*". In there, create a new folder called **chrome**.
+2. Click Firefox menu button (☰) -> *Help* -> *More troubleshooting information* or simply open **about:support**. Find "*Profile Folder"*, then click "*Open folder*". In there, create a new folder called **chrome**.
 
 3. Download one of the files below and extract its content in **chrome** folder.
 
