@@ -126,7 +126,7 @@
  - Extensions can't run over Firefox interface, so gestures don't work over Firefox toolbars.
  - Extensions can't run on privileged pages like <i>about:config</i> and <i>view-source</i>.
  - Extensions need the page to start loading to run, causing gestures to fail sometimes.
- - Extensiosn can't set gestures for 4th and 5th mouse buttons (Back and Forward).
+ - Extensions can't set gestures for 4th and 5th mouse buttons (Back and Forward).
  - UserChromeJS has unlimited power, so you can do almost whatever you want if you write code for that. For example, I have a gesture that forces an extension (Tiled Tab Groups) to execute part of its own code that is not exposed to other addons by an API.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/mouseGestures.uc.js).

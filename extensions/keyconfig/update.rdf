@@ -8,8 +8,8 @@
               "strict_min_version": "73.0a1"
             }
           },
-          "version": "2018.2.89.2021.05.03-xiao",
-          "update_link": "https://github.com/xiaoxiaoflood/firefox-scripts/raw/master/extensions/keyconfig/keyconfig.xpi"
+          "version": "2018.2.92.2021.08.29-xiao",
+          "update_link": "https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/extensions/keyconfig/keyconfig.xpi"
         }
       ]
     }
