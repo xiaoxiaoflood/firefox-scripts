@@ -300,14 +300,18 @@
     },
 
     populateMenu (e) {
-      let popup = e.target;
-      let doc = e.view.document;
+      const popup = e.target;
+
+      if (popup.id !== 'styloaix-popup')
+        return;
+
+      const doc = e.view.document;
 
       const stylesSeparator = popup.querySelector('#styloaix-separator');
       while (stylesSeparator.nextSibling)
         stylesSeparator.nextSibling.remove();
 
-      let sortedMap = new Map([...UC.styloaix.styles.entries()].sort((a, b) => a[0].localeCompare(b[0])));
+      const sortedMap = new Map([...UC.styloaix.styles.entries()].sort((a, b) => a[0].localeCompare(b[0])));
       sortedMap.forEach(style => {
         UC.styloaix.addStyleInMenu(style, popup);
       });
