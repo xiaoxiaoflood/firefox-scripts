@@ -127,7 +127,7 @@ UC.rebuild = {
           closeMenus(target);
         } else {
           this.toggleScript(script);
-          if (target.tagName === 'toolbarbutton' || Services.vc.compare(79, AppConstants.MOZ_APP_VERSION) !== -1 /*TB78*/)
+          if (target.tagName === 'toolbarbutton')
             target.setAttribute('checked', script.isEnabled);
         }
         break;
@@ -141,14 +141,12 @@ UC.rebuild = {
   },
 
   shouldPreventHide: function (event) {
-    const menuitem = event.target;
     if (event.button == 1 && !event.ctrlKey) {
+      const menuitem = event.target;
       menuitem.setAttribute('closemenu', 'none');
       menuitem.parentNode.addEventListener('popuphidden', () => {
         menuitem.removeAttribute('closemenu');
       }, { once: true });
-    } else {
-      menuitem.removeAttribute('closemenu');
     }
   },
 
@@ -433,7 +431,7 @@ UC.rebuild = {
       scriptsButton.setAttribute('closemenu', 'none');
       scriptsButton.setAttribute('oncommand', 'PanelUI.showSubView(\'appMenu-userChromeJsView\', this)');
 
-      const addonsButton = aDocument.getElementById('appMenu-addons-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.getElementById('appMenu-addons-button');
+      const addonsButton = aDocument.getElementById('appMenu-extensions-themes-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.querySelector('#appMenu-extensions-themes-button');
       addonsButton.parentElement.insertBefore(scriptsButton, addonsButton);
     }
 
