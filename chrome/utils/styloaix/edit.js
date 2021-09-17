@@ -215,7 +215,6 @@ function save () {
       style.enabled = enabled;
       updateTitle();
       UC.styloaix.styles.set(style.fullName, style);
-      UC.styloaix.rebuildMenu();
       if (UC.styloaix.enabled && enabled)
         style.register();
 

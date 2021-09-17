@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name            StyloaiX
 // @author          xiaoxiaoflood
-// @include         main
+// @include         *
+// @startup         UC.styloaix.exec(win);
 // @shutdown        UC.styloaix.destroy();
 // @onlyonce
 // ==/UserScript==
@@ -15,8 +16,53 @@
 (function () {
 
   UC.styloaix = {
+    exec: function (win) {
+      if (win.location.href !== _uc.BROWSERCHROME)
+        return;
+
+      const { AppConstants, CustomizableUI, document, Services } = win;
+      if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
+        if (!CustomizableUI.getPlacementOfWidget('styloaix-button')) {
+          CustomizableUI.createWidget({
+            id: 'styloaix-button',
+            type: 'custom',
+            defaultArea: CustomizableUI.AREA_NAVBAR,
+            onBuild: (doc) => {
+              return this.createButton(doc);
+            }
+          });
+        }
+      } else {
+        const btn = this.createButton(document);
+        btn.setAttribute('removable', true);
+        const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
+        const barId = toolbar.id;
+        const currentSet = Services.xulStore.getValue(win.location.href, barId, 'currentset');
+        const position = currentSet.split(',').indexOf('styloaix-button');
+        switch (position) {
+          case -1:
+            if (xPref.get(this.PREF_FIRSTRUN)) {
+              xPref.set(this.PREF_FIRSTRUN, false);
+              document.getElementById(barId).insertAdjacentElement('beforeend', btn);
+              toolbar.setAttribute('currentset', toolbar.currentSet)
+              Services.xulStore.persist(toolbar, 'currentset')
+            } else {
+              document.getElementById(barId).toolbox.palette.insertAdjacentElement('beforeend', btn);
+            }
+            break;
+          case 0:
+            document.getElementById(barId).insertAdjacentElement('afterbegin', btn);
+            break;
+          default:
+            document.getElementById(barId).children[position - 1].insertAdjacentElement('afterend', btn);
+        }
+        this.tbButtons.push(btn);
+      }
+    },
+
     init: function () {
       xPref.lock(this.PREF_MOZDOCUMENT, true);
+      xPref.set(this.PREF_FIRSTRUN, true, true);
       xPref.set(this.PREF_DISABLED, false, true);
       xPref.set(this.PREF_STYLESDISABLED, '[]', true);
       xPref.set(this.PREF_INSTANTCHECK, true, true);
@@ -60,29 +106,6 @@
 
       this.loadStyles();
 
-      if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
-        CustomizableUI.createWidget({
-          id: 'styloaix-button',
-          type: 'custom',
-          defaultArea: CustomizableUI.AREA_NAVBAR,
-          onBuild: (doc) => {
-            return this.createButton(doc);
-          }
-        });
-      } else {
-        let btn = this.createButton(document);
-        btn.setAttribute('removable', true);
-        const currentSet = Services.xulStore.getValue('chrome://messenger/content/messenger.xhtml', 'mail-bar3', 'currentset').split(',');
-        const position = currentSet.indexOf('styloaix-button');
-        if (position !== -1)
-          document.getElementById('mail-bar3').insertBefore(btn, document.getElementById(currentSet[position + 1]));
-        else
-          document.getElementById('mail-bar3').insertBefore(btn, document.getElementById('gloda-search'));
-        this.tbButton = btn;
-
-        this.rebuildMenu();
-      }
-
       _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
     },
 
@@ -98,6 +121,7 @@
 
       let popup = _uc.createElement(doc, 'menupopup', {id: 'styloaix-popup'});
       btn.appendChild(popup);
+      btn.addEventListener('popupshowing', this.populateMenu);
 
       let disabled = xPref.get(this.PREF_DISABLED);
       let toggleBtn = _uc.createElement(doc, 'menuitem', {
@@ -154,7 +178,7 @@
       newStyleMenu.appendChild(newStylePopup);
       popup.appendChild(newStyleMenu);
 
-      let separatorBeforeStyles = _uc.createElement(doc, 'menuseparator');
+      let separatorBeforeStyles = _uc.createElement(doc, 'menuseparator', {id: 'styloaix-separator'});
       separatorBeforeStyles.hidden = !this.styles.size;
       popup.appendChild(separatorBeforeStyles);
       btn._separator = separatorBeforeStyles;
@@ -183,10 +207,6 @@
       stylePopup.appendChild(styleDelete);
 
       doc.getElementById('mainPopupSet').appendChild(stylePopup);
-
-      this.styles.forEach(style => {
-        this.addStyleInMenu(style, popup);
-      });
       
       return btn;
     },
@@ -220,7 +240,6 @@
       if (reload) {
         this.styles = new Map();
         this.loadStyles();
-        this.rebuildMenu();
       }
     },
 
@@ -264,10 +283,6 @@
         onmouseup: 'UC.styloaix.shouldPreventHide(event, this._style);',
         styleid: style.fullName
       });
-      menuitem.addEventListener('click', function (e) {
-        if (e.button == 1)
-          UC.styloaix.toggleStyle(this._style);
-      });
       popup.appendChild(menuitem);
       menuitem._style = style;      
     },
@@ -279,29 +294,22 @@
         menuitem.parentNode.addEventListener('popuphidden', () => {
           menuitem.removeAttribute('closemenu');
         }, { once: true });
-        UC.styloaix.toggleStyle(style);
       } else {
         menuitem.removeAttribute('closemenu');
       }
     },
 
-    rebuildMenu () {
-      let buttons = this.buttons;
-      if (buttons.length) {
-        buttons.forEach(btn => {
-          btn._separator.hidden = !this.styles.size;
-          let styles = btn.getElementsByClassName('styloaix-style');
-          while (styles.length) {
-            styles[0].remove();
-          }
-        })
-      }
+    populateMenu (e) {
+      let popup = e.target;
+      let doc = e.view.document;
 
-      let sortedMap = new Map([...this.styles.entries()].sort((a, b) => a[0].localeCompare(b[0])));
+      const stylesSeparator = popup.querySelector('#styloaix-separator');
+      while (stylesSeparator.nextSibling)
+        stylesSeparator.nextSibling.remove();
+
+      let sortedMap = new Map([...UC.styloaix.styles.entries()].sort((a, b) => a[0].localeCompare(b[0])));
       sortedMap.forEach(style => {
-        buttons.forEach(btn => {
-          this.addStyleInMenu(style, btn.menupopup);
-        });
+        UC.styloaix.addStyleInMenu(style, popup);
       });
     },
 
@@ -330,22 +338,7 @@
 
     btnClasses: ['icon-white', 'icon-colored'],
 
-    get buttons () {
-      let arr = [];
-      let widget = CustomizableUI.getWidget('styloaix-button');
-
-      if (widget?.instances.length && widget.instances[0].label) {
-        widget.instances.forEach(btnWidget => {
-          let btn = btnWidget.node;
-          arr.push(btn);
-        });
-      } else if (this.tbButton) {
-        arr.push(this.tbButton)
-      }
-
-      return arr;
-    },
-
+    PREF_FIRSTRUN: 'userChromeJS.styloaix.firstRun',
     PREF_DISABLED: 'userChromeJS.styloaix.allDisabled',
     PREF_STYLESDISABLED: 'userChromeJS.styloaix.stylesDisabled',
     PREF_INSTANTCHECK: 'userChromeJS.styloaix.instantCheck',
@@ -383,12 +376,14 @@
 
     styles: new Map(),
 
+    tbButtons: [],
+
     destroy: function () {
       xPref.unlock(this.PREF_MOZDOCUMENT);
       xPref.removeListener(this.prefListener);
       xPref.removeListener(this.prefListenerAll);
       CustomizableUI.destroyWidget('styloaix-button');
-      this.tbButton?.remove();
+      this.tbButtons.forEach(b => b.remove());
       _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
       this.toggleAll({disable: true});
       delete UC.styloaix;
@@ -449,7 +444,6 @@
           this.unregister();
         else
           UC.styloaix.disabledStyles.delete(this.fullName);
-        UC.styloaix.rebuildMenu();
         this.file.remove(false);
       }
     }

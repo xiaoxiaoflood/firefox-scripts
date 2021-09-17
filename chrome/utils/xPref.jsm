@@ -38,7 +38,7 @@ var xPref = {
 
     switch (typeof value) {
       case 'string':
-        return sPrefs.setCharPref(prefPath, value) || value;
+        return sPrefs.setStringPref(prefPath, value) || value;
       case 'number':
         return sPrefs.setIntPref(prefPath, value) || value;
       case 'boolean':
