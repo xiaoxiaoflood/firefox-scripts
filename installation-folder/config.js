@@ -13,6 +13,6 @@ Object.freeze = obj => {
 }
 
 try {
-  Cu.import('resource://gre/modules/osfile.jsm');
-  Cu.import(OS.Path.toFileURI(OS.Constants.Path.profileDir) + '/chrome/utils/boot.jsm');
-} catch(ex) {};
+  const { Services } = Cu.import('resource://gre/modules/Services.jsm');
+  Cu.import(Services.io.newFileURI(Services.dirsvc.get('ProfLD', Ci.nsIFile)).spec + 'chrome/utils/boot.jsm');
+} catch (ex) {};

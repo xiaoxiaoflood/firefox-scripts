@@ -30,14 +30,6 @@ class Manifest {
   static loadFromString(text) {
     return new this(RDFDataSource.loadFromString(text));
   }
-
-  static loadFromBuffer(buffer) {
-    return new this(RDFDataSource.loadFromBuffer(buffer));
-  }
-
-  static async loadFromFile(uri) {
-    return new this(await RDFDataSource.loadFromFile(uri));
-  }
 }
 
 class InstallRDF extends Manifest {
