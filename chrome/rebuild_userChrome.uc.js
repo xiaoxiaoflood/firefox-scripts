@@ -310,12 +310,10 @@ UC.rebuild = {
       else
         toolbar.appendChild(btn);
 
-      if (xPref.get(this.PREF_FIRSTRUN)) {
-        xPref.set(this.PREF_FIRSTRUN, false);
-        let currentSet = toolbar.getAttribute('defaultset').split(',');
-        if (!currentSet.includes(btn.id)) {
-          currentSet.push(btn.id);
-          toolbar.currentSet = currentSet.join(',');
+      if (xPref.get('userChromeJS.firstRun') !== false) {
+        xPref.set('userChromeJS.firstRun', false);
+        if (!toolbar.getAttribute('currentset').split(',').includes(btn.id)) {
+          toolbar.appendChild(btn);
           toolbar.setAttribute('currentset', toolbar.currentSet);
           Services.xulStore.persist(toolbar, 'currentset');
         }
