@@ -36,26 +36,25 @@
         const btn = this.createButton(document);
         btn.setAttribute('removable', true);
         const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
-        const barId = toolbar.id;
-        const currentSet = Services.xulStore.getValue(win.location.href, barId, 'currentset');
-        const position = currentSet.split(',').indexOf('styloaix-button');
-        switch (position) {
-          case -1:
-            if (xPref.get(this.PREF_FIRSTRUN)) {
-              xPref.set(this.PREF_FIRSTRUN, false);
-              document.getElementById(barId).insertAdjacentElement('beforeend', btn);
-              toolbar.setAttribute('currentset', toolbar.currentSet)
-              Services.xulStore.persist(toolbar, 'currentset')
-            } else {
-              document.getElementById(barId).toolbox.palette.insertAdjacentElement('beforeend', btn);
-            }
-            break;
-          case 0:
-            document.getElementById(barId).insertAdjacentElement('afterbegin', btn);
-            break;
-          default:
-            document.getElementById(barId).children[position - 1].insertAdjacentElement('afterend', btn);
+        if (toolbar.parentElement.palette)
+          toolbar.parentElement.palette.appendChild(btn);
+        else
+          toolbar.appendChild(btn);
+
+        if (xPref.get(this.PREF_FIRSTRUN)) {
+          xPref.set(this.PREF_FIRSTRUN, false);
+          let currentSet = toolbar.getAttribute('defaultset').split(',');
+          if (!currentSet.includes(btn.id)) {
+            currentSet.push(btn.id);
+            toolbar.currentSet = currentSet.join(',');
+            toolbar.setAttribute('currentset', toolbar.currentSet);
+            Services.xulStore.persist(toolbar, 'currentset');
+          }
+        } else {
+          toolbar.currentSet = Services.xulStore.getValue(win.location.href, toolbar.id, 'currentset');
+          toolbar.setAttribute('currentset', toolbar.currentSet);
         }
+
         this.tbButtons.push(btn);
       }
     },

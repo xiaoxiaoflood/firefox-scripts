@@ -302,15 +302,27 @@ UC.rebuild = {
         }
       });
     } else {
-      let btn = this.createButton(document);
+      const btn = this.createButton(document);
       btn.setAttribute('removable', true);
-      const currentSet = Services.xulStore.getValue('chrome://messenger/content/messenger.xhtml', 'mail-bar3', 'currentset').split(',');
-      const position = currentSet.indexOf('userChromebtnMenu');
-      if (position !== -1)
-        document.getElementById('mail-bar3').insertBefore(btn, document.getElementById(currentSet[position + 1]));
+      const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
+      if (toolbar.parentElement.palette)
+        toolbar.parentElement.palette.appendChild(btn);
       else
-        document.getElementById('mail-bar3').insertBefore(btn, document.getElementById('gloda-search'));
-      this.tbButton = btn;
+        toolbar.appendChild(btn);
+
+      if (xPref.get(this.PREF_FIRSTRUN)) {
+        xPref.set(this.PREF_FIRSTRUN, false);
+        let currentSet = toolbar.getAttribute('defaultset').split(',');
+        if (!currentSet.includes(btn.id)) {
+          currentSet.push(btn.id);
+          toolbar.currentSet = currentSet.join(',');
+          toolbar.setAttribute('currentset', toolbar.currentSet);
+          Services.xulStore.persist(toolbar, 'currentset');
+        }
+      } else {
+        toolbar.currentSet = Services.xulStore.getValue(location.href, toolbar.id, 'currentset');
+        toolbar.setAttribute('currentset', toolbar.currentSet);
+      }
     }
   },
 
