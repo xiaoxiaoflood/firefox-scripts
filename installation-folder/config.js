@@ -14,5 +14,5 @@ Object.freeze = obj => {
 
 try {
   const { Services } = Cu.import('resource://gre/modules/Services.jsm');
-  Cu.import(Services.io.newFileURI(Services.dirsvc.get('ProfLD', Ci.nsIFile)).spec + 'chrome/utils/boot.jsm');
+  Cu.import(Services.io.newFileURI(Services.dirsvc.get('ProfD', Ci.nsIFile)).spec + 'chrome/utils/boot.jsm');
 } catch (ex) {};
