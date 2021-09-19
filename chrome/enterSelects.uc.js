@@ -24,7 +24,7 @@ UC.enterSelects = {
     };
 
     xPref.lock('browser.urlbar.autoFill', false);
-    xPref.set('browser.urlbar.matchBuckets', 'general:5,suggestion:Infinity', true);
+    xPref.lock('browser.urlbar.showSearchSuggestionsFirst', false);
   },
 
   exec: function (win) {
@@ -85,6 +85,7 @@ UC.enterSelects = {
 
   destroy: function () {
     xPref.unlock('browser.urlbar.autoFill');
+    xPref.unlock('browser.urlbar.showSearchSuggestionsFirst');
     _uc.windows((doc, win) => {
       this.controller.receiveResults = this.orig_receiveResults;
       win.gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
