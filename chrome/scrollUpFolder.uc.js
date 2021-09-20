@@ -347,6 +347,10 @@
     openLinkIn(cleanedUrl && cleanedUrl.href, 'current', {allowThirdPartyFixup: true, targetBrowser: gBrowser.selectedBrowser, indicateErrorPageLoad: true, allowPinnedTabHostChange: true, disallowInheritPrincipal: true, allowPopups: false, triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()});
   }
 
-  gURLBar.addEventListener('DOMMouseScroll', sUFscroll, false);
-  gURLBar.textbox.addEventListener('click', sUFclick, false);
+  let observe = () => {
+    gURLBar.addEventListener('DOMMouseScroll', sUFscroll, false);
+    gURLBar.textbox.addEventListener('click', sUFclick, false);
+    Services.obs.removeObserver(observe, 'browser-window-before-show');
+  }
+  Services.obs.addObserver(observe, 'browser-window-before-show');
 })()

@@ -28,7 +28,11 @@ UC.enterSelects = {
   },
 
   exec: function (win) {
-    win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+    let observe = () => {
+      win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+      Services.obs.removeObserver(observe, 'browser-window-before-show');
+    }
+    Services.obs.addObserver(observe, 'browser-window-before-show');
   },
 
   controller: ChromeUtils.import('resource:///modules/UrlbarController.jsm').UrlbarController.prototype,
