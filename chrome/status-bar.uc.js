@@ -119,15 +119,12 @@ UC.statusBar = {
         @-moz-document url('${_uc.BROWSERCHROME}') {
           #status-bar {
             color: initial !important;
-            background-color: var(--toolbar-non-lwt-bgcolor) !important;
+            background-color: var(--toolbar-non-lwt-bgcolor);
           }
           #status-text > #statuspanel-label {
             border-top: 0 !important;
             background-color: unset !important;
-            color: #444 !important;
-          }
-          #browser-bottombox:not([collapsed]) {
-            border-top: 1px solid var(--chrome-content-separator-color) !important;
+            color: #444;
           }
           #wrapper-status-text label::after {
             content: "Status text" !important;
@@ -141,6 +138,19 @@ UC.statusBar = {
             justify-content: center !important;
             align-content: center !important;
             flex-direction: column !important;
+          }
+          @media (-moz-toolbar-prefers-color-scheme: light) {
+            #browser-bottombox:not([collapsed]) {
+              border-top: 1px solid var(--panel-separator-color) !important;
+            }
+          }
+          @media (-moz-toolbar-prefers-color-scheme: dark) {
+            #status-bar {
+              background-color: var(--toolbar-bgcolor);
+            }
+            #status-text > #statuspanel-label {
+              color: var(--lwt-text-color) !important;
+            }
           }
         }
       `)),
