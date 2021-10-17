@@ -101,7 +101,7 @@ UC.Redirector = {
           redirectUrl = true;
         originUrl = typeof rule[1] == 'function'
           ? rule[2]
-            ? decodeURIComponent(rule[1](originUrl.match(regex)))
+            ? rule[1](decodeURIComponent(originUrl).match(regex))
             : rule[1](originUrl.match(regex))
           : rule[2]
             ? decodeURIComponent(originUrl.replace(regex, rule[1]))
@@ -113,6 +113,8 @@ UC.Redirector = {
 
   observe: function (subject) {
     let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
+    if (httpChannel.loadInfo.originAttributes.firstPartyDomain.startsWith('(view-source'))
+      return;
     let contentType = httpChannel.loadInfo.externalContentPolicyType;
     if (contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT) {
       let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec);
