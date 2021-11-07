@@ -25,7 +25,7 @@ UC.multifoxContainer = {
       if ('toUserContextId' in this) {
         options.userContextId = this.toUserContextId;
         delete this.toUserContextId;
-      } else if (!options.relatedToCurrent && !options.userContextId && this.selectedTab.userContextId != UC.privateTab?.container.userContextId) {
+      } else if (!options.relatedToCurrent && !options.userContextId && this.selectedTab.userContextId != UC.privateTab?.container.userContextId && options.focusUrlBar) {
         options.userContextId = this.selectedTab.userContextId;
       }
 
