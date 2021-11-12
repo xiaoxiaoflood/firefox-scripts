@@ -42,21 +42,13 @@ UC.MGest = {
     '2+': {
       name: 'Next tab',
       cmd: function (win) {
-        let TST = UC.MGest.webExts.get('TST').browser;
-        if (TST?.messageManager)
-          TST.messageManager.sendAsyncMessage('UCJS:MGest', 'next-visible-tab');
-        else
-          win.gBrowser.tabContainer.advanceSelectedTab(1, true);
+        win.gBrowser.tabContainer.advanceSelectedTab(1, true);
       }
     },
     '2-': {
       name: 'Previous tab',
       cmd: function (win) {
-        let TST = UC.MGest.webExts.get('TST').browser;
-        if (TST?.messageManager)
-          TST.messageManager.sendAsyncMessage('UCJS:MGest', 'previous-visible-tab');
-        else
-          win.gBrowser.tabContainer.advanceSelectedTab(-1, true);
+        win.gBrowser.tabContainer.advanceSelectedTab(-1, true);
       }
     },
     '2R': {
@@ -149,13 +141,13 @@ UC.MGest = {
     '0F': {
       name: 'Switch to next group',
       cmd: function (win) {
-        UC.MGest.webExts.get('TTG').browser?.messageManager.sendAsyncMessage('UCJS:MGest', 'next-group');
+        UC.webExts.get(UC.MGest.webExts.get('SDB')).messageManager.sendAsyncMessage('UCJS:MGest', 'next_panel');
       }
     },
     '0B': {
       name: 'Switch to previous group',
       cmd: function (win) {
-        UC.MGest.webExts.get('TTG').browser?.messageManager.sendAsyncMessage('UCJS:MGest', 'previous-group');
+        UC.webExts.get(UC.MGest.webExts.get('SDB')).messageManager.sendAsyncMessage('UCJS:MGest', 'prev_panel');
       }
     },
     '1F': {
@@ -194,8 +186,7 @@ UC.MGest = {
   },
 
   webExts: new Map([
-    ['TST', { id: 'treestyletab@piro.sakura.ne.jp' }],
-    ['TTG', { id: '{dcdaadfa-21f1-4853-9b34-aad681fff6f3}' }]//Tiled Tab Groups
+    ['SDB', '{3c078156-979c-498b-8990-85f7987dd929}'] // Sidebery
   ]),
 
   exec: function (win) {
@@ -239,9 +230,9 @@ UC.MGest = {
   },
 
   init: function () {
-    this.webExts.forEach(obj => {
-      if (UC.webExts.get(obj.id)?.messageManager)
-        this.addListener(obj.id);
+    this.webExts.forEach(id => {
+      if (UC.webExts.get(id)?.messageManager)
+        this.addListener(id);
     });
 
     Services.obs.addObserver(this, 'UCJS:WebExtLoaded');
@@ -252,21 +243,16 @@ UC.MGest = {
 
   addListener: function (id) {
     switch (id) {
-      case this.webExts.get('TST').id:
-        this.webExts.get('TST').browser = UC.webExts.get(id);
-        this.webExts.get('TST').browser.messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
-          let { browser, Tab } = content.wrappedJSObject;
+      case this.webExts.get('SDB'):
+        UC.webExts.get(id).messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function (id) {
+          let { browser } = content.wrappedJSObject;
           let contentListener = async function (msg) {
-            let w = await browser.windows.getLastFocused();
-            let tab;
             switch (msg.data) {
-              case 'next-visible-tab':
-                tab = Tab.getActiveTab(w.id).$TST.nearestVisibleFollowingTab || Tab.getFirstVisibleTab(w.id);
-                browser.tabs.update(tab.id, { active: true });
+              case 'next_panel':
+                browser.runtime.sendMessage(id, 'next_panel');
                 break;
-              case 'previous-visible-tab':
-                tab = Tab.getActiveTab(w.id).$TST.nearestVisiblePrecedingTab || Tab.getLastVisibleTab(w.id);
-                browser.tabs.update(tab.id, { active: true });
+              case 'prev_panel':
+                browser.runtime.sendMessage(id, 'prev_panel');
                 break;
               case 'destroy':
                 removeMessageListener('UCJS:MGest', contentListener);
@@ -275,34 +261,14 @@ UC.MGest = {
           }
 
           addMessageListener('UCJS:MGest', contentListener);
-        }).toString() + ')();'), false);
+        }).toString() + ')(\'' + id + '\');'), false);
         break;
-      case this.webExts.get('TTG').id:
-        this.webExts.get('TTG').browser = UC.webExts.get(id);
-        this.webExts.get('TTG').browser.messageManager.loadFrameScript('data:application/javascript;charset=UTF-8,' + encodeURIComponent('(' + (function () {
-          let { cycleGroup } = content.wrappedJSObject;
-          let contentListener = async function (msg) {
-            switch (msg.data) {
-              case 'next-group':
-                cycleGroup(1);
-                break;
-              case 'previous-group':
-                cycleGroup(-1);
-                break;
-              case 'destroy':
-                removeMessageListener('UCJS:MGest', contentListener);
-                delete contentListener;
-            }
-          }
-
-          addMessageListener('UCJS:MGest', contentListener);
-        }).toString() + ')();'), false);
     }
   },
 
   observe: function (subject, topic, data) {
-    for (let obj of this.webExts.values()) {
-      if (obj.id == data) {
+    for (let id of this.webExts.values()) {
+      if (id == data) {
         this.addListener(data);
         break;
       }
@@ -431,10 +397,13 @@ UC.MGest = {
               }
 
               if (bgImgUrl &&
+                  !elem.textContent &&
                   elem != win.document.body &&
                   elem != win.document.documentElement &&
                   win.getComputedStyle(elem).height == win.getComputedStyle(elem.parentElement).height &&
-                  win.getComputedStyle(elem).width == win.getComputedStyle(elem.parentElement).width) {
+                  win.getComputedStyle(elem).width == win.getComputedStyle(elem.parentElement).width &&
+                  win.getComputedStyle(elem).height != document.documentElement.clientHeight &&
+                  win.getComputedStyle(elem).width != document.documentElement.clientWidth) {
                 hasBGImage = true;
                 data.bgImageURL = _makeURLAbsolute(elem.baseURI, bgImgUrl);
               }
@@ -734,7 +703,7 @@ UC.MGest = {
               event.preventDefault();
               event.stopPropagation();
             } else {
-              win.addEventListener('click', this, { capture: true, once: true});
+              win.addEventListener('click', this, { capture: true, once: true });
             }
           }
         }
@@ -806,8 +775,8 @@ UC.MGest = {
     });
 
     Services.obs.removeObserver(this, 'UCJS:WebExtLoaded');
-    this.webExts.forEach(obj => {
-      obj.browser?.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
+    this.webExts.forEach(id => {
+      UC.webExts.get(id)?.messageManager.sendAsyncMessage('UCJS:MGest', 'destroy');
     });
     delete UC.MGest;
   },
