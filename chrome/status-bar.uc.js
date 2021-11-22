@@ -97,6 +97,7 @@ UC.statusBar = {
 
     let resizerContainer = _uc.createElement(document, 'toolbaritem', {id: 'resizer-container'});
     let resizer = _uc.createElement(document, 'resizer');
+    resizer.setAttribute('dir', 'bottomend');
     resizerContainer.appendChild(resizer);
     win.statusbar.node.appendChild(resizerContainer);
 

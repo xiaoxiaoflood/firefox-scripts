@@ -6,7 +6,7 @@
 
 *Video running installation steps below*: https://youtu.be/_4fdUdp3G4o
 
-→ For Linux and macOS paths, read [this](https://github.com/xiaoxiaoflood/firefox-scripts/issues/8#issuecomment-467619800) and [this](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Enterprise_deployment_before_60#Configuration).
+→ For Linux and macOS paths, read [this](https://github.com/xiaoxiaoflood/firefox-scripts/issues/8#issuecomment-467619800) and [this](https://web.archive.org/web/20210216103639/https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Enterprise_deployment_before_60#configuration).
 
 1. Download [this zip file](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/fx-folder.zip) and extract its content to Firefox installation folder (usually **C:\Program Files\Mozilla Firefox**).
 
@@ -95,7 +95,7 @@
 </details>
 <details>
   <summary>MinMaxClose Button</summary>
-  Toolbar button to replace native window buttons (minimize, maximize and close). I'm a Windows user and use Tree Style Tab with hidden titlebar, so I need this.
+  Toolbar button to replace native window buttons (minimize, maximize and close). I'm a Windows user and use Sidebery (vertical tabbar) with hidden titlebar, so I need this.
  
  - <i>Left-click</i> to minimize (so I can't close it accidentally).
  
@@ -120,7 +120,7 @@
  - <b>Hold right-click, move right and release</b> to open a new tab with the link or media under the cursor.
  - <b>Hold middle-click, move left and release</b> to copy selected text or image under the cursor.
  - <b>Hold middle-click, move right and release</b> to paste.
- - <b>Hold left-click, then press forward button</b> (for mouse with extra buttons) to switch to next group (specific compatibility with <b>Tiled Tab Groups</b> extension).
+ - <b>Hold left-click, then press forward button</b> (for mouse with extra buttons) to switch to next group/panel (specific compatibility with <b>Sidebery</b> extension).
 
  Gestures are cumulative if possible, so right-click (hold) + left-click + left-click + left-click will toggle between the two most recently used tabs.
  
@@ -129,7 +129,7 @@
  - Extensions can't run on privileged pages like <i>about:config</i> and <i>view-source</i>.
  - Extensions need the page to start loading to run, causing gestures to fail sometimes.
  - Extensions can't set gestures for 4th and 5th mouse buttons (Back and Forward).
- - UserChromeJS has unlimited power, so you can do almost whatever you want if you write code for that. For example, I have a gesture that forces an extension (Tiled Tab Groups) to execute part of its own code that is not exposed to other addons by an API.
+ - Unlike extensions that are limited by existing APIs, userChromeJS has unrestricted access to Firefox internals, so you can do almost whatever you want if you write code for that.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/mouseGestures.uc.js).
 </details>
@@ -148,7 +148,7 @@
 </details>
 <details>
   <summary>Open in Unloaded Tab</summary>
-  Creates an item in contextmenu to open links/bookmarks/history in unloaded tabs, i.e., the tab is created, but it will only load when selected. Just like unloaded tabs when you restore previous session.
+  Creates an item in contextmenu to open links/bookmarks/history in unloaded tabs, i.e. the tab is created, but it will only load when selected. Just like unloaded tabs when you start Firefox recovering tabs from previous usage.
  So you can, for example, open multiple related YouTube videos and load them one by one. Or open an entire bookmark folder in tabs without freezing the browser, since tab content will load on demand.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/openInUnloadedTab.uc.js).
