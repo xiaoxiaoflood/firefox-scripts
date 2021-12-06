@@ -91,6 +91,7 @@
           enabledBtn.label = disabled ? 'Disabled' : 'Enabled';
           enabledBtn.setAttribute('checked', !disabled);
           doc.getElementById('styloaix-button').classList.replace(...this.btnClasses);
+          doc.getElementById('styloaix-reload-all').disabled = disabled;
         });
       });
 
@@ -136,6 +137,7 @@
       let reloadAllBtn = _uc.createElement(doc, 'menuitem', {
         id: 'styloaix-reload-all',
         label: 'Reload All Styles',
+        disabled: !this.enabled,
         oncommand: 'UC.styloaix.toggleAll({reload: true});'
       });
       popup.appendChild(reloadAllBtn);
