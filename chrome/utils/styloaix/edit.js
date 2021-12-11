@@ -1,6 +1,13 @@
-const {Services} = ChromeUtils.import('resource://gre/modules/Services.jsm');
-const {require} = ChromeUtils.import('resource://devtools/shared/Loader.jsm');
-const {NetUtil} = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
+const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
+const { NetUtil } = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
+
+let require;
+try {
+  ({ require } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm'));
+} catch (e) {
+  // tb91
+  ({ require } = ChromeUtils.import('resource://devtools/shared/Loader.jsm'));
+}
 
 docShell.cssErrorReportingEnabled = true;
 
@@ -60,10 +67,11 @@ function init () {
 
         try {
           initialCode = bstream.readBytes(bstream.available());
-        } catch {}
+        } catch {} // empty file
 
         stream.close();
 
+        // inicialmente o arquivo fica correto se for ASCII, mas Unicode precisa converter. Fiz todos os testes que pude e essa foi a única forma de conseguir ficar adequado nos dois casos, das outras formas era sempre um ou outro. O try...catch é porque dá erro se o arquivo for ASCII, então mantém o conteúdo obtido inicialmente que já está correto.
         try {
           const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
           converter.charset = 'utf-8';
@@ -129,6 +137,7 @@ function initEditor () {
   });
   
   sourceEditor.setupAutoCompletion = function () {
+    // tive que clonar o resource://devtools/client/shared/sourceeditor/autocomplete.js para forçar maxEntries: 1000, originalmente não define e fica 15.
     this.extend(require_mini('userchromejs/content/styloaix/autocomplete'));
     this.initializeAutoCompletion();
   };
@@ -299,6 +308,7 @@ function checkForErrors () {
   document.documentElement.appendChild(styleEl);
   styleEl.remove();
 
+  // do this on a delay because of https://bugzilla.mozilla.org/show_bug.cgi?id=831428
   setTimeout(() => {
     if (count < 10)
       Services.console.unregisterListener(errorListener);
@@ -409,7 +419,7 @@ if (isChromeWindow) {
   window.close = function () {
     if (!unsaved || confirm('Do you want to close and lose unsaved changes?')) {
       shouldHandle = false;
-      setTimeout(closeFn);
+      setTimeout(closeFn);// por algum motivo precisa do setTimeout no Ctrl+W.
     }
   }
 }

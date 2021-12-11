@@ -4,8 +4,15 @@
 
 "use strict";
 
-const AutocompletePopup = require("devtools/client/shared/autocomplete-popup");
-const {loader} = ChromeUtils.import('resource://devtools/shared/Loader.jsm');
+const AutocompletePopup = require('devtools/client/shared/autocomplete-popup');
+
+let loader;
+try {
+  ({ loader } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm'));
+} catch (e) {
+  // tb91
+  ({ loader } = ChromeUtils.import('resource://devtools/shared/Loader.jsm'));
+}
 
 loader.lazyRequireGetter(
   this,
