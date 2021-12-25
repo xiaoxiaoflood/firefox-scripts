@@ -222,6 +222,16 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/newtab-aboutconfig.uc.js).
 </details>
 
+<details>
+ <summary>Input Language Assistant (by siamak2)</summary>
+ this script is based on <code>Input Language Assistant</code> legacy extension. when you click on address bar, this script automatically changes your input language to English and once you press enter or click anywhere else, it will restore your input language to the previous language.
+ note: this script is not restartless. if you want to enable or disable this script you need to restart browser.
+ 
+ (Written by [siamak2](https://github.com/siamak2))
+ 
+ [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/inputLanguageAssistant.uc.js).
+</details>
+
 ## Removed pages
 
 <details>
