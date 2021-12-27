@@ -199,6 +199,11 @@
 
   [Download link - extract it in chrome folder](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/styloaix.zip).
 </details>
+
+## userChromeJS scripts from other authors
+
+Some users without their own repos asked me to publish the scripts they made, what I'm currently allowing.
+
 <details>
   <summary>Auto Plain Text Links</summary>
   Firefox's default context menu will allow you to open plain text links if you select them first. This small addon automatically detects simple http and ftp plain text links when you right-click without needing you to select them first, then passes that URL on to the default Firefox menu items for opening them.
@@ -214,7 +219,7 @@
 </details>
 
 <details>
- <summary>Restore <code>browser.newtab.url</code> Pref to <code>about:config</code> (by TheRealPSV)</summary>
+ <summary>Restore <code>browser.newtab.url</code> Pref to <code>about:config</code></summary>
  This script restores the <code>browser.newtab.url</code> preference to <code>about:config</code>. Using this preference, you can set whatever you like as your New Tab page, including things like <code>file://</code> URLs that don't work with new tab override extensions. Once you install the script, just set the preference in <code>about:config</code> and it should work automatically. Make sure you don't have any other new tab extensions, or it might not work.
  
  (Written by [TheRealPSV](https://github.com/TheRealPSV))
@@ -223,7 +228,7 @@
 </details>
 
 <details>
- <summary>Input Language Assistant (by siamak2)</summary>
+ <summary>Input Language Assistant</summary>
  this script is based on <code>Input Language Assistant</code> legacy extension. when you click on address bar, this script automatically changes your input language to English and once you press enter or click anywhere else, it will restore your input language to the previous language.
  note: this script is not restartless. if you want to enable or disable this script you need to restart browser.
  
@@ -232,7 +237,7 @@
  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/inputLanguageAssistant.uc.js).
 </details>
 
-## Removed pages
+## Restore removed pages
 
 <details>
   <summary><code>about:config</code></summary>
