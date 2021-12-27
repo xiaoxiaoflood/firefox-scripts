@@ -1,6 +1,6 @@
 Unnoficial versions for Fx 57+.
 
-Main compatibility target: [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/). Extensions may work on other versions, but I use DevEd on my main profile so I only test them on it. DevEd is virtually identical to Beta and is very stable in my experience.
+Main compatibility target: [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/). Extensions may work on other versions, but I use DevEd so I only test them on it. DevEd is almost identical to Beta and it's very stable in my experience.
 
 ## Instructions
 
