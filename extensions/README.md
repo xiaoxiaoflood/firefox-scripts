@@ -31,6 +31,7 @@ External links to extensions maintained by other users. Unlike the previous list
 
 - [AdvancedLocationbar²](https://github.com/117649/AdvancedLocationbar2/releases/latest)
 - [Better FindButton](https://github.com/Mikhail-M12/Better-FindButton/releases/latest)
+- [Easy DragToGo+ Redux](https://github.com/117649/EasyDragToGoPlus-Redux/releases/latest)
 - [NoSquint Plus](https://github.com/Mikhail-M12/NoSquint-Plus-legacy-/releases/latest)
 - [Roomy Bookmarks Toolbar redux](https://github.com/p1usminus/roomybookmarksredux/releases/latest)
 - [Saved Password Editor Redux](https://github.com/117649/SavedPasswordEditorRedux/releases/latest)
