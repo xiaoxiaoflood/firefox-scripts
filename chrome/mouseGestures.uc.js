@@ -645,7 +645,7 @@ UC.MGest = {
 
     switch (event.type) {
       case 'mousedown':
-        if (event.ctrlKey || composedTarget.localName == 'resizer')
+        if (event.ctrlKey)
           return;
         if (this.directionChain) {
           delX = screenX - this.lastX;

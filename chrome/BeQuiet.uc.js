@@ -25,9 +25,9 @@ UC.beQuiet = {
     },
     {
       rx: /^https:\/\/open\.spotify\.com\//,
-      play: '.Root__now-playing-bar .player-controls__buttons button:nth-child(3)',
-      previous: '.Root__now-playing-bar .player-controls__buttons button:nth-child(2)',
-      next: '.Root__now-playing-bar .player-controls__buttons button:nth-child(4)'
+      play: '.Root__now-playing-bar .player-controls__buttons > button',
+      previous: '.Root__now-playing-bar .player-controls__left button:nth-of-type(2)',
+      next: '.Root__now-playing-bar .player-controls__right button'
     },
     {
       rx: /^https:\/\/www\.twitch\.tv\//,

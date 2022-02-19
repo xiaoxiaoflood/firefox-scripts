@@ -9,6 +9,7 @@
 
 UC.rebuild = {
   PREF_TOOLSBUTTON: 'userChromeJS.showtoolbutton',
+  PREF_OPENWITHSYSTEMDEFAULT: 'userChromeJS.openWithSystemDefault',
 
   menues: [],
 
@@ -34,7 +35,7 @@ UC.rebuild = {
     if (Object.keys(_uc.scripts).length > 1)
       event.target.appendChild(this.elBuilder(document, 'menuseparator'));
 
-    Object.values(_uc.scripts).forEach(script => {
+    Object.values(_uc.scripts).sort((a, b) => a.name.localeCompare(b.name)).forEach(script => {
       if (script.filename === _uc.ALWAYSEXECUTE) {
         return;
       }
@@ -80,7 +81,7 @@ UC.rebuild = {
 
     // Populate with new entries
     let scriptMenuItems = [];
-    Object.values(_uc.scripts).forEach(script => {
+    Object.values(_uc.scripts).sort((a, b) => a.name.localeCompare(b.name)).forEach(script => {
       if (_uc.ALWAYSEXECUTE.includes(script.filename))
         return;
 
@@ -152,19 +153,35 @@ UC.rebuild = {
 
   launchEditor: function (script) {
     let editor = xPref.get('view_source.editor.path');
-    if (!editor) {
-      editor = prompt('Editor not defined. Paste the full path of your text editor', 'C:\\WINDOWS\\system32\\notepad.exe');
+    let useSystemDefault = xPref.get(this.PREF_OPENWITHSYSTEMDEFAULT);
+    if (!editor && !useSystemDefault) {
+      editor = prompt('Editor not defined. Paste the full path of your text editor or click cancel to use system default.', 'C:\\WINDOWS\\system32\\notepad.exe');
       if (editor)
         xPref.set('view_source.editor.path', editor);
+      else
+        useSystemDefault = xPref.set(this.PREF_OPENWITHSYSTEMDEFAULT, true);
     }
-    try {
-      let appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
-      appfile.initWithPath(editor);
-      let process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
-      process.init(appfile);
-      process.run(false, [script.file.path], 1, {});
-    } catch {
-      alert('Can\'t open the editor. Go to about:config and set editor\'s path in view_source.editor.path.');
+    if (useSystemDefault) {
+      script.file.launch();
+    } else {
+      let editorArgs = [];
+      let args = Services.prefs.getCharPref('view_source.editor.args');
+      if (args) {
+        const argumentRE = /"([^"]+)"|(\S+)/g;
+        while (argumentRE.test(args)) {
+          editorArgs.push(RegExp.$1 || RegExp.$2);
+        }
+      }
+      editorArgs.push(script.file.path);
+      try {
+        let appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
+        appfile.initWithPath(editor);
+        let process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+        process.init(appfile);
+        process.run(false, editorArgs, editorArgs.length, {});
+      } catch {
+        alert('Can\'t open the editor. Go to about:config and set editor\'s path in view_source.editor.path.');
+      }
     }
   },
 

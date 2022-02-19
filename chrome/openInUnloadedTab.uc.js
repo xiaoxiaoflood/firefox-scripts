@@ -64,7 +64,7 @@ UC.openInUnloadedTab = {
     menuitem.addEventListener('command', () => this.openTab(win, win.gContextMenu.linkURL, win.gContextMenu.linkTextStr));
 
     let contextMenu = document.getElementById('contentAreaContextMenu');
-    document.getElementById('context-openlinkintab').insertAdjacentElement('afterend', menuitem);
+    document.getElementById('context-openlinkinusercontext-menu').insertAdjacentElement('beforebegin', menuitem);
     contextMenu.addEventListener('popupshowing', this.contentContext);
     contextMenu.addEventListener('popuphidden', this.hideContext);
   },

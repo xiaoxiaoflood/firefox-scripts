@@ -95,12 +95,6 @@ UC.statusBar = {
       win.statusbar.textNode.appendChild(StatusPanel._labelElement);
     win.statusbar.node.appendChild(win.statusbar.textNode);
 
-    let resizerContainer = _uc.createElement(document, 'toolbaritem', {id: 'resizer-container'});
-    let resizer = _uc.createElement(document, 'resizer');
-    resizer.setAttribute('dir', 'bottomend');
-    resizerContainer.appendChild(resizer);
-    win.statusbar.node.appendChild(resizerContainer);
-
     win.eval('Object.defineProperty(StatusPanel, "_label", {' + Object.getOwnPropertyDescriptor(StatusPanel, '_label').set.toString().replace(/^set _label/, 'set').replace(/((\s+)this\.panel\.setAttribute\("inactive", "true"\);)/, '$2this._labelElement.value = val;$1') + ', enumerable: true, configurable: true});');
 
     let bottomBox = document.getElementById('browser-bottombox');
@@ -139,19 +133,10 @@ UC.statusBar = {
             justify-content: center !important;
             align-content: center !important;
             flex-direction: column !important;
+            -moz-window-dragging: drag;
           }
-          @media (-moz-toolbar-prefers-color-scheme: light) {
-            #browser-bottombox:not([collapsed]) {
-              border-top: 1px solid var(--panel-separator-color) !important;
-            }
-          }
-          @media (-moz-toolbar-prefers-color-scheme: dark) {
-            #status-bar {
-              background-color: var(--toolbar-bgcolor);
-            }
-            #status-text > #statuspanel-label {
-              color: var(--lwt-text-color) !important;
-            }
+          #browser-bottombox:not([collapsed]) {
+            border-top: 1px solid var(--panel-separator-color) !important;
           }
         }
       `)),

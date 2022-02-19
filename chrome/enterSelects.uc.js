@@ -68,9 +68,8 @@ UC.enterSelects = {
       if (gURLBar.view.selectedRowIndex == 1 &&
           gURLBar.value != url &&
           new RegExp(/^(https?:\/\/(www\.)?)?/.source + gURLBar.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).test(url) &&
-          gURLBar.value != url.match(/(\w*:\/\/)?.+\..+?\//)[0]) {
-        gURLBar.inputField.value = gURLBar._untrimmedValue = gURLBar._trimValue(url.match(/(\w*:\/\/)?.+\..+?\//)[0] + '/').slice(0, -1);
-        /* quando browser.urlbar.trimURLs = true, _trimValue() em url terminada em '.tld/' remove o '/', o que não é desejado porque a ideia deste "atalho" tab é facilitar o preenchimento de algo depois da barra. Eu não poderia adicionar um '/' depois do _trimValue() porque em caso de trim desabilitado ficaria com duas barras. A solução mais prática é esta, incluir um caractere antes de aplicar o _trimValue() para que a barra não seja removida, aí depois só remove este caractere adicionado. */
+          gURLBar.value != url.match(/(\w*:\/\/)?[^/]+\//)[0]) {
+        gURLBar.inputField.value = gURLBar._untrimmedValue = gURLBar._trimValue(url.match(/(\w*:\/\/)?[^/]+\//)[0] + '/').slice(0, -1);
         gURLBar.view.close();
         e.preventDefault();
         e.stopPropagation();

@@ -116,7 +116,7 @@ UC.Redirector = {
     if (httpChannel.loadInfo.originAttributes.firstPartyDomain.startsWith('(view-source'))
       return;
     let contentType = httpChannel.loadInfo.externalContentPolicyType;
-    if (contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT) {
+    if (contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT && httpChannel.requestMethod == 'GET') {
       let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec);
       if (redirectUrl) {
         let loadInfo = httpChannel.loadInfo;
