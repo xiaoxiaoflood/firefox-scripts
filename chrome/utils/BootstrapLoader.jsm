@@ -23,7 +23,7 @@ Services.obs.addObserver(doc => {
     win.customElements.get('addon-card').prototype.handleEvent = function (e) {
       if (e.type === 'click' &&
           e.target.getAttribute('action') === 'preferences' &&
-          this.addon.optionsType == AddonManager.OPTIONS_TYPE_DIALOG) {
+          this.addon.optionsType == 1/*AddonManager.OPTIONS_TYPE_DIALOG*/) {
         var windows = Services.wm.getEnumerator(null);
         while (windows.hasMoreElements()) {
           var win2 = windows.getNext();
@@ -38,7 +38,7 @@ Services.obs.addObserver(doc => {
         var features = 'chrome,titlebar,toolbar,centerscreen';
         var instantApply = Services.prefs.getBoolPref('browser.preferences.instantApply');
         features += instantApply ? ',dialog=no' : '';
-        win.docShell.rootTreeItem.domWindow.openDialog(this.addon.optionsURL, this.addon.id, features); 
+        win.docShell.rootTreeItem.domWindow.openDialog(this.addon.optionsURL, this.addon.id, features);
       } else {
         handleEvent_orig.apply(this, arguments);
       }
@@ -46,22 +46,11 @@ Services.obs.addObserver(doc => {
     let update_orig = win.customElements.get('addon-options').prototype.update;
     win.customElements.get('addon-options').prototype.update = function (card, addon) {
       update_orig.apply(this, arguments);
-      if (addon.optionsType == AddonManager.OPTIONS_TYPE_DIALOG)
+      if (addon.optionsType == 1/*AddonManager.OPTIONS_TYPE_DIALOG*/)
         this.querySelector('panel-item[data-l10n-id="preferences-addon-button"]').hidden = false;
     }
   }
 }, 'chrome-document-loaded');
-
-const Object = Cu.getGlobalForObject(Cu).Object;
-const { freeze } = Object;
-Object.freeze = obj => {
-  if (Components.stack.caller.filename != 'resource://gre/modules/AddonManager.jsm' || !obj.OPTIONS_TYPE_TAB)
-    return freeze(obj);
-
-  obj.OPTIONS_TYPE_DIALOG = 1;
-  Object.freeze = freeze;
-  return freeze(obj);
-}
 
 const {AddonManager} = ChromeUtils.import('resource://gre/modules/AddonManager.jsm');
 const {XPIDatabase, AddonInternal} = ChromeUtils.import('resource://gre/modules/addons/XPIDatabase.jsm');
@@ -77,7 +66,7 @@ defineAddonWrapperProperty('optionsType', function optionsType() {
 
   if (addon.optionsType) {
     switch (parseInt(addon.optionsType, 10)) {
-      case AddonManager.OPTIONS_TYPE_DIALOG:
+      case 1/*AddonManager.OPTIONS_TYPE_DIALOG*/:
       case AddonManager.OPTIONS_TYPE_TAB:
       case AddonManager.OPTIONS_TYPE_INLINE_BROWSER:
         return hasOptionsURL ? addon.optionsType : null;
@@ -270,7 +259,7 @@ var BootstrapLoader = {
       }
 
       if (addon.optionsType &&
-          addon.optionsType != AddonManager.OPTIONS_TYPE_DIALOG &&
+          addon.optionsType != 1/*AddonManager.OPTIONS_TYPE_DIALOG*/ &&
           addon.optionsType != AddonManager.OPTIONS_TYPE_INLINE_BROWSER &&
           addon.optionsType != AddonManager.OPTIONS_TYPE_TAB) {
             throw new Error('Install manifest specifies unknown optionsType: ' + addon.optionsType);
@@ -430,3 +419,13 @@ var BootstrapLoader = {
 };
 
 AddonManager.addExternalExtensionLoader(BootstrapLoader);
+
+if (AddonManager.isReady) {
+  AddonManager.getAllAddons().then(addons => {
+    addons.forEach(addon => {
+      if (addon.type == 'extension' && !addon.isWebExtension && !addon.userDisabled) {
+        addon.reload();
+      };
+    });
+  });
+}
