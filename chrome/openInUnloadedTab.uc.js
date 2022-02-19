@@ -18,7 +18,7 @@ UC.openInUnloadedTab = {
   exec: function (win) {
     let {document} = win;
 
-    let openAll = document.getElementById('placesContext_openBookmarkContainer:tabs');
+    let openAll = document.getElementById('placesContext_openContainer:tabs');
     let openAllUnloaded = _uc.createElement(document, 'menuitem', {
       id: 'openAllUnloaded',
       label: 'Open All in Unloaded Tabs',
@@ -27,7 +27,7 @@ UC.openInUnloadedTab = {
       hidden: 'true',
       oncommand: 'let view = PlacesUIUtils.getViewForNode(PlacesUIUtils.lastContextMenuTriggerNode); UC.openInUnloadedTab.openTabs(window, view.selectedNode || view.selectedNodes || view.result.root);',
     });
-    openAll.insertAdjacentElement('afterend', openAllUnloaded);
+    openAll.insertAdjacentElement('beforebegin', openAllUnloaded);
 
     let openAllLinks = document.getElementById('placesContext_openLinks:tabs');
     let openAllLinksUnloaded = _uc.createElement(document, 'menuitem', {
@@ -40,7 +40,7 @@ UC.openInUnloadedTab = {
     });
     openAllLinks.insertAdjacentElement('afterend', openAllLinksUnloaded);
 
-    let openTab = document.getElementById('placesContext_open:newtab');
+    let openTab = document.getElementById('placesContext_openContainer:tabs');
     let openUnloaded = _uc.createElement(document, 'menuitem', {
       id: 'openUnloaded',
       label: 'Open in a New Unloaded Tab',
@@ -49,7 +49,7 @@ UC.openInUnloadedTab = {
       hidden: 'true',
       oncommand: 'let view = PlacesUIUtils.getViewForNode(PlacesUIUtils.lastContextMenuTriggerNode); UC.openInUnloadedTab.openTab(window, view.selectedNode.uri);',
     });
-    openTab.insertAdjacentElement('afterend', openUnloaded);
+    openTab.insertAdjacentElement('beforebegin', openUnloaded);
 
     document.getElementById('placesContext').addEventListener('popupshowing', this.placesContext);
 
