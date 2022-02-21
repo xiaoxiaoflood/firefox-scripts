@@ -46,6 +46,14 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/BeQuiet.uc.js). 
 </details>
 <details>
+  <summary>Context Menu - Hide on Click</summary>
+ For super lazy like me. On Linux, at least on my setup, if you open contextmenu by right-clicking, but give up while still haven't moved the cursor, you can't close it by left-clicking, you need to move away first because the point behind cursor is part of contextmenu. This script fixes it by setting contextmenu starting position 1px away from cursor.
+ 
+ When I was a Windows 10 user I didn't need this script.
+ 
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/contextHideOnClick.uc.js). 
+</details>
+<details>
   <summary>Enter Selects</summary>
   Have you ever been frustrated because you wanted Firefox to autofill "https://www.youtube.com/feed/subscriptions" when you type "youtube" in location bar? That's because Firefox only autofills domains, so it will never go further than just "https://www.youtube.com/". Also because of this, Firefox will never autofill "https://www.reddit.com/r/firefox/" when you type "firefox", no matter how many times you've visited that page.
   
