@@ -22,6 +22,8 @@ UC.WheelAutoScroll_1px = {
                replace(/!this.autoscrollEnabled/,
                        '!this.autoscrollEnabled || (this._autoScrollPopup?.state == "open" && UC.WheelAutoScroll_1px.startar)').
                replace(/^function /,
+                       '').
+               replace(/Services\.obs\.addObserver\(this\.observer, "apz:cancel-autoscroll", true\);/,
                        ''));
     eval('customElements.get(\'browser\').prototype.stopScroll = function ' +
          customElements.get('browser').prototype.stopScroll.toString().
