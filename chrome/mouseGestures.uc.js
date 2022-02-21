@@ -489,7 +489,7 @@ UC.MGest = {
         else if (type)
           url = data[type];
         else
-          url = data.videoURL || data.audioURL || data.bgImageURL || data.imageURL || data.linkURL;
+          url = data.videoURL || data.audioURL || data.linkURL || data.bgImageURL || data.imageURL;
 
         switch (action) {
           case 'copyURL':
