@@ -7,7 +7,7 @@
 // @onlyonce
 // ==/UserScript==
 
-// inspired by: https://addons.mozilla.org/firefox/addon/enter-selects/
+// inspired by: https://web.archive.org/web/20171129174355/https://addons.mozilla.org/en-US/firefox/addon/enter-selects/
 
 UC.enterSelects = {
   AUTOSELECT_WITH_SPACE: false,
