@@ -90,6 +90,8 @@
   Locks Firefox with password. This will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
   You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a Primary Password</i>.
+  
+  If you're a Linux KDE Plasma user like me, you might want to install my other script **Notification XUL Fix Position**.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/masterPasswordPlus.uc.js).  
 
@@ -151,6 +153,15 @@
   ![](https://i.imgur.com/BE7oPcu.png)
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/multifoxContainer.uc.js).
+</details>
+<details>
+  <summary>Notification XUL Fix Position</summary>
+ 
+  On Linux, Firefox reuses OS native backend to display notifications. This affects my other script **Master Password+** which should prevent notification leakage when in locked state. So just set `alerts.useSystemBackend = false` for Firefox to use its own backend (XUL) to display notifications.
+ 
+ But Firefox has a bug, at least for KDE Plasma users like me, causing XUL notification popups to show up at wrong place. I use taskbar at bottom just like it's on Windows, so notification should emerge at bottom right, but it's appearing at top right. This tiny script fix that.
+
+  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/notificationPosition.uc.js).
 </details>
 <details>
   <summary>Open in Unloaded Tab</summary>
