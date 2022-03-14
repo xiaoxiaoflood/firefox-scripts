@@ -159,7 +159,7 @@
  
   On Linux, Firefox reuses OS native backend to display notifications. This affects my other script **Master Password+** which should prevent notification leakage when in locked state. So just set `alerts.useSystemBackend = false` for Firefox to use its own backend (XUL) to display notifications.
  
- But Firefox has a bug, at least for KDE Plasma users like me, causing XUL notification popups to show up at wrong place. I use taskbar at bottom just like it's on Windows, so notification should emerge at bottom right, but it's appearing at top right. This tiny script fix that.
+ But Firefox has a bug, at least for KDE Plasma users like me, causing XUL notification popups to show up at wrong place. I use taskbar at bottom just like it's on Windows, so notification should emerge at bottom right, but it's appearing at top right. This tiny script fixes that.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/notificationPosition.uc.js).
 </details>
