@@ -163,7 +163,7 @@ UC.statusBar = {
       doc.getElementById('status-dummybar').remove();
       win.statusbar.node.remove();
     });
-    Services.obs.removeObserver(this.exec, 'browser-delayed-startup-finished');
+    Services.obs.removeObserver(this, 'browser-delayed-startup-finished');
     delete UC.statusBar;
   }
 }
