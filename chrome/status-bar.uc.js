@@ -44,6 +44,8 @@ UC.statusBar = {
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
 
     CustomizableUI.registerArea('status-bar', {});
+
+    Services.obs.addObserver(this, 'browser-delayed-startup-finished');
   },
 
   exec: function (win) {
@@ -101,9 +103,14 @@ UC.statusBar = {
     if (!this.enabled)
       bottomBox.collapsed = true;
 
-    CustomizableUI.registerToolbarNode(win.statusbar.node);
     bottomBox.appendChild(win.statusbar.node);
-    win.statusbar.node.parentNode = bottomBox;
+
+    if (document.readyState === 'complete')
+      this.observe(win);
+  },
+
+  observe: function (win) {
+    CustomizableUI.registerToolbarNode(win.statusbar.node);
   },
 
   orig: Object.getOwnPropertyDescriptor(StatusPanel, '_label').set.toString(),
@@ -156,6 +163,7 @@ UC.statusBar = {
       doc.getElementById('status-dummybar').remove();
       win.statusbar.node.remove();
     });
+    Services.obs.removeObserver(this.exec, 'browser-delayed-startup-finished');
     delete UC.statusBar;
   }
 }
