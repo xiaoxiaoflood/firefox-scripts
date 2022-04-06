@@ -181,7 +181,8 @@ UC.privateTab = {
     MozElements.MozTab.prototype.getAttribute = function (att) {
       if (att == 'usercontextid' && this.isToggling) {
         delete this.isToggling;
-        return UC.privateTab.orig_getAttribute.call(this, att) ? 0 : UC.privateTab.container.userContextId;
+        return UC.privateTab.orig_getAttribute.call(this, att) ==
+               UC.privateTab.container.userContextId ? 0 : UC.privateTab.container.userContextId;
       } else {
         return UC.privateTab.orig_getAttribute.call(this, att);
       }
@@ -263,6 +264,9 @@ UC.privateTab = {
 
     this.setStyle();
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
+
+    ChromeUtils.import('resource:///modules/sessionstore/TabStateFlusher.jsm', this);
+    ChromeUtils.import('resource:///modules/sessionstore/TabStateCache.jsm', this);
 
     let { gSeenWidgets } = Cu.import('resource:///modules/CustomizableUI.jsm');
     let firstRun = !gSeenWidgets.has(this.BTN_ID);
@@ -355,6 +359,12 @@ UC.privateTab = {
     tab.isToggling = true;
     let shouldSelect = tab == win.gBrowser.selectedTab;
     let newTab = gBrowser.duplicateTab(tab);
+    let newBrowser = newTab.linkedBrowser;
+    this.TabStateFlusher.flush(newBrowser).then(() => {
+      this.TabStateCache.update(newBrowser.permanentKey, {
+        userContextId: newTab.userContextId
+      });
+    });
     if (shouldSelect) {
       let gURLBar = win.gURLBar;
       let focusUrlbar = gURLBar.focused;
