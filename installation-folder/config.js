@@ -13,6 +13,11 @@ Object.freeze = obj => {
 }
 
 try {
-  const { Services } = Cu.import('resource://gre/modules/Services.jsm');
-  Cu.import(Services.io.newFileURI(Services.dirsvc.get('ProfD', Ci.nsIFile)).spec + 'chrome/utils/boot.jsm');
+  let cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
+  cmanifest.append('utils');
+  cmanifest.append('chrome.manifest');
+  Components.manager.QueryInterface(Ci.nsIComponentRegistrar).autoRegister(cmanifest);
+
+  Cu.import('chrome://userchromejs/content/BootstrapLoader.jsm');
+  Cu.import('chrome://userchromejs/content/userChrome.jsm');
 } catch (ex) {};
