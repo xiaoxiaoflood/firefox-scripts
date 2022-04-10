@@ -46,8 +46,7 @@ UC.beQuiet = {
   ],
 
   exec: function (win) {
-    let document = win.document;
-    let gBrowser = win.gBrowser;
+    const { document, gBrowser } = win;
     gBrowser.addTabsProgressListener(this.progressListener);
     gBrowser.addEventListener('DOMAudioPlaybackStarted', this.audioStarted);
     gBrowser.addEventListener('DOMAudioPlaybackStopped', this.audioStopped);
@@ -83,7 +82,7 @@ UC.beQuiet = {
   },
 
   onTabClose (ev) {
-    let closedBrowser = gBrowser.getBrowserForTab(ev.target);
+    let closedBrowser = ev.target.ownerGlobal.gBrowser.getBrowserForTab(ev.target);
     if (UC.beQuiet.playingStack.includes(closedBrowser)) {
       if (closedBrowser == UC.beQuiet.playingBrowser) {
         UC.beQuiet.doAction('play', UC.beQuiet.prevPlayingBrowser);
