@@ -82,7 +82,7 @@ UC.beQuiet = {
   },
 
   onTabClose (ev) {
-    let closedBrowser = ev.target.ownerGlobal.gBrowser.getBrowserForTab(ev.target);
+    let closedBrowser = ev.target.linkedBrowser;
     if (UC.beQuiet.playingStack.includes(closedBrowser)) {
       if (closedBrowser == UC.beQuiet.playingBrowser) {
         UC.beQuiet.doAction('play', UC.beQuiet.prevPlayingBrowser);
