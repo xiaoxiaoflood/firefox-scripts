@@ -9,8 +9,7 @@
 
 UC.multifoxContainer = {
   exec: function (win) {
-    let document = win.document;
-    let gBrowser = win.gBrowser;
+    const { document, gBrowser } = win;
 
     let mfcm = _uc.createElement(document, 'menupopup', {
       id: 'mf-contextmenu',
@@ -61,8 +60,8 @@ UC.multifoxContainer = {
   },
 
   showPopup: function (win) {
-    let document = win.document;
-    let userContextId = win.gBrowser.selectedTab.userContextId;
+    const { ContextualIdentityService, document, gBrowser } = win;
+    let userContextId = gBrowser.selectedTab.userContextId;
     let menupopup = document.getElementById('mf-contextmenu');
 
     let firstChild;
@@ -132,7 +131,7 @@ UC.multifoxContainer = {
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
 
     _uc.windows((doc, win) => {
-      let gBrowser = win.gBrowser;
+      const { gBrowser } = win;
       doc.getElementById('mf-contextmenu').remove();
       gBrowser.addTab = gBrowser.orig_addTab;
       delete gBrowser.orig_addTab;

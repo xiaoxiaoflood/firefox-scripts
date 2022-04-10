@@ -9,6 +9,7 @@
 
 // initially forked from https://web.archive.org/web/20131025160814/http://www.cnblogs.com/ziyunfei/archive/2011/12/15/2289504.html
 
+const { XPCOMUtils } = ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyGetter(this, 'SelectionUtils', function() {
   let { SelectionUtils } = Cu.import('resource://gre/modules/SelectionUtils.jsm');
   return SelectionUtils;
@@ -722,7 +723,6 @@ UC.MGest = {
         if (this.directionChain) {
           event.preventDefault();
           event.stopPropagation();
-          const { gBrowser } = win;
           this.stopGesture(this.directionChain + (event.deltaY > 0 ? '+' : '-'), win);
         }
         break;
@@ -753,7 +753,7 @@ UC.MGest = {
     Services.mm.removeMessageListener('contentToChrome', this.chromeListener);
 
     _uc.windows((doc, win) => {
-      const { messageManager } = win;
+      const { customElements } = win;
 
       ['contextmenu', 'dragend', 'mousedown', 'mouseup', 'wheel'].forEach(type => {
         doc.removeEventListener(type, this, true);

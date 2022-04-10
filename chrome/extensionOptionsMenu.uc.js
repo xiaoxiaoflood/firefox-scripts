@@ -17,6 +17,7 @@ UC.extensionOptionsMenu = {
   blackListArray: [],
 
   init: function() {
+    const { CustomizableUI } = window;
     CustomizableUI.createWidget({
       id: 'eom-button',
       type: 'custom',
@@ -98,32 +99,38 @@ UC.extensionOptionsMenu = {
     });
   },
 
-  handleClick: function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    let win = e.view;
-    let mi = e.target;
-    if (!('_Addon' in mi)) {
+  handleClick: function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const {
+      target: menuitem,
+      view: win
+    } = event;
+
+    const { AddonManager, closeMenus, openURL } = win;
+
+    if (!('_Addon' in menuitem)) {
       return;
     }
 
-    let addon = mi._Addon;
-    let hasMdf = e.ctrlKey || e.shiftKey || e.altKey || e.metaKey;
+    let addon = menuitem._Addon;
+    let hasMdf = event.ctrlKey || event.shiftKey || event.altKey || event.metaKey;
 
-    switch (e.button) {
+    switch (event.button) {
       case 0:
         if (addon.optionsURL && !hasMdf)
           UC.extensionOptionsMenu.openAddonOptions(addon, win);
-        else if (e.ctrlKey)
+        else if (event.ctrlKey)
           UC.extensionOptionsMenu.browseDir(addon);
         break;
       case 1:
         if (addon.homepageURL && !hasMdf) {
           openURL(addon.homepageURL);
-          closeMenus(mi);
-        } else if (e.ctrlKey) {
+          closeMenus(menuitem);
+        } else if (event.ctrlKey) {
           Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(addon.id);
-          closeMenus(mi);
+          closeMenus(menuitem);
         }
         break;
       case 2:
@@ -132,8 +139,8 @@ UC.extensionOptionsMenu = {
             addon.enable();
           else
             addon.disable();
-          UC.extensionOptionsMenu.setDisable(mi, addon, 1);
-        } else if (e.ctrlKey) {
+          UC.extensionOptionsMenu.setDisable(menuitem, addon, 1);
+        } else if (event.ctrlKey) {
           if (Services.prompt.confirm(null, null, 'Delete ' + addon.name + ' permanently?')) {
             if (addon.pendingOperations & AddonManager.PENDING_UNINSTALL)
               addon.cancelUninstall();
@@ -150,8 +157,8 @@ UC.extensionOptionsMenu = {
     }
   },
 
-  setDisable: function (mi, addon, toggling) {
-    let cls = mi.classList;
+  setDisable: function (menuitem, addon, toggling) {
+    let cls = menuitem.classList;
 
     if (addon.operationsRequiringRestart) {
       if (toggling)
@@ -246,7 +253,7 @@ UC.extensionOptionsMenu = {
   },
 
   destroy: function () {
-    CustomizableUI.destroyWidget('eom-button');
+    Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('eom-button');
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
     delete UC.extensionOptionsMenu;
   }

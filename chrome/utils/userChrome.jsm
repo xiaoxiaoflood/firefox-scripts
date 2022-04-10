@@ -59,7 +59,6 @@ let _uc = {
       file: aFile,
       url: Services.io.getProtocolHandler('file').QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromDir(this.chromedir) + filename,
       name: (header.match(/\/\/ @name\s+(.+)\s*$/im) || def)[1],
-      charset: (header.match(/\/\/ @charset\s+(.+)\s*$/im) || def)[1],
       description: (header.match(/\/\/ @description\s+(.+)\s*$/im) || def)[1],
       version: (header.match(/\/\/ @version\s+(.+)\s*$/im) || def)[1],
       author: (header.match(/\/\/ @author\s+(.+)\s*$/im) || def)[1],
@@ -111,11 +110,8 @@ let _uc = {
     }
 
     try {
-      if (script.charset) {
-        Services.scriptloader.loadSubScript(script.url + '?' + script.file.lastModifiedTime, win, script.charset);
-      } else {
-        Services.scriptloader.loadSubScript(script.url + '?' + script.file.lastModifiedTime, win, 'UTF-8');
-      }
+      Services.scriptloader.loadSubScript(script.url + '?' + script.file.lastModifiedTime,
+                                          script.onlyonce ? { window: win } : win);
       script.isRunning = true;
       if (script.startup) {
         eval(script.startup);

@@ -110,17 +110,18 @@ UC.rebuild = {
 	},
 
   clickScriptMenu: function (event) {
-    const { button, ctrlKey, target } = event;
+    const { target } = event;
+    const { closeMenus, gBrowser } = event.view;
     const script = _uc.scripts[target.filename];
-    switch (button) {
+    switch (event.button) {
       case 0:
         this.toggleScript(script);
-        if (ctrlKey)
+        if (event.ctrlKey)
           this.toggleScript(script);
         closeMenus(target);
         break;
       case 1:
-        if (ctrlKey) {
+        if (event.ctrlKey) {
           let url = target.getAttribute('homeURL');
           if (url) {
             gBrowser.addTab(url, { triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({}) });
@@ -133,7 +134,7 @@ UC.rebuild = {
         }
         break;
       case 2:
-        if (ctrlKey)
+        if (event.ctrlKey)
           this.uninstall(script);
         else
           this.launchEditor(script);
@@ -310,6 +311,7 @@ UC.rebuild = {
     });
 
     if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
+      const { CustomizableUI } = window;
       CustomizableUI.createWidget({
         id: 'userChromebtnMenu',
         type: 'custom',

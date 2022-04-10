@@ -12,7 +12,7 @@ UC.masterPasswordPlus = {
     if (!win.isChromeWindow || win != win.top)
       return;
 
-    let document = win.document;
+    const { document, setTimeout } = win;
 
     let keyset =  _uc.createElement(document, 'keyset', { id: 'masterPassword-keyset' });
     let mainKeyset = document.getElementById('mainKeyset');
@@ -105,7 +105,7 @@ UC.masterPasswordPlus = {
   },
 
   onTitleChanged: function (win) {
-    let document = win.document;
+    const { document, MutationObserver } = win;
     let observer = new MutationObserver(mutationsList => {
       if (mutationsList[0].oldValue !== document.title && document.title != '🞻🞻🞻🞻🞻🞻') {
         win.titulo = document.title;

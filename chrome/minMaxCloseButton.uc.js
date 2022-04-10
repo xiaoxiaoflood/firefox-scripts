@@ -10,6 +10,7 @@
 
 UC.MinMaxCloseButton = {
   init: function () {
+    const { CustomizableUI } = window;
     CustomizableUI.createWidget({
       id: 'minMaxClose-button',
       type: 'custom',
@@ -40,7 +41,7 @@ UC.MinMaxCloseButton = {
         let max = win.document.getElementById('main-window').getAttribute('sizemode') == 'maximized' ? true : false;
         if ((!e.shiftKey && max) ||
             (e.shiftKey && !max && !(win.screenX === -5 && win.screenY === 0 && win.innerWidth === 1992 && win.innerHeight === 1056))) {
-          win.resizeTo(1992, 1056);
+          win.resizeTo(1975, 1052);
           win.moveTo(-5, 0);
         } else if (max && e.shiftKey) {
           win.restore();
@@ -54,7 +55,7 @@ UC.MinMaxCloseButton = {
   },
   
   destroy: function () {
-    CustomizableUI.destroyWidget('minMaxClose-button');
+    Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('minMaxClose-button');
     delete UC.MinMaxCloseButton;
   }
 }

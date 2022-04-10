@@ -13,6 +13,7 @@ UC.ExtensionsUpdateChecker = {
   OBS_TOPIC_BG_UPD_COMPLETE: 'addons-background-update-complete',
 
   observe: async function () {
+    const { AddonManager, BrowserOpenAddonsMgr } = Services.wm.getMostRecentBrowserWindow();
     let addons = await AddonManager.getAllAddons();
     if (addons.some(addon => addon.updateInstall && !this.ignoreList.includes(addon.name)))
       BrowserOpenAddonsMgr('addons://updates/available');

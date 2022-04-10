@@ -10,6 +10,16 @@
 // @onlyonce
 // ==/UserScript==
 
+const {
+  AddonManager,
+  ContextualIdentityService,
+  customElements,
+  CustomizableUI,
+  gBrowser,
+  MozElements,
+  PlacesUIUtils
+} = window;
+
 UC.privateTab = {
   config: {
     neverClearData: false, // if you want to not record history but don't care about other data, maybe even want to keep private logins
@@ -514,6 +524,12 @@ UC.privateTab = {
   },
 
   destroy: function () {
+    const {
+      ContextualIdentityService,
+      CustomizableUI,
+      PlacesUIUtils
+    } = Services.wm.getMostRecentBrowserWindow();
+
     if (this.config.deleteContainerOnDisable)
       ContextualIdentityService.remove(this.container.userContextId);
     else if (this.config.clearDataOnDisable)

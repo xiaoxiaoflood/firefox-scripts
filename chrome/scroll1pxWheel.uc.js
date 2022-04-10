@@ -7,9 +7,11 @@
 // @onlyonce
 // ==/UserScript==
 
+const { customElements } = window;
+
 UC.WheelAutoScroll_1px = {
   exec: function (win) {
-    let customElements = win.customElements;
+    const { content, customElements, setTimeout } = win;
     win.eval('customElements.get(\'browser\').prototype.startScroll = function ' +
              customElements.get('browser').prototype.startScroll.toString().
                replace(/window\.addEventListener\("DOMMouseScroll", this, true\);/,
@@ -90,15 +92,14 @@ UC.WheelAutoScroll_1px = {
     Services.mm.removeDelayedFrameScript(this.frameScript);
     Services.mm.broadcastAsyncMessage('autoscroll', { destroy: true });
     _uc.windows((doc, win) => {
-      let customElements = win.customElements;
-      let eval = win.eval;
+      const { customElements, eval, gBrowser } = win;
       eval('customElements.get(\'browser\').prototype.startScroll = function ' +
                this.startScroll_orig);
       eval('customElements.get(\'browser\').prototype.stopScroll = function ' +
                this.stopScroll_orig);
       eval('customElements.get(\'browser\').prototype.handleEvent = function ' +
                this.handleEvent_orig);
-      win.gBrowser.browsers.forEach(browser => {
+      gBrowser.browsers.forEach(browser => {
         if ('handleEventWrapper' in browser) {
           delete browser.handleEventWrapper;
         }

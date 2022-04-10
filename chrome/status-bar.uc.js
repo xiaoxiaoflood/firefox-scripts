@@ -7,6 +7,8 @@
 // @onlyonce
 // ==/UserScript==
 
+const { CustomizableUI, StatusPanel } = window;
+
 UC.statusBar = {
   PREF_ENABLED: 'userChromeJS.statusbar.enabled',
   PREF_STATUSTEXT: 'userChromeJS.statusbar.appendStatusText',
@@ -152,16 +154,18 @@ UC.statusBar = {
   },
   
   destroy: function () {
+    const { CustomizableUI } = Services.wm.getMostRecentBrowserWindow();
+
     xPref.removeListener(this.enabledListener);
     xPref.removeListener(this.textListener);
     CustomizableUI.unregisterArea('status-bar');
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
     _uc.windows((doc, win) => {
-      win.eval('Object.defineProperty(StatusPanel, "_label", {' + this.orig.replace(/^set _label/, 'set') + ', enumerable: true, configurable: true});');
-      let StatusPanel = win.StatusPanel;
+      const { eval, statusbar, StatusPanel } = win;
+      eval('Object.defineProperty(StatusPanel, "_label", {' + this.orig.replace(/^set _label/, 'set') + ', enumerable: true, configurable: true});');
       StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
       doc.getElementById('status-dummybar').remove();
-      win.statusbar.node.remove();
+      statusbar.node.remove();
     });
     Services.obs.removeObserver(this, 'browser-delayed-startup-finished');
     delete UC.statusBar;
