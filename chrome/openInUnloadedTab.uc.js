@@ -12,7 +12,10 @@
 
 // based on https://addons.mozilla.org/en-US/firefox/addon/open-link-in-silent-tab/
 
-const { PlacesUtils } = ChromeUtils.import('resource://gre/modules/PlacesUtils.jsm');
+const {
+  BrowserWindowTracker,
+  PlacesUtils
+} = window;
 
 UC.openInUnloadedTab = {
   useLinkAsTabTitle: true, // if Fx can't retrieve title from history or bookmarks (so you never visited the link), should the new tab title be the text link or the url?

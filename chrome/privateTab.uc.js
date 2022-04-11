@@ -17,7 +17,9 @@ const {
   CustomizableUI,
   gBrowser,
   MozElements,
-  PlacesUIUtils
+  PlacesUIUtils,
+  PlacesUtils,
+  PrivateBrowsingUtils
 } = window;
 
 UC.privateTab = {
