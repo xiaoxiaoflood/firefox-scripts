@@ -7,6 +7,9 @@
 // @onlyonce
 // ==/UserScript==
 
+const { TabStateFlusher } = ChromeUtils.import('resource:///modules/sessionstore/TabStateFlusher.jsm');
+const { TabStateCache } = ChromeUtils.import('resource:///modules/sessionstore/TabStateCache.jsm');
+
 UC.multifoxContainer = {
   exec: function (win) {
     const { document, gBrowser } = win;
@@ -96,9 +99,14 @@ UC.multifoxContainer = {
     let gBrowser = win.gBrowser;
     gBrowser.toUserContextId = id;
     let tab = gBrowser.selectedTab;
-    gBrowser.selectedTab = gBrowser.duplicateTab(tab);
-    const { TabStateInternal } = Cu.import('resource:///modules/sessionstore/TabState.jsm');
-    TabStateInternal.update(gBrowser.selectedBrowser, { data: { userContextId: id } });
+    let newTab = gBrowser.duplicateTab(tab);
+    gBrowser.selectedTab = newTab;
+    let newBrowser = newTab.linkedBrowser;
+    TabStateFlusher.flush(newBrowser).then(() => {
+      TabStateCache.update(newBrowser.permanentKey, {
+        userContextId: newTab.userContextId
+      });
+    });
     if (btn == 0)
       gBrowser.removeTab(tab);
   },
