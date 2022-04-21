@@ -321,6 +321,7 @@ UC.rebuild = {
         }
       });
     } else {
+      const { document, location } = window;
       const btn = this.createButton(document);
       btn.setAttribute('removable', true);
       const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
