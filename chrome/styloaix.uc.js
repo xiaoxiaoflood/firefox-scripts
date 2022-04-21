@@ -259,16 +259,14 @@
     forceRefresh: function () {
       let win = Services.wm.getMostRecentBrowserWindow();
       let cacheVal = win.browsingContext.prefersColorSchemeOverride;
-      let mql = win.matchMedia('(prefers-color-scheme: dark)');
+      let oppositeColorScheme = Services.appinfo.chromeColorSchemeIsDark ? 'light' : 'dark';
+      let mql = win.matchMedia('(prefers-color-scheme: ' + oppositeColorScheme + ')'); 
       let lis = function () {
         mql.removeListener(lis);
         win.browsingContext.prefersColorSchemeOverride = cacheVal;
       };
       mql.addListener(lis);
-      if (cacheVal !== 'dark')
-        win.browsingContext.prefersColorSchemeOverride = 'dark';
-      else
-        win.browsingContext.prefersColorSchemeOverride = 'light';
+      win.browsingContext.prefersColorSchemeOverride = oppositeColorScheme;
     },
 
     changeStatus: function (style, aStatus) {

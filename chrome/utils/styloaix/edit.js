@@ -231,19 +231,20 @@ function save () {
       style.enabled = enabled;
       updateTitle();
       UC.styloaix.styles.set(style.fullName, style);
-      if (UC.styloaix.enabled && enabled)
+      if (UC.styloaix.enabled && enabled) {
         style.register();
-
-      unsaved = false;
-      
-      if (previewActive) {
-        _uc.sss.unregisterSheet(previewCode, previewOrigin);
-        previewActive = false;
+        toggleUI('preview-button', false);
+        if (previewActive) {
+          _uc.sss.unregisterSheet(previewCode, previewOrigin);
+          previewActive = false;
+          if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET)
+            UC.styloaix.forceRefresh();
+        }
       }
 
+      unsaved = false;
+
       toggleUI('save-button', false);
-      if (enabled)
-        toggleUI('preview-button', false);
     } else {
       alert('Error!');
     }
@@ -445,8 +446,11 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 window.addEventListener('unload', function (event) {
-  if (previewActive)
+  if (previewActive) {
     _uc.sss.unregisterSheet(previewCode, previewOrigin);
+    if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET)
+      UC.styloaix.forceRefresh();
+  }
 
   if (style?.enabled && previewActive)
     style.register();
