@@ -400,7 +400,7 @@
       xPref.unlock(this.PREF_MOZDOCUMENT);
       xPref.removeListener(this.prefListener);
       xPref.removeListener(this.prefListenerAll);
-      CustomizableUI.destroyWidget('styloaix-button');
+      Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('styloaix-button');
       this.tbButtons.forEach(b => b.remove());
       _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
       this.toggleAll({disable: true});

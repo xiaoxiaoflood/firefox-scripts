@@ -111,14 +111,13 @@ UC.rebuild = {
 
   clickScriptMenu: function (event) {
     const { target } = event;
-    const { closeMenus, gBrowser } = event.view;
+    const { gBrowser } = event.view;
     const script = _uc.scripts[target.filename];
     switch (event.button) {
       case 0:
         this.toggleScript(script);
         if (event.ctrlKey)
           this.toggleScript(script);
-        closeMenus(target);
         break;
       case 1:
         if (event.ctrlKey) {
@@ -126,7 +125,6 @@ UC.rebuild = {
           if (url) {
             gBrowser.addTab(url, { triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({}) });
           }
-          closeMenus(target);
         } else {
           this.toggleScript(script);
           if (target.tagName === 'toolbarbutton')
@@ -138,7 +136,6 @@ UC.rebuild = {
           this.uninstall(script);
         else
           this.launchEditor(script);
-        closeMenus(target);
     }
   },
 
@@ -156,10 +153,11 @@ UC.rebuild = {
     let editor = xPref.get('view_source.editor.path');
     let useSystemDefault = xPref.get(this.PREF_OPENWITHSYSTEMDEFAULT);
     if (!editor && !useSystemDefault) {
-      editor = prompt('Editor not defined. Paste the full path of your text editor or click cancel to use system default.', 'C:\\WINDOWS\\system32\\notepad.exe');
-      if (editor)
+      let obj = { value: 'C:\\WINDOWS\\system32\\notepad.exe' };
+      if (Services.prompt.prompt(null, 'userChromeJS', 'Editor not defined. Paste the full path of your text editor or click cancel to use system default.', obj, null, { value: 0 })) {
+        editor = obj.value;
         xPref.set('view_source.editor.path', editor);
-      else
+      } else
         useSystemDefault = xPref.set(this.PREF_OPENWITHSYSTEMDEFAULT, true);
     }
     if (useSystemDefault) {
@@ -255,7 +253,7 @@ UC.rebuild = {
   },
 
   uninstall: function(script) {
-    if (!confirm('Do you want to uninstall this script? The file will be deleted.'))
+    if (!Services.prompt.confirm(null, 'userChromeJS', 'Do you want to uninstall this script? The file will be deleted.'))
       return;
 
     this.shutdown(script);
