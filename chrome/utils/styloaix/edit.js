@@ -182,8 +182,7 @@ function instantTimeout () {
       toggleUI('preview-button', false);
       if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET) {
         lastOrigin = origin;
-        xPref.set('browser.display.windows.native_menus', false);
-        xPref.clear('browser.display.windows.native_menus');
+        UC.styloaix.forceRefresh();
       }
     }
     if (isInstantCheck)
@@ -272,8 +271,7 @@ function preview () {
   previewActive = true;
   if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET) {
     lastOrigin = origin;
-    xPref.set('browser.display.windows.native_menus', false);
-    xPref.clear('browser.display.windows.native_menus');
+    UC.styloaix.forceRefresh();
   }
 
   checkForErrors();

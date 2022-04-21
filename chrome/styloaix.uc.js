@@ -252,10 +252,18 @@
       if (changeStatus) {
         this.changeStatus(style, aStatus);
       }
-      if (style.type === _uc.sss.AGENT_SHEET) {
-        xPref.set('browser.display.windows.native_menus', false);
-        xPref.clear('browser.display.windows.native_menus');
-      }
+      if (style.type === _uc.sss.AGENT_SHEET)
+        this.forceRefresh();
+    },
+
+    forceRefresh: function () {
+      let win = Services.wm.getMostRecentBrowserWindow();
+      let cacheVal = win.browsingContext.prefersColorSchemeOverride;
+      if (cacheVal !== 'none')
+        win.browsingContext.prefersColorSchemeOverride = 'none';
+      else
+        win.browsingContext.prefersColorSchemeOverride = 'light';
+      win.browsingContext.prefersColorSchemeOverride = cacheVal;
     },
 
     changeStatus: function (style, aStatus) {
