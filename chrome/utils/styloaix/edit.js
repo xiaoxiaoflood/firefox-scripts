@@ -37,6 +37,7 @@ if (isChromeWindow) {
 }
 
 origin = 2;
+let lastOrigin;
 let unsaved = false;
 let previewCode;
 let previewOrigin;
@@ -150,16 +151,20 @@ function initEditor () {
   });
 
   sourceEditor.on('change', function () {
-    if ((isInstantPreview || isInstantCheck) && !timeoutRunning)
-      instantTimeout();
-
-    unsaved = true;
-    toggleUI('save-button', true);
-    if (!isInstantPreview)
-      toggleUI('preview-button', true);
+    changed();
     if (!isInstantCheck)
       toggleUI('check-for-errors-button', true);
   });
+}
+
+function changed () {  
+  if ((isInstantPreview || isInstantCheck) && !timeoutRunning)
+    instantTimeout();
+
+  unsaved = true;
+  toggleUI('save-button', true);
+  if (!isInstantPreview)
+    toggleUI('preview-button', true);
 }
 
 function instantTimeout () {
@@ -175,6 +180,11 @@ function instantTimeout () {
       previewActive = true;
       _uc.sss.loadAndRegisterSheet(previewCode, previewOrigin);
       toggleUI('preview-button', false);
+      if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET) {
+        lastOrigin = origin;
+        xPref.set('browser.display.windows.native_menus', false);
+        xPref.clear('browser.display.windows.native_menus');
+      }
     }
     if (isInstantCheck)
       checkForErrors();
@@ -260,6 +270,11 @@ function preview () {
   previewOrigin = origin;
   _uc.sss.loadAndRegisterSheet(previewCode, previewOrigin);
   previewActive = true;
+  if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET) {
+    lastOrigin = origin;
+    xPref.set('browser.display.windows.native_menus', false);
+    xPref.clear('browser.display.windows.native_menus');
+  }
 
   checkForErrors();
 	toggleUI('preview-button', false);

@@ -116,7 +116,7 @@
       <checkbox id="instant-check" label="Instant Check for Errors" accesskey="T" oncommand="instantCheck(this.checked, event.shiftKey)" tooltiptext="Press holding Shift to save setting" />
       <spacer flex="1"/>
       <label>Origin:</label>
-      <menulist id="origin" oncommand="val = Number(this.value); if (origin != val) { toggleUI('save-button', true); origin = val; unsaved = true;}">
+      <menulist id="origin" oncommand="val = Number(this.value); if (origin != val) { lastOrigin = origin; origin = val; changed();}">
         <menupopup>
           <menuitem label="AGENT_SHEET" value="0"/>
           <menuitem label="USER_SHEET" value="1"/>

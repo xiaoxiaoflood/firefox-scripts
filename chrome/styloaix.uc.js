@@ -252,6 +252,10 @@
       if (changeStatus) {
         this.changeStatus(style, aStatus);
       }
+      if (style.type === _uc.sss.AGENT_SHEET) {
+        xPref.set('browser.display.windows.native_menus', false);
+        xPref.clear('browser.display.windows.native_menus');
+      }
     },
 
     changeStatus: function (style, aStatus) {
