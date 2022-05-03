@@ -193,7 +193,7 @@ UC.MGest = {
   exec: function (win) {
     const { customElements, document, gBrowser } = win;
 
-    ['contextmenu', 'mousedown', 'mouseup'].forEach(type => {
+    ['contextmenu', 'dragstart', 'mousedown', 'mouseup'].forEach(type => {
       document.addEventListener(type, this, true);
     });
 
@@ -231,6 +231,8 @@ UC.MGest = {
   },
 
   init: function () {
+    xPref.lock('ui.context_menus.after_mouseup', true);
+
     this.webExts.forEach(id => {
       if (UC.webExts.get(id)?.messageManager)
         this.addListener(id);
@@ -714,6 +716,7 @@ UC.MGest = {
         event.stopPropagation();
         break;
       case 'contextmenu':
+      case 'dragstart':
         if (this.prevent) {
           event.preventDefault();
           event.stopPropagation();
@@ -748,6 +751,8 @@ UC.MGest = {
   },
 
   destroy: function () {
+    xPref.unlock('ui.context_menus.after_mouseup');
+
     Services.mm.broadcastAsyncMessage('chromeToContent', { action: 'destroy' });
     Services.mm.removeDelayedFrameScript(this.frameScript);
     Services.mm.removeMessageListener('contentToChrome', this.chromeListener);
@@ -755,7 +760,7 @@ UC.MGest = {
     _uc.windows((doc, win) => {
       const { customElements } = win;
 
-      ['contextmenu', 'dragend', 'mousedown', 'mouseup', 'wheel'].forEach(type => {
+      ['contextmenu', 'dragend', 'dragstart', 'mousedown', 'mouseup', 'wheel'].forEach(type => {
         doc.removeEventListener(type, this, true);
       });
       doc.removeEventListener('mousemove', this, false);
