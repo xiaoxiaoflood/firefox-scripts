@@ -193,7 +193,7 @@ UC.MGest = {
   exec: function (win) {
     const { customElements, document, gBrowser } = win;
 
-    ['contextmenu', 'dragstart', 'mousedown', 'mouseup'].forEach(type => {
+    ['contextmenu', 'mousedown', 'mouseup'].forEach(type => {
       document.addEventListener(type, this, true);
     });
 
@@ -300,6 +300,21 @@ UC.MGest = {
 
   frameScript: 'data:application/javascript;charset=UTF-8,' + 
     encodeURIComponent('(' + (function () {
+      let preventDrag = false;
+      addEventListener('blur', function () {
+        preventDrag = true;
+      }, true);
+      addEventListener('mousedown', function (evt) {
+        if (evt.button === 0)
+          preventDrag = false;
+      }, true);
+      addEventListener('dragstart', function (evt) {
+        if (preventDrag) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
+      }, true);
+
       // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#1141-1202
       // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#307-320
       // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#973-1114
@@ -716,7 +731,6 @@ UC.MGest = {
         event.stopPropagation();
         break;
       case 'contextmenu':
-      case 'dragstart':
         if (this.prevent) {
           event.preventDefault();
           event.stopPropagation();
@@ -760,7 +774,7 @@ UC.MGest = {
     _uc.windows((doc, win) => {
       const { customElements } = win;
 
-      ['contextmenu', 'dragend', 'dragstart', 'mousedown', 'mouseup', 'wheel'].forEach(type => {
+      ['contextmenu', 'dragend', 'mousedown', 'mouseup', 'wheel'].forEach(type => {
         doc.removeEventListener(type, this, true);
       });
       doc.removeEventListener('mousemove', this, false);
