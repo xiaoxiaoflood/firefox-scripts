@@ -50,6 +50,7 @@ UC.beQuiet = {
     gBrowser.addTabsProgressListener(this.progressListener);
     gBrowser.addEventListener('DOMAudioPlaybackStarted', this.audioStarted);
     gBrowser.addEventListener('DOMAudioPlaybackStopped', this.audioStopped);
+    win.addEventListener('TabBrowserDiscarded', this.onTabClose);
 
     let keyset =  _uc.createElement(document, 'keyset', { id: 'beQuiet-keyset' });
     document.getElementById('mainKeyset').insertAdjacentElement('afterend', keyset);
@@ -91,11 +92,11 @@ UC.beQuiet = {
     }
     UC.beQuiet.remove(UC.beQuiet.stack, closedBrowser);
   },
-  
+
   progressListener: {
     onLocationChange: function (aBrowser, aWebProgress, aRequest, aLocation, aFlags) {
       if (!aWebProgress.isTopLevel ||
-          aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_RELOAD || 
+          aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_RELOAD ||
           aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_ERROR_PAGE)
           return;
 
@@ -131,7 +132,7 @@ UC.beQuiet = {
     if (UC.beQuiet.isURLCompatible(browser.currentURI.spec)) {
       UC.beQuiet.addUnique(UC.beQuiet.stack, browser);
       UC.beQuiet.addUnique(UC.beQuiet.playingStack, browser);
-      
+
       if (UC.beQuiet.prevPlayingBrowser) {
         UC.beQuiet.doAction('play', UC.beQuiet.prevPlayingBrowser);
       }
@@ -205,6 +206,7 @@ UC.beQuiet = {
       gBrowser.removeEventListener('DOMAudioPlaybackStopped', this.audioStopped);
       doc.getElementById('beQuiet-keyset').remove();
       gBrowser.tabContainer.removeEventListener('TabClose', this.onTabClose);
+      win.removeEventListener('TabBrowserDiscarded', this.onTabClose);
     });
     delete UC.beQuiet;
   }
