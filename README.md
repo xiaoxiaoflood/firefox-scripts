@@ -1,6 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox Developer Edition 100.0b8.
+#### Tested on Firefox Developer Edition 101.0b3.
 
 ## Instructions
 
@@ -207,7 +207,7 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/status-bar.uc.js).
 </details>
 <details>
-  <summary>ᵀᴮ StyloaiX</summary>
+  <summary>StyloaiX</summary>
   UserStyle manager to reskin Firefox window and websites. Replacement for legacy Stylish. More convenient than userChrome.css and userContent.css, as it has a powerful editor with instant preview, error checking, code autocomplete and you can enable/disable individual styles without restarting Firefox.
 
   Screenshots (yes, I'm using the old Stylish icon):
