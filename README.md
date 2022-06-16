@@ -103,7 +103,7 @@
 </details>
 <details>
   <summary>MinMaxClose Button</summary>
-  Toolbar button to replace native window buttons (minimize, maximize and close). I'm a Windows user and use Sidebery (vertical tabbar) with hidden titlebar, so I need this.
+  Toolbar button to replace native window buttons (minimize, maximize and close). I use Sidebery (vertical tabbar) with hidden titlebar, so I need this.
  
  - <i>Left-click</i> to minimize (so I can't close it accidentally).
  
