@@ -1,16 +1,8 @@
 // skip 1st line
 lockPref('xpinstall.signatures.required', false);
 
-Object = Cu.getGlobalForObject(Cu).Object;
-const { freeze } = Object;
-Object.freeze = obj => {
-  if (Components.stack.caller.filename != 'resource://gre/modules/AppConstants.jsm')
-    return freeze(obj);
-
-  obj.MOZ_REQUIRE_SIGNING = false;
-  Object.freeze = freeze;
-  return freeze(obj);
-}
+const { XPIDatabase } = Cu.import('resource://gre/modules/addons/XPIDatabase.jsm');
+XPIDatabase.SIGNED_TYPES.delete('extension');
 
 try {
   let cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
