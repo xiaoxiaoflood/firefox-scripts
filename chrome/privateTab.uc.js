@@ -216,7 +216,7 @@ UC.privateTab = {
 
       let { arrowScrollbox } = this;
       if (node == null) {
-        node = arrowScrollbox.lastChild.previousSibling.previousSibling;
+        node = arrowScrollbox.lastChild.previousSibling;
       }
       return arrowScrollbox.insertBefore(tab, node);
     }

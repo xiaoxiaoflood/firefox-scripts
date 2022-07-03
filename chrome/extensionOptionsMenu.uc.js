@@ -221,10 +221,7 @@ UC.extensionOptionsMenu = {
             return;
           }
         }
-        var features = 'chrome,titlebar,toolbar,centerscreen';
-        var instantApply = Services.prefs.getBoolPref('browser.preferences.instantApply');
-        features += instantApply ? ',dialog=no' : '';
-        win.openDialog(addon.optionsURL, addon.id, features);
+        win.openDialog(addon.optionsURL, addon.id, 'chrome,titlebar,toolbar,centerscreen');
     }
   },
 
