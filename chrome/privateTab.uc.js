@@ -299,13 +299,15 @@ UC.privateTab = {
     let { getBrowserWindow } = Cu.import('resource:///modules/PlacesUIUtils.jsm');
     eval('PlacesUIUtils.openTabset = function ' +
           PlacesUIUtils.openTabset.toString().replace(/(\s+)(inBackground: loadInBackground,)/,
-                                                      '$1$2$1userContextId: aEvent.userContextId || 0,'));
+                                                      '$1$2$1userContextId: aEvent.userContextId || 0,')
+                                             .replace(/\blazy\./g, ''));
                                                       
     eval('PlacesUIUtils._openNodeIn = ' +
           PlacesUIUtils._openNodeIn.toString().replace(/(\s+)(aPrivate = false)\n/,
                                                        '$1$2,$1userContextId = 0\n')
                                               .replace(/(\s+)(private: aPrivate,)\n/,
-                                                       '$1$2$1userContextId,\n'));
+                                                       '$1$2$1userContextId,\n')
+                                              .replace(/\blazy\./g, ''));
 
     let { UUIDMap } = Cu.import('resource://gre/modules/Extension.jsm');
     let TST_ID = 'treestyletab@piro.sakura.ne.jp';
