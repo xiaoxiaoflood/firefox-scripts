@@ -200,27 +200,6 @@ UC.privateTab = {
       }
     };
 
-    win.Object.defineProperty(customElements.get('tabbrowser-tabs').prototype, 'allTabs', {
-      get: function allTabs() {
-        let children = Array.from(this.arrowScrollbox.children);
-        while (children.length && children[children.length - 1].tagName != 'tab')
-          children.pop();
-        return children;
-      }
-    });
-
-    customElements.get('tabbrowser-tabs').prototype.insertBefore = function (tab, node) {
-      if (!this.arrowScrollbox) {
-        throw new Error("Shouldn't call this without arrowscrollbox");
-      }
-
-      let { arrowScrollbox } = this;
-      if (node == null) {
-        node = arrowScrollbox.lastChild.previousSibling;
-      }
-      return arrowScrollbox.insertBefore(tab, node);
-    }
-
     customElements.get('tabbrowser-tabs').prototype._updateNewTabVisibility = function () {
       let wrap = n =>
         n.parentNode.localName == "toolbarpaletteitem" ? n.parentNode : n;
@@ -485,8 +464,8 @@ UC.privateTab = {
           }
 
           #tabbrowser-tabs[hasadjacentnewprivatetabbutton]:not([overflow="true"]) ~ #${UC.privateTab.BTN_ID},
-          #tabbrowser-tabs[overflow="true"] > #tabbrowser-arrowscrollbox > #${UC.privateTab.BTN2_ID},
-          #tabbrowser-tabs:not([hasadjacentnewprivatetabbutton]) > #tabbrowser-arrowscrollbox > #${UC.privateTab.BTN2_ID},
+          #tabbrowser-tabs[overflow="true"] > #tabbrowser-arrowscrollbox > #tabbrowser-arrowscrollbox-periphery > #${UC.privateTab.BTN2_ID},
+          #tabbrowser-tabs:not([hasadjacentnewprivatetabbutton]) > #tabbrowser-arrowscrollbox > #tabbrowser-arrowscrollbox-periphery > #${UC.privateTab.BTN2_ID},
           #TabsToolbar[customizing="true"] #${UC.privateTab.BTN2_ID} {
             display: none;
           }
