@@ -2,12 +2,6 @@
 lockPref('xpinstall.signatures.required', false);
 lockPref('extensions.install_origins.enabled', false);
 
-// signing bypass by onemen
-const Constants = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
-const temp = Object.assign({}, Constants.AppConstants);
-temp.MOZ_REQUIRE_SIGNING = false
-Constants.AppConstants = Object.freeze(temp);
-
 try {
   let cmanifest = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('UChrm', Ci.nsIFile);
   cmanifest.append('utils');
