@@ -42,8 +42,6 @@ Services.obs.addObserver(doc => {
           }
         }
         var features = 'chrome,titlebar,toolbar,centerscreen';
-        var instantApply = Services.prefs.getBoolPref('browser.preferences.instantApply');
-        features += instantApply ? ',dialog=no' : '';
         win.docShell.rootTreeItem.domWindow.openDialog(this.addon.optionsURL, this.addon.id, features);
       } else {
         handleEvent_orig.apply(this, arguments);
