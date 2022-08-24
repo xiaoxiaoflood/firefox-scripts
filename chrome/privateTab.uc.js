@@ -67,7 +67,7 @@ UC.privateTab = {
       label: 'Open in a New Private Tab',
       accesskey: 'v',
       class: 'menuitem-iconic privatetab-icon',
-      oncommand: 'let view = event.target.parentElement._view; PlacesUIUtils._openNodeIn(view.selectedNode, "tab", view.ownerWindow, false, ' + UC.privateTab.container.userContextId + ')',
+      oncommand: 'let view = event.target.parentElement._view; PlacesUIUtils._openNodeIn(view.selectedNode, "tab", view.ownerWindow, { aPrivate: false, userContextId: ' + UC.privateTab.container.userContextId + '})',
     });
     openTab.insertAdjacentElement('afterend', openPrivate);
 
@@ -296,18 +296,13 @@ UC.privateTab = {
       }
     });
 
-    let { getBrowserWindow } = Cu.import('resource:///modules/PlacesUIUtils.jsm');
     eval('PlacesUIUtils.openTabset = function ' +
           PlacesUIUtils.openTabset.toString().replace(/(\s+)(inBackground: loadInBackground,)/,
                                                       '$1$2$1userContextId: aEvent.userContextId || 0,')
                                              .replace(/\blazy\./g, ''));
                                                       
     eval('PlacesUIUtils._openNodeIn = ' +
-          PlacesUIUtils._openNodeIn.toString().replace(/(\s+)(aPrivate = false)\n/,
-                                                       '$1$2,$1userContextId = 0\n')
-                                              .replace(/(\s+)(private: aPrivate,)\n/,
-                                                       '$1$2$1userContextId,\n')
-                                              .replace(/\blazy\./g, ''));
+          PlacesUIUtils._openNodeIn.toString().replace(/\blazy\./g, ''));
 
     let { UUIDMap } = Cu.import('resource://gre/modules/Extension.jsm');
     let TST_ID = 'treestyletab@piro.sakura.ne.jp';
