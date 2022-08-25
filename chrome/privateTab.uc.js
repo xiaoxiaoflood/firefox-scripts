@@ -296,6 +296,7 @@ UC.privateTab = {
       }
     });
 
+    let { getBrowserWindow } = Cu.import('resource:///modules/PlacesUIUtils.jsm');
     eval('PlacesUIUtils.openTabset = function ' +
           PlacesUIUtils.openTabset.toString().replace(/(\s+)(inBackground: loadInBackground,)/,
                                                       '$1$2$1userContextId: aEvent.userContextId || 0,')
