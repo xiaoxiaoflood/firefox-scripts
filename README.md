@@ -1,6 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox Developer Edition 103.0b3.
+#### Tested on Firefox Developer Edition 105.0b7.
 
 ## Instructions
 
@@ -46,14 +46,6 @@
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/BeQuiet.uc.js). 
 </details>
 <details>
-  <summary>Context Menu - Hide on Click</summary>
- For super lazy like me. On Linux, at least on my setup, if you open contextmenu by right-clicking, but give up while still haven't moved the cursor, you can't close it by left-clicking, you need to move away first because the point behind cursor is part of contextmenu. This script fixes it by setting contextmenu starting position 1px away from cursor.
- 
- When I was a Windows 10 user I didn't need this script.
- 
-  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/contextHideOnClick.uc.js). 
-</details>
-<details>
   <summary>Enter Selects</summary>
   Have you ever been frustrated because you wanted Firefox to autofill "https://www.youtube.com/feed/subscriptions" when you type "youtube" in location bar? That's because Firefox only autofills domains, so it will never go further than just "https://www.youtube.com/". Also because of this, Firefox will never autofill "https://www.reddit.com/r/firefox/" when you type "firefox", no matter how many times you've visited that page.
   
@@ -90,8 +82,6 @@
   Locks Firefox with password. This will prompt the password on browser startup or anytime when you lock it with Ctrl+Alt+Shift+W.
   
   You need to set a master password in <i>Firefox Options > Privacy & Security > [×] Use a Primary Password</i>.
-  
-  If you're a Linux KDE Plasma user like me, you might want to install my other script **Notification XUL Fix Position**.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/masterPasswordPlus.uc.js).  
 
@@ -153,15 +143,6 @@
   ![](https://i.imgur.com/BE7oPcu.png)
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/multifoxContainer.uc.js).
-</details>
-<details>
-  <summary>Notification XUL Fix Position</summary>
- 
-  On Linux, Firefox reuses OS native backend to display notifications. This affects my other script **Master Password+** which should prevent notification leakage when in locked state. So just set `alerts.useSystemBackend = false` for Firefox to use its own backend (XUL) to display notifications.
- 
- But Firefox has a bug, at least for KDE Plasma users like me, causing XUL notification popups to show up at wrong place. I use taskbar at bottom just like it's on Windows, so notification should emerge at bottom right, but it's appearing at top right. This tiny script fixes that.
-
-  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/notificationPosition.uc.js).
 </details>
 <details>
   <summary>Open in Unloaded Tab</summary>
