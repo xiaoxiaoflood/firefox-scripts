@@ -12,6 +12,7 @@
 
 const {
   AddonManager,
+  BrowserWindowTracker,
   ContextualIdentityService,
   customElements,
   CustomizableUI,
@@ -296,14 +297,23 @@ UC.privateTab = {
       }
     });
 
-    let { getBrowserWindow } = Cu.import('resource:///modules/PlacesUIUtils.jsm');
+    const lazy = {
+      BrowserWindowTracker,
+      PrivateBrowsingUtils,
+    };
+
+    // resource:///modules/PlacesUIUtils.sys.mjs
+    function getBrowserWindow (aWindow) {
+      return aWindow &&
+        aWindow.document.documentElement.getAttribute('windowtype') ==
+          'navigator:browser'
+        ? aWindow
+        : lazy.BrowserWindowTracker.getTopWindow();
+    }
+
     eval('PlacesUIUtils.openTabset = function ' +
           PlacesUIUtils.openTabset.toString().replace(/(\s+)(inBackground: loadInBackground,)/,
-                                                      '$1$2$1userContextId: aEvent.userContextId || 0,')
-                                             .replace(/\blazy\./g, ''));
-                                                      
-    eval('PlacesUIUtils._openNodeIn = ' +
-          PlacesUIUtils._openNodeIn.toString().replace(/\blazy\./g, ''));
+                                                      '$1$2$1userContextId: aEvent.userContextId || 0,'));
 
     let { UUIDMap } = Cu.import('resource://gre/modules/Extension.jsm');
     let TST_ID = 'treestyletab@piro.sakura.ne.jp';
@@ -440,7 +450,6 @@ UC.privateTab = {
   orig_insertBefore: customElements.get('tabbrowser-tabs').prototype.insertBefore,
   orig__updateNewTabVisibility: customElements.get('tabbrowser-tabs').prototype._updateNewTabVisibility,
   orig_openTabset: PlacesUIUtils.openTabset,
-  orig__openNodeIn: PlacesUIUtils._openNodeIn,
 
   BTN_ID: 'privateTab-button',
   BTN2_ID: 'newPrivateTab-button',
@@ -556,7 +565,6 @@ UC.privateTab = {
     CustomizableUI.destroyWidget(this.BTN_ID);
 
     PlacesUIUtils.openTabset = this.orig_openTabset;
-    PlacesUIUtils._openNodeIn = this.orig__openNodeIn;
 
     delete UC.privateTab;
   }
