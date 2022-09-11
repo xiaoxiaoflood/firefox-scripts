@@ -14,6 +14,7 @@
 // search for "userChromeJS.styloaix" in about:config to change settings.
 
 (function () {
+  const { requestAnimationFrame } = window;
 
   UC.styloaix = {
     exec: function (win) {
@@ -232,10 +233,29 @@
     },
 
     toggleAll: function ({disable = this.enabled, reload = false} = {}) {
+     let agSheets = [];
       this.styles.forEach(style => {
-        if (style.enabled)
-          this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
+        if (style.enabled) {
+          if (style.type === 0)
+            agSheets.push(style);
+          else
+            this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
+        }
       });
+
+      let prevTs;
+      for (let style of agSheets) {
+        const step = ts => {
+          if (prevTs !== ts) {
+            prevTs = ts;
+            this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
+          } else {
+            requestAnimationFrame(step);
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
       if (reload) {
         this.styles = new Map();
         this.loadStyles();
