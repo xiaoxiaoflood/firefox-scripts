@@ -1,9 +1,6 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE window [
-<!ENTITY % editMenuStrings SYSTEM "chrome://global/locale/editMenuOverlay.dtd">
- %editMenuStrings;
-]>
+<!DOCTYPE window>
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://userchromejs/content/styloaix/edit.css" type="text/css"?>
@@ -58,10 +55,10 @@
       <menuitem id="cMenu_selectAll"
                 data-l10n-id="text-action-select-all" command="cmd_selectAll"/>
       <menuseparator/>
-      <menuitem id="se-menu-find"
-        label="&findCmd.label;" accesskey="&findCmd.accesskey;" command="cmd_find"/>
-      <menuitem id="cMenu_findAgain" label="&findAgainCmd.label;"
-                accesskey="&findAgainCmd.accesskey;" command="cmd_findAgain"/>
+      <menuitem id="se-menu-find" data-l10n-id="styleeditor-find"
+                command="cmd_find"/>
+      <menuitem id="cMenu_findAgain" data-l10n-id="styleeditor-find-again"
+                command="cmd_findAgain"/>
       <menuseparator/>
       <menuitem id="se-menu-gotoLine"
           data-l10n-id="styleeditor-go-to-line"

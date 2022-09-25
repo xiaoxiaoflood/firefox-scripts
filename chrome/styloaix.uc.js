@@ -233,29 +233,10 @@
     },
 
     toggleAll: function ({disable = this.enabled, reload = false} = {}) {
-     let agSheets = [];
       this.styles.forEach(style => {
-        if (style.enabled) {
-          if (style.type === 0)
-            agSheets.push(style);
-          else
-            this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
-        }
+        if (style.enabled)
+          this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
       });
-
-      let prevTs;
-      for (let style of agSheets) {
-        const step = ts => {
-          if (prevTs !== ts) {
-            prevTs = ts;
-            this.toggleStyle(style, {aStatus: !disable, changeStatus: false, forced: true});
-          } else {
-            requestAnimationFrame(step);
-          }
-        }
-        requestAnimationFrame(step);
-      }
-
       if (reload) {
         this.styles = new Map();
         this.loadStyles();
@@ -272,19 +253,21 @@
       if (changeStatus) {
         this.changeStatus(style, aStatus);
       }
-      if (style.type === _uc.sss.AGENT_SHEET)
+      if (style.type === _uc.sss.AGENT_SHEET && !this.hasListener)
         this.forceRefresh();
     },
 
     forceRefresh: function () {
-      let win = Services.wm.getMostRecentBrowserWindow();
+      let win = Services.wm.getMostRecentWindow(null);
       let cacheVal = win.browsingContext.prefersColorSchemeOverride;
       let oppositeColorScheme = Services.appinfo.chromeColorSchemeIsDark ? 'light' : 'dark';
       let mql = win.matchMedia('(prefers-color-scheme: ' + oppositeColorScheme + ')'); 
       let lis = function () {
+        this.hasListener = false
         mql.removeListener(lis);
         win.browsingContext.prefersColorSchemeOverride = cacheVal;
       };
+      this.hasListener = true;
       mql.addListener(lis);
       win.browsingContext.prefersColorSchemeOverride = oppositeColorScheme;
     },
@@ -352,16 +335,15 @@
     },
 
     openEditor ({id, url, type} = {}) {
-      let win = Services.wm.getMostRecentBrowserWindow();
       if (xPref.get(this.PREF_OPENINWINDOW)) {
-        win.openDialog(this.EDITOR_URI, (id || win.Math.random()) + ' - StyloaiX Editor', 'centerscreen,chrome,resizable,dialog=no', {id, url, type});
+        Services.wm.getMostRecentWindow(null).openDialog(this.EDITOR_URI, (id || Math.random()) + ' - StyloaiX Editor', 'centerscreen,chrome,resizable,dialog=no', {id, url, type});
       } else {
         let appendUrl = '';
         if (id != undefined)
           appendUrl = '?id=' + id;
         else if (url)
           appendUrl = '?url=' + encodeURIComponent(url) + '&type=' + type;
-        win.switchToTabHavingURI(this.EDITOR_URI + appendUrl, true);
+        Services.wm.getMostRecentBrowserWindow().switchToTabHavingURI(this.EDITOR_URI + appendUrl, true);
       }
     },
 
@@ -420,8 +402,10 @@
       xPref.unlock(this.PREF_MOZDOCUMENT);
       xPref.removeListener(this.prefListener);
       xPref.removeListener(this.prefListenerAll);
-      Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('styloaix-button');
-      this.tbButtons.forEach(b => b.remove());
+      if (Services.wm.getMostRecentWindow(null).AppConstants.MOZ_APP_NAME !== 'thunderbird')
+        Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('styloaix-button');
+      else
+        this.tbButtons.forEach(b => b.remove());
       _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
       this.toggleAll({disable: true});
       delete UC.styloaix;

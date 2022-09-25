@@ -66,7 +66,7 @@ UC.openInUnloadedTab = {
           label: 'Open Link in Unloaded Tab',
           hidden: true
         });
-    menuitem.addEventListener('command', () => this.openTab(win, win.gContextMenu.linkURL, win.gContextMenu.linkTextStr));
+    menuitem.addEventListener('command', () => this.openTab(win, win.gContextMenu.linkURL, win.gContextMenu.linkTextStr, true));
 
     let contextMenu = document.getElementById('contentAreaContextMenu');
     document.getElementById('context-openlinkinusercontext-menu').insertAdjacentElement('beforebegin', menuitem);
@@ -74,11 +74,14 @@ UC.openInUnloadedTab = {
     contextMenu.addEventListener('popuphidden', this.hideContext);
   },
 
-  openTab: async function (win, url, linkText) {
+  openTab: async function (win, url, linkText, relatedToCurrent = false) {
     if (!win.gBrowser)
       win = BrowserWindowTracker.getTopWindow();
     let {gBrowser} = win;
-    let tab = gBrowser.addTab(null, { triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal });
+    let tab = gBrowser.addTab(null, {
+      triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal,
+      relatedToCurrent
+    });
     let uri = Services.io.newURI(url);
     const { QUERY_TYPE_BOOKMARKS, QUERY_TYPE_HISTORY } = Ci.nsINavHistoryQueryOptions;
     let info = this.getInfoFromHistory(uri, QUERY_TYPE_HISTORY) || this.getInfoFromHistory(uri, QUERY_TYPE_BOOKMARKS);
