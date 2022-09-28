@@ -315,9 +315,9 @@ UC.MGest = {
         }
       }, true);
 
-      // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#1141-1202
-      // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#307-320
-      // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/browser/actors/ContextMenuChild.jsm#973-1114
+      // https://searchfox.org/mozilla-central/rev/d45dd05bf412e7468b3770a52519e9d546d6325c/browser/actors/ContextMenuChild.jsm#1156-1224
+      // https://searchfox.org/mozilla-central/rev/d45dd05bf412e7468b3770a52519e9d546d6325c/browser/actors/ContextMenuChild.jsm#325-338
+      // https://searchfox.org/mozilla-central/rev/d45dd05bf412e7468b3770a52519e9d546d6325c/browser/actors/ContextMenuChild.jsm#981-1138
 
       function _isXULTextLinkLabel (aNode) {
         return (
@@ -374,12 +374,12 @@ UC.MGest = {
           if (elem.nodeType == elem.ELEMENT_NODE) {
             if (
               (_isXULTextLinkLabel(elem) ||
-                (elem instanceof content.HTMLAnchorElement &&
+                (content.HTMLAnchorElement.isInstance(elem) &&
                   elem.href) ||
-                (elem instanceof content.SVGAElement &&
+                (content.SVGAElement.isInstance(elem) &&
                   (elem.href || elem.hasAttributeNS(XLINK_NS, 'href'))) ||
-                (elem instanceof content.HTMLAreaElement && elem.href) ||
-                elem instanceof content.HTMLLinkElement ||
+                (content.HTMLAreaElement.isInstance(elem) && elem.href) ||
+                content.HTMLLinkElement.isInstance(elem) ||
                 elem.getAttributeNS(XLINK_NS, 'type') == 'simple')
             ) {
               // Target is a link or a descendant of a link.
@@ -453,19 +453,19 @@ UC.MGest = {
             }
             return '';
           })();
-        } else if (clickedElement instanceof content.HTMLVideoElement) {
+        } else if (content.HTMLVideoElement.isInstance(clickedElement)) {
           const mediaURL = clickedElement.currentSrc || clickedElement.src;
 
           if (_isMediaURLReusable(mediaURL)) {
             data.videoURL = mediaURL;
           }
-        } else if (clickedElement instanceof content.HTMLAudioElement) {
+        } else if (content.HTMLAudioElement.isInstance(clickedElement)) {
           const mediaURL = clickedElement.currentSrc || clickedElement.src;
 
           if (_isMediaURLReusable(mediaURL)) {
             data.audioURL = mediaURL;
           }
-        } else if (clickedElement instanceof content.HTMLHtmlElement) {
+        } else if (content.HTMLHtmlElement.isInstance(clickedElement)) {
           const bodyElt = clickedElement.ownerDocument.body;
 
           if (bodyElt) {
