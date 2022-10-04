@@ -38,7 +38,7 @@ UC.statusBar = {
         if (isEnabled)
           win.statusbar.textNode.appendChild(StatusPanel._labelElement);
         else
-          StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
+          StatusPanel.panel.appendChild(StatusPanel._labelElement);
       });
     });
 
@@ -68,7 +68,7 @@ UC.statusBar = {
         if (value === true) {
           xPref.set(UC.statusBar.PREF_ENABLED, false);
           win.statusbar.node.setAttribute('collapsed', true);
-          StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
+          StatusPanel.panel.appendChild(StatusPanel._labelElement);
           win.statusbar.node.parentNode.collapsed = true;;
         } else {
           xPref.set(UC.statusBar.PREF_ENABLED, true);
@@ -144,6 +144,13 @@ UC.statusBar = {
             flex-direction: column !important;
             -moz-window-dragging: drag;
           }
+          toolbarpaletteitem #status-text:before {
+            content: "Status text";
+            color: red;
+            border: 1px #aaa solid;
+            border-radius: 3px;
+            font-weight: bold;
+          }
           #browser-bottombox:not([collapsed]) {
             border-top: 1px solid var(--panel-separator-color) !important;
           }
@@ -163,7 +170,7 @@ UC.statusBar = {
     _uc.windows((doc, win) => {
       const { eval, statusbar, StatusPanel } = win;
       eval('Object.defineProperty(StatusPanel, "_label", {' + this.orig.replace(/^set _label/, 'set') + ', enumerable: true, configurable: true});');
-      StatusPanel.panel.firstChild.appendChild(StatusPanel._labelElement);
+      StatusPanel.panel.appendChild(StatusPanel._labelElement);
       doc.getElementById('status-dummybar').remove();
       statusbar.node.remove();
     });
