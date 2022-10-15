@@ -257,7 +257,6 @@ UC.privateTab = {
     this.setStyle();
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
 
-    ChromeUtils.import('resource:///modules/sessionstore/TabStateFlusher.jsm', this);
     ChromeUtils.import('resource:///modules/sessionstore/TabStateCache.jsm', this);
 
     let { gSeenWidgets } = Cu.import('resource:///modules/CustomizableUI.jsm');
@@ -359,11 +358,11 @@ UC.privateTab = {
     let shouldSelect = tab == win.gBrowser.selectedTab;
     let newTab = gBrowser.duplicateTab(tab);
     let newBrowser = newTab.linkedBrowser;
-    this.TabStateFlusher.flush(newBrowser).then(() => {
+    win.addEventListener('SSWindowStateReady', () => {
       this.TabStateCache.update(newBrowser.permanentKey, {
         userContextId: newTab.userContextId
       });
-    });
+    }, { once: true });
     if (shouldSelect) {
       let gURLBar = win.gURLBar;
       let focusUrlbar = gURLBar.focused;
