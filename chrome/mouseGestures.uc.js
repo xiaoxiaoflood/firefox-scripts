@@ -420,8 +420,8 @@ UC.MGest = {
                   elem != win.document.documentElement &&
                   win.getComputedStyle(elem).height == win.getComputedStyle(elem.parentElement).height &&
                   win.getComputedStyle(elem).width == win.getComputedStyle(elem.parentElement).width &&
-                  win.getComputedStyle(elem).height != document.documentElement.clientHeight &&
-                  win.getComputedStyle(elem).width != document.documentElement.clientWidth) {
+                  win.getComputedStyle(elem).height != win.document.documentElement.clientHeight &&
+                  win.getComputedStyle(elem).width != win.document.documentElement.clientWidth) {
                 hasBGImage = true;
                 data.bgImageURL = _makeURLAbsolute(elem.baseURI, bgImgUrl);
               }
