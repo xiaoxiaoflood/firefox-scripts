@@ -120,7 +120,7 @@
  - <b>Hold middle-click, move right and release</b> to paste.
  - <b>Hold left-click, then press forward button</b> (for mouse with extra buttons) to switch to next group/panel (specific compatibility with <b>Sidebery</b> extension).
 
- Gestures are cumulative if possible, so right-click (hold) + left-click + left-click + left-click will toggle between the two most recently used tabs.
+ Gestures are cumulative if possible, so holding right-click + turning mouse wheel will activate a different tab for each "tick" in the wheel.
  
  Advantages over existing extensions:
  - Extensions can't run over Firefox interface, so gestures don't work over Firefox toolbars.
@@ -133,10 +133,11 @@
 </details>
 <details>
   <summary>multifoxContainer</summary>
-  When Firefox introduced containers, I created this script to get some features that I missed from Multifox, the legacy addon that implemented "containers" years before Firefox having this feature by default.
+  
+  When Firefox introduced containers, I created this script to get some features that I missed from [Multifox](http://web.archive.org/web/20170123193744/https://addons.mozilla.org/en-US/firefox/addon/multifox/), the legacy addon that implemented "containers" years before Firefox having this feature by default.
   Since then, Firefox has added some things this script had, so I removed them. But I still use it for two things:
   
-  - New tabs (Ctrl+T or New Tab button) inherits the container of current tab (except for Private Tabs).
+  - New tabs (Ctrl+T or New Tab button) inherit the container of current tab (except for Private Tabs).
   
   - The label in urlbar serves as menubutton to reopen current tab in other container. With left click, current tab is replaced. With middleclick, a new tab is opened without closing the other one.
   
@@ -169,7 +170,7 @@
   
   Finally, the main reason why I wrote this was to integrate it with [Link Status Redux](https://github.com/xiaoxiaoflood/firefox-scripts/tree/master/extensions/linkstatusredux). When I point the mouse to a link that I've already visited, LSR displays the time of last visit. This is extremely useful for me to know if I have already visited the page and to track changes since last visit.
   
-  LSR uses Redirector rules to replace links directly in page (Redirector extension doesn't do this, it redirects only when you try to load the URL). And many URLs have gibberish at the end, so I have rules to remove them, then the URL remains clean and LST can track last visit correctly (because the gibberish is different every time, generating different URLs).
+  LSR uses Redirector rules to replace links directly in page (Redirector extension doesn't do this, it redirects only when you try to load the URL). Many URLs have gibberish at the end, I have rules to remove it, then the URL remains clean and LST can track last visit correctly (because the gibberish is different every time, generating different URLs for what is actually the same page).
   
   Note: the list of rules in the script is just an example, mine is much bigger.
 
