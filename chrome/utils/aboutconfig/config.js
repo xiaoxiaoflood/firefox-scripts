@@ -446,6 +446,7 @@ async function onConfigLoad() {
 
 // Unhide the warning message
 function ShowPrefs() {
+  document.getElementById('configDeck').lastElementChild.style.visibility = 'visible';
   gPrefBranch.getChildList("").forEach(fetchPref);
 
   var descending = document.getElementsByAttribute(
