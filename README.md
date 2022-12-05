@@ -129,7 +129,7 @@
  - Extensions can't set gestures for 4th and 5th mouse buttons (Back and Forward).
  - Unlike extensions that are limited by existing APIs, userChromeJS has unrestricted access to Firefox internals, so you can do almost whatever you want if you write code for that.
 
-  [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/mouseGestures.uc.js).
+  [Download link - extract it in chrome folder](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/mouseGestures.zip).
 </details>
 <details>
   <summary>multifoxContainer</summary>

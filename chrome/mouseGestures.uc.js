@@ -55,13 +55,13 @@ UC.MGest = {
     '2R': {
       name: 'Open URL in new tab',
       cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'newTab' });
+        UC.MGest.actor.cmd({ action: 'newTab' });
       }
     },
     '2L': {
       name: 'Copy URL from element',
       cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'copyURL' });
+        UC.MGest.actor.cmd({ action: 'copyURL' });
       }
     },
     '1R': {
@@ -77,22 +77,22 @@ UC.MGest = {
         if (selection)
           Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(selection);
         else
-          win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'copySelection', fallback: 'copyImage' });
+          UC.MGest.actor.cmd({ action: 'copySelection', fallback: 'copyImage' });
       }
     },
     '2U': {
       name: 'Go to top of page (strict)',
       cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'scroll', direction: 'up' });
+        UC.MGest.actor.cmd({ action: 'scroll', direction: 'up' });
       }
     },
     '2D': {
       name: 'Go to bottom of page (strict) / Image search',
       cmd: function (win) {
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', {
+        UC.MGest.actor.cmd({
           action: 'newTab',
           type: 'image',
-          templateURL: 'http://www.google.com.br/searchbyimage?image_url=%s',
+          templateURL: 'https://www.google.com/searchbyimage?sbisrc=cr_1_5_2&image_url=%s',
           encode: true,
           fallback: 'scroll',
           direction: 'down' });
@@ -153,35 +153,35 @@ UC.MGest = {
     },
     '1F': {
       name: 'Video 2× speed',
-      cmd: function (win) {
-        function speedUpVideo () {
-          let video = content.document.querySelector('html > div > video');
+      cmd: function () {
+        function speedUpVideo (win) {
+          let video = win.document.querySelector('html > div > video');
           if (video)
-            video.playbackRate = video.playbackRate == video.defaultPlaybackRate ? 2 : video.defaultPlaybackRate;
+            video.playbackRate = video.playbackRate == video.defaultPlaybackRate ? 3 : video.defaultPlaybackRate;
         };
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'eval', code: speedUpVideo.toString(), name: this.name });
+        UC.MGest.actor.cmd({ action: 'eval', code: speedUpVideo.toString(), name: this.name });
       }
     },
     '2F': {
       name: 'Video advance 5 seconds',
-      cmd: function (win) {
-        function advanceVideo () {
-          let video = content.document.querySelector('html > div > video');
+      cmd: function () {
+        function advanceVideo (win) {
+          let video = win.document.querySelector('html > div > video');
           if (video)
             video.currentTime += 5;
         };
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'eval', code: advanceVideo.toString(), name: this.name });
+        UC.MGest.actor.cmd({ action: 'eval', code: advanceVideo.toString(), name: this.name });
       }
     },
     '2B': {
       name: 'Video rewind 5 seconds',
-      cmd: function (win) {
-        function rewindVideo () {
-          let video = content.document.querySelector('html > div > video');
+      cmd: function () {
+        function rewindVideo (win) {
+          let video = win.document.querySelector('html > div > video');
           if (video)
             video.currentTime -= 5;
         };
-        win.gBrowser.selectedBrowser.messageManager.sendAsyncMessage('chromeToContent', { action: 'eval', code: rewindVideo.toString(), name: this.name });
+        UC.MGest.actor.cmd({ action: 'eval', code: rewindVideo.toString(), name: this.name });
       }
     },
   },
@@ -231,6 +231,21 @@ UC.MGest = {
   },
 
   init: function () {
+    ChromeUtils.registerWindowActor('MGest', {
+      parent: {
+        esModuleURI: 'resource://userchromejs/mouseGestures/MGestParent.sys.mjs',
+      },
+
+      child: {
+        esModuleURI: 'resource://userchromejs/mouseGestures/MGestChild.sys.mjs',
+        events: {
+          mousedown: { mozSystemGroup: true },
+        },
+      },
+
+      allFrames: true,
+    });
+
     xPref.lock('ui.context_menus.after_mouseup', true);
 
     this.webExts.forEach(id => {
@@ -239,9 +254,6 @@ UC.MGest = {
     });
 
     Services.obs.addObserver(this, 'UCJS:WebExtLoaded');
-
-    Services.mm.loadFrameScript(this.frameScript, true);
-    Services.mm.addMessageListener('contentToChrome', this.chromeListener);
   },
 
   addListener: function (id) {
@@ -277,346 +289,6 @@ UC.MGest = {
       }
     }
   },
-
-  chromeListener: function (message) {
-    const { document, gBrowser } = message.target.ownerGlobal;
-    const { action, cmd, url } = message.data;
-
-    switch (cmd) {
-      case 'scroll-up':
-        document.commandDispatcher.getControllerForCommand('cmd_moveTop').doCommand('cmd_moveTop');
-        break;
-      case 'scroll-down':
-        document.commandDispatcher.getControllerForCommand('cmd_moveBottom').doCommand('cmd_moveBottom');
-        break;
-      case 'newTab':
-        gBrowser.addTab(url, {
-          owner: gBrowser.selectedTab,
-          relatedToCurrent: true,
-          triggeringPrincipal: gBrowser.selectedBrowser.contentPrincipal
-        });
-    }
-  },
-
-  frameScript: 'data:application/javascript;charset=UTF-8,' + 
-    encodeURIComponent('(' + (function () {
-      let preventDrag = false;
-      addEventListener('blur', function () {
-        preventDrag = true;
-      }, true);
-      addEventListener('mousedown', function (evt) {
-        if (evt.button === 0)
-          preventDrag = false;
-      }, true);
-      addEventListener('dragstart', function (evt) {
-        if (preventDrag) {
-          evt.preventDefault();
-          evt.stopPropagation();
-        }
-      }, true);
-
-      // https://searchfox.org/mozilla-central/rev/d45dd05bf412e7468b3770a52519e9d546d6325c/browser/actors/ContextMenuChild.jsm#1156-1224
-      // https://searchfox.org/mozilla-central/rev/d45dd05bf412e7468b3770a52519e9d546d6325c/browser/actors/ContextMenuChild.jsm#325-338
-      // https://searchfox.org/mozilla-central/rev/d45dd05bf412e7468b3770a52519e9d546d6325c/browser/actors/ContextMenuChild.jsm#981-1138
-
-      function _isXULTextLinkLabel (aNode) {
-        return (
-          aNode.namespaceURI == 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' &&
-          aNode.tagName == 'label' &&
-          aNode.classList.contains('text-link') &&
-          aNode.href
-        );
-      }
-
-      function _isMediaURLReusable (aURL) {
-        if (aURL.startsWith('blob:')) {
-          return URL.isValidURL(aURL);
-        }
-        return true;
-      }
-      
-      function _makeURLAbsolute (aBase, aUrl) {
-        return Services.io.newURI(aUrl, null, Services.io.newURI(aBase)).spec;
-      }
-
-      function _getComputedURL (aElem, aProp) {
-        let urls = aElem.ownerGlobal.getComputedStyle(aElem).getCSSImageURLs(aProp);
-
-        if (!urls.length) {
-          return null;
-        }
-
-        if (urls.length != 1) {
-          throw new Error('found multiple URLs');
-        }
-
-        return urls[0];
-      }
-
-      let clickedElement;
-      let data = {};
-
-      let mouseDown = function (e) {
-        data = {};
-        clickedElement = e.composedTarget;
-
-        if (clickedElement.nodeType != clickedElement.ELEMENT_NODE)
-          return;
-
-        const XLINK_NS = 'http://www.w3.org/1999/xlink';
-
-        let elem = clickedElement;
-        let hasBGImage;
-        let hasMultipleBGImages;
-        let win = elem.ownerDocument.defaultView;
-
-        while (elem) {
-          if (elem.nodeType == elem.ELEMENT_NODE) {
-            if (
-              (_isXULTextLinkLabel(elem) ||
-                (content.HTMLAnchorElement.isInstance(elem) &&
-                  elem.href) ||
-                (content.SVGAElement.isInstance(elem) &&
-                  (elem.href || elem.hasAttributeNS(XLINK_NS, 'href'))) ||
-                (content.HTMLAreaElement.isInstance(elem) && elem.href) ||
-                content.HTMLLinkElement.isInstance(elem) ||
-                elem.getAttributeNS(XLINK_NS, 'type') == 'simple')
-            ) {
-              // Target is a link or a descendant of a link.
-              let href = elem.href;
-
-              if (href) {
-                // Handle SVG links:
-                if (typeof href == 'object' && href.animVal) {
-                  data.linkURL = _makeURLAbsolute(elem.baseURI, elem.animVal);
-                }
-
-                data.linkURL = href;
-              } else {
-                href =
-                  elem.getAttribute('href') ||
-                  elem.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
-
-                data.linkURL = _makeURLAbsolute(elem.baseURI, href);
-              }
-            }
-
-            // Background image?  Don't bother if we've already found a
-            // background image further down the hierarchy.  Otherwise,
-            // we look for the computed background-image style.
-            if (!hasBGImage && !hasMultipleBGImages) {
-              let bgImgUrl = null;
-
-              try {
-                bgImgUrl = _getComputedURL(elem, 'background-image');
-                hasMultipleBGImages = false;
-              } catch (e) {
-                hasMultipleBGImages = true;
-              }
-
-              if (bgImgUrl &&
-                  !elem.textContent &&
-                  elem != win.document.body &&
-                  elem != win.document.documentElement &&
-                  win.getComputedStyle(elem).height == win.getComputedStyle(elem.parentElement).height &&
-                  win.getComputedStyle(elem).width == win.getComputedStyle(elem.parentElement).width &&
-                  win.getComputedStyle(elem).height != win.document.documentElement.clientHeight &&
-                  win.getComputedStyle(elem).width != win.document.documentElement.clientWidth) {
-                hasBGImage = true;
-                data.bgImageURL = _makeURLAbsolute(elem.baseURI, bgImgUrl);
-              }
-            }
-          }
-
-          elem = elem.parentNode;
-        }
-
-        if (
-          clickedElement instanceof Ci.nsIImageLoadingContent &&
-          (clickedElement.currentRequestFinalURI || clickedElement.currentURI)
-        ) {
-          // The actual URL the image was loaded from (after redirects) is the
-          // currentRequestFinalURI.  We should use that as the URL for purposes of
-          // deciding on the filename, if it is present. It might not be present
-          // if images are blocked.
-          //
-          // It is important to check both the final and the current URI, as they
-          // could be different blob URIs, see bug 1625786.
-          data.imageURL = (() => {
-            let finalURI = clickedElement.currentRequestFinalURI?.spec;
-            if (finalURI && _isMediaURLReusable(finalURI)) {
-              return finalURI;
-            }
-            let currentURI = clickedElement.currentURI?.spec;
-            if (currentURI && _isMediaURLReusable(currentURI)) {
-              return currentURI;
-            }
-            return '';
-          })();
-        } else if (content.HTMLVideoElement.isInstance(clickedElement)) {
-          const mediaURL = clickedElement.currentSrc || clickedElement.src;
-
-          if (_isMediaURLReusable(mediaURL)) {
-            data.videoURL = mediaURL;
-          }
-        } else if (content.HTMLAudioElement.isInstance(clickedElement)) {
-          const mediaURL = clickedElement.currentSrc || clickedElement.src;
-
-          if (_isMediaURLReusable(mediaURL)) {
-            data.audioURL = mediaURL;
-          }
-        } else if (content.HTMLHtmlElement.isInstance(clickedElement)) {
-          const bodyElt = clickedElement.ownerDocument.body;
-
-          if (bodyElt) {
-            let computedURL;
-
-            try {
-              computedURL = _getComputedURL(bodyElt, 'background-image');
-              hasMultipleBGImages = false;
-            } catch (e) {
-              hasMultipleBGImages = true;
-            }
-
-            if (computedURL) {
-              hasBGImage = true;
-              data.bgImageURL = _makeURLAbsolute(
-                bodyElt.baseURI,
-                computedURL
-              );
-            }
-          }
-        }
-      }
-      addEventListener('mousedown', mouseDown, true);
-
-      function parseTemplate(url, templateURL, encode) {
-        if (encode)
-          url = encodeURIComponent(url);
-        return templateURL?.replace(/%s/, url) || url;
-      }
-
-      let evalCache = {};
-
-      contentListener = async function (msg) {
-        let { action, code, direction, encode, fallback, name, type, templateURL, url } = msg.data;
-        let useFallback = false;
-
-        if (type == 'image')
-          url = data.bgImageURL || data.imageURL;
-        else if (type)
-          url = data[type];
-        else
-          url = data.videoURL || data.audioURL || data.linkURL || data.bgImageURL || data.imageURL;
-
-        switch (action) {
-          case 'copyURL':
-            if (url)
-              Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(url);
-            else
-              useFallback = true;
-            break;
-          case 'copyImage':
-            function request (url) {
-              return new Promise((resolve, reject) => {
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', url);
-                xhr.responseType = 'arraybuffer';
-                xhr.onload = function () {
-                  if (this.status >= 200 && this.status < 300)
-                    resolve(xhr);
-                  else
-                    reject();
-                };
-                xhr.onerror = reject;
-                xhr.send();
-              });
-            }
-
-            let response = await request(data.bgImageURL || data.imageURL);
-            let mimeType = response?.getResponseHeader('Content-Type');
-
-            let imageData;
-            if (mimeType?.startsWith('image')) {
-              imageData = response.response;
-            } else {
-              let canvas = content.document.createElement('canvas');
-              canvas.width = clickedElement.naturalWidth;
-              canvas.height = clickedElement.naturalHeight;
-              canvas.getContext('2d').drawImage(clickedElement, 0, 0);
-
-              mimeType = 'image/png';
-              let blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType));
-              imageData = await blob.arrayBuffer();
-            }
-
-            let imgTools = Cc['@mozilla.org/image/tools;1'].getService(Ci.imgITools);
-            let img = imgTools.decodeImageFromArrayBuffer(imageData, mimeType);
-
-            let transferable = Cc['@mozilla.org/widget/transferable;1'].createInstance(Ci.nsITransferable);          
-            transferable.init(null);
-            let kNativeImageMime = 'application/x-moz-nativeimage';
-            transferable.addDataFlavor(kNativeImageMime);
-            transferable.setTransferData(kNativeImageMime, img);
-            Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
-            break;
-          case 'copySelection':
-            let focusedWindow = {};
-            let focusedElement = Services.focus.getFocusedElementForWindow(content, true, focusedWindow);
-            focusedWindow = focusedWindow.value;
-            
-            let selectionStr = focusedWindow.getSelection().toString();
-
-            // https://searchfox.org/mozilla-central/rev/cc9d803f98625175ed20111d9736e77f3d430cd5/toolkit/modules/SelectionUtils.jsm#70-82
-            // try getting a selected text in text input.
-            if (!selectionStr && focusedElement) {
-              // Don't get the selection for password fields. See bug 565717.
-              if (
-                ChromeUtils.getClassName(focusedElement) === 'HTMLTextAreaElement' ||
-                (ChromeUtils.getClassName(focusedElement) === 'HTMLInputElement' &&
-                  focusedElement.mozIsTextField(true))
-              ) {
-                selectionStr = focusedElement.editor.selection.toString();
-              }
-            }
-
-            if (selectionStr)
-              Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(selectionStr);
-            else
-              useFallback = true;
-            break;
-          case 'newTab':
-            if (url)
-              sendAsyncMessage('contentToChrome', { cmd: action, url: parseTemplate(url, templateURL, encode) });
-            else
-              useFallback = true;
-            break;
-          case 'scroll':
-            clickedElement.tabIndex = -1;
-            clickedElement.focus();
-            sendAsyncMessage('contentToChrome', { cmd: 'scroll-' + direction });
-            break;
-          case 'eval':
-            if (evalCache[name])
-              evalCache[name]();
-            else
-              eval('(evalCache["' + name + '"] = ' + code + ').call()');
-            break;
-          case 'destroy':
-            removeEventListener('mousedown', mouseDown, true);
-            removeMessageListener('chromeToContent', contentListener);
-            delete mouseDown;
-            delete contentListener;
-        }
-
-        if (fallback && useFallback) {
-          msg.data.action = fallback;
-          delete msg.data.fallback;
-          contentListener(msg);
-        }
-      }
-      addMessageListener('chromeToContent', contentListener);
-    }).toString() + ')();'),
 
   directionChain: '',
   firstButton: undefined,
@@ -668,6 +340,7 @@ UC.MGest = {
         if (this.directionChain) {
           delX = screenX - this.lastX;
           delY = screenY - this.lastY;
+
           if (Math.abs(delX) > 30 || Math.abs(delY) > 30) {
             return;
           } else {
@@ -714,6 +387,7 @@ UC.MGest = {
             doc.removeEventListener('mousemove', this, false);
             ['dragend', 'wheel'].forEach(type => doc.removeEventListener(type, this, true));
           }
+
           if (this.prevent && button != 2) {
             if (composedTarget.isRemoteBrowser) {
               doc.documentElement.focus();
@@ -767,9 +441,7 @@ UC.MGest = {
   destroy: function () {
     xPref.unlock('ui.context_menus.after_mouseup');
 
-    Services.mm.broadcastAsyncMessage('chromeToContent', { action: 'destroy' });
-    Services.mm.removeDelayedFrameScript(this.frameScript);
-    Services.mm.removeMessageListener('contentToChrome', this.chromeListener);
+    ChromeUtils.unregisterWindowActor('MGest');
 
     _uc.windows((doc, win) => {
       const { customElements } = win;
