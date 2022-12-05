@@ -69,10 +69,10 @@
 </details>
 <details>
   <summary>Extensions Update Checker</summary>
-  Firefox checks for available updates every 24 hours. You can disable autoinstall updates, but then you'll only know there are available updates if you manually open Add-ons Manager. This script:
+  Firefox checks for available addon updates every 24 hours. You can disable autoinstall updates, but then you'll only know there are available updates if you manually open Add-ons Manager. This script:
  
   - Disables autoinstall updates for every addon.
-  - Just after the daily check, if there's an update available it will open Add-ons Manager directly in "Available Updates" view, so that you can track changes before updating (you can click on the extension, then click "Release Notes" button).
+  - Just after the daily check, if there's an addon update available it will open Add-ons Manager directly in "Available Updates" view, so that you can track changes before updating (you can click on the extension, then click "Release Notes" button).
   - You can fill `ignoreList` if you are deliberately using an outdated version of an extension and don't want to be notified that an update is available.
 
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/extensionsUpdateChecker.uc.js).
@@ -139,7 +139,7 @@
   
   - New tabs (Ctrl+T or New Tab button) inherit the container of current tab (except for Private Tabs).
   
-  - The label in urlbar serves as menubutton to reopen current tab in other container. With left click, current tab is replaced. With middleclick, a new tab is opened without closing the other one.
+  - The label in urlbar serves as menubutton to reopen current tab in other container. With left click, current tab is replaced. With middleclick, a new tab opens without closing the other one.
   
   ![](https://i.imgur.com/BE7oPcu.png)
 
