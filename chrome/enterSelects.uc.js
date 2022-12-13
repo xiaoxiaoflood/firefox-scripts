@@ -17,25 +17,43 @@ UC.enterSelects = {
     this.controller.receiveResults = function (queryContext) {
       let result = UC.enterSelects.orig_receiveResults.call(this, queryContext);
       let gURLBar = this.browserWindow.gURLBar;
-      if (UC.enterSelects.shouldSelect(gURLBar, queryContext))
-        gURLBar.view._selectElement(gURLBar.view._rows.children[1], { updateInput: false });
+      if (UC.enterSelects.shouldSelect(gURLBar, queryContext)) {
+        UC.enterSelects.flag = true;
+        gURLBar.view.selectBy(1);
+      }
 
       return result;
     };
 
+    this.orig_setValueFromResult = this.input.setValueFromResult;
+    this.input.setValueFromResult = new Proxy(this.input.setValueFromResult, {
+      apply: function(target, thisArg, args) {
+        if (UC.enterSelects.flag) {
+          UC.enterSelects.flag = false;
+          return thisArg.setResultForCurrentValue(args[0].result);
+        } else
+          return target.apply(thisArg, args);
+      }
+    });
+
     xPref.lock('browser.urlbar.autoFill', false);
-    xPref.lock('browser.urlbar.showSearchSuggestionsFirst', false);
+    xPref.lock('browser.urlbar.suggest.engines', false);
+    xPref.lock('browser.urlbar.quickactions.enabled', false);
   },
 
   exec: function (win) {
     let observe = () => {
-      win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
       Services.obs.removeObserver(observe, 'browser-window-before-show');
+      win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
     }
-    Services.obs.addObserver(observe, 'browser-window-before-show');
+    if (win.__SSi)
+      win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+    else
+      Services.obs.addObserver(observe, 'browser-window-before-show');
   },
 
-  controller: ChromeUtils.import('resource:///modules/UrlbarController.jsm').UrlbarController.prototype,
+  controller: ChromeUtils.importESModule('resource:///modules/UrlbarController.sys.mjs').UrlbarController.prototype,
+  input: ChromeUtils.importESModule('resource:///modules/UrlbarInput.sys.mjs').UrlbarInput.prototype,
 
   shouldSelect: function (gURLBar, queryContext) {
     if (gURLBar.searchMode?.engineName || queryContext.results.length < 2 || gURLBar.view.selectedRowIndex > 0)
@@ -63,8 +81,10 @@ UC.enterSelects = {
   },
   keyD: function (e) {
     let gURLBar = e.view.gURLBar;
+    if (!gURLBar.view.isOpen)
+      return;
     if (e.keyCode == e.DOM_VK_TAB) {
-      let url = gURLBar.view._queryContext.results[1].payload.url;
+      let url = gURLBar.view.getResultAtIndex(1).payload.url;
       if (gURLBar.view.selectedRowIndex == 1 &&
           gURLBar.value != url &&
           new RegExp(/^(https?:\/\/(www\.)?)?/.source + gURLBar.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).test(url) &&
@@ -91,6 +111,7 @@ UC.enterSelects = {
     xPref.unlock('browser.urlbar.showSearchSuggestionsFirst');
     _uc.windows((doc, win) => {
       this.controller.receiveResults = this.orig_receiveResults;
+      this.input.setValueFromResult = this.orig_setValueFromResult;
       win.gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
     });
     delete UC.enterSelects;

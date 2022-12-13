@@ -10,9 +10,10 @@ export class MGestChild extends JSWindowActorChild {
   }
 
   async receiveMessage (msg) {
-    let { action, code, direction, encode, fallback, name, type, templateURL, url } = msg.data;
+    let { action, code, direction, encode, fallback, name, type, templateURL } = msg.data;
     let useFallback = false;
     let context = this.context;
+    let url;
 
     if (type == 'image')
       url = context.bgImageURL || context.mediaURL;
