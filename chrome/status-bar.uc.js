@@ -101,11 +101,14 @@ UC.statusBar = {
 
     win.eval('Object.defineProperty(StatusPanel, "_label", {' + Object.getOwnPropertyDescriptor(StatusPanel, '_label').set.toString().replace(/^set _label/, 'set').replace(/((\s+)this\.panel\.setAttribute\("inactive", "true"\);)/, '$2this._labelElement.value = val;$1') + ', enumerable: true, configurable: true});');
 
-    let bottomBox = document.getElementById('browser-bottombox');
+    let bottomBox = document.createElement('vbox');
+    bottomBox.id = 'browser-bottombox';
+    bottomBox.append(win.statusbar.node);
+
     if (!this.enabled)
       bottomBox.collapsed = true;
 
-    bottomBox.appendChild(win.statusbar.node);
+    document.getElementById('fullscreen-and-pointerlock-wrapper').insertAdjacentElement('afterend', bottomBox);
 
     if (document.readyState === 'complete')
       this.observe(win);
@@ -129,13 +132,6 @@ UC.statusBar = {
             border-top: 0 !important;
             background-color: unset !important;
             color: #444;
-          }
-          #wrapper-status-text label::after {
-            content: "Status text" !important;
-            color: red !important;
-            border: 1px #aaa solid !important;
-            border-radius: 3px !important;
-            font-weight: bold !important;
           }
           #status-bar > #status-text {
             display: flex !important;

@@ -1,6 +1,6 @@
 # userChromeJS
 
-#### Tested on Firefox Developer Edition 108.0b9.
+#### Tested on Firefox Developer Edition 109.0b3.
 
 ## Instructions
 
