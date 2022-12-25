@@ -8,10 +8,11 @@ try {
   cmanifest.append('chrome.manifest');
   Components.manager.QueryInterface(Ci.nsIComponentRegistrar).autoRegister(cmanifest);
 
-  const Constants = ChromeUtils.import('resource://gre/modules/addons/AddonSettings.jsm');
-  const temp = Object.assign({}, Constants.AddonSettings);
-  temp.REQUIRE_SIGNING = false
-  Constants.AddonSettings = temp;
+  const objRef = ChromeUtils.import('resource://gre/modules/addons/AddonSettings.jsm');
+  const temp = Object.assign({}, Object.getOwnPropertyDescriptors(objRef.AddonSettings), {
+    REQUIRE_SIGNING: { value: false }
+  });
+  objRef.AddonSettings = Object.defineProperties({}, temp);
 
   Cu.import('chrome://userchromejs/content/BootstrapLoader.jsm');
 } catch (ex) {};
