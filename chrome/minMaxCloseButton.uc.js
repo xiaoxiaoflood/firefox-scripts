@@ -10,7 +10,7 @@
 
 UC.MinMaxCloseButton = {
   init: function () {
-    _uc.sss.loadAndRegisterSheet(this.STYLE, _uc.sss.AUTHOR_SHEET);
+    _uc.sss.loadAndRegisterSheet(this.STYLE, _uc.sss.USER_SHEET);
     const { CustomizableUI } = window;
     CustomizableUI.createWidget({
       id: 'minMaxClose-button',
@@ -55,7 +55,7 @@ UC.MinMaxCloseButton = {
   },
 
   STYLE: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
-    @-moz-document url('${_uc.BROWSERCHROME}'), url('chrome://messenger/content/customizeToolbar.xhtml') {
+    @-moz-document url('${_uc.BROWSERCHROME}') {
       @media (prefers-color-scheme: dark) {
         #minMaxClose-button {
           list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAa0lEQVQ4T72SQQ4AIQgD5f+PVjnUQ7fdZUMiNw2ZjkLMXYMqdvGdO0cb4MgKnL1sZ1XbAGWW0E+Dt+R7ANZEctnAAdS/PKagUtQdYBIgk8x2llcW08Hzzrm689nHI05Y2QBBbPIL0DJwf7AAeTpgCcCBOFsAAAAASUVORK5CYII=');
@@ -71,7 +71,7 @@ UC.MinMaxCloseButton = {
 
   destroy: function () {
     Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('minMaxClose-button');
-    _uc.sss.unregisterSheet(this.STYLE, _uc.sss.AUTHOR_SHEET);
+    _uc.sss.unregisterSheet(this.STYLE, _uc.sss.USER_SHEET);
     delete UC.MinMaxCloseButton;
   }
 }
