@@ -14,8 +14,6 @@
 // search for "userChromeJS.styloaix" in about:config to change settings.
 
 (function () {
-  const { requestAnimationFrame } = window;
-
   UC.styloaix = {
     exec: function (win) {
       if (win.location.href !== _uc.BROWSERCHROME)
@@ -131,7 +129,7 @@
         oncommand: 'UC.styloaix.enabled = !UC.styloaix.enabled;'
       });
       popup.appendChild(toggleBtn);
-      
+
       let menuseparator = _uc.createElement(doc, 'menuseparator');
       popup.appendChild(menuseparator);
 
@@ -207,7 +205,7 @@
       stylePopup.appendChild(styleDelete);
 
       doc.getElementById('mainPopupSet').appendChild(stylePopup);
-      
+
       return btn;
     },
 
@@ -261,7 +259,7 @@
       let win = Services.wm.getMostRecentWindow(null);
       let cacheVal = win.browsingContext.prefersColorSchemeOverride;
       let oppositeColorScheme = Services.appinfo.chromeColorSchemeIsDark ? 'light' : 'dark';
-      let mql = win.matchMedia('(prefers-color-scheme: ' + oppositeColorScheme + ')'); 
+      let mql = win.matchMedia('(prefers-color-scheme: ' + oppositeColorScheme + ')');
       let lis = function () {
         this.hasListener = false
         mql.removeListener(lis);
@@ -294,6 +292,7 @@
                                      ' styloaix-' + (style.type == _uc.sss.USER_SHEET ?
                                        'user' :
                                        'agent') + 'sheet'),
+        acceltext: style.type == _uc.sss.AGENT_SHEET? 'AG' : style.type == _uc.sss.USER_SHEET  ? 'US' : '',
         checked: style.enabled,
         context: 'styloaix-style-context',
         oncommand: 'UC.styloaix.toggleStyle(this._style);',
@@ -301,7 +300,7 @@
         styleid: style.fullName
       });
       popup.appendChild(menuitem);
-      menuitem._style = style;      
+      menuitem._style = style;
     },
 
     shouldPreventHide: function (event, style) {
@@ -381,12 +380,10 @@
           }
         }
         @-moz-document url('${_uc.BROWSERCHROME}') {
-          .styloaix-usersheet label:after {
-            content:"US";
+          .styloaix-usersheet .menu-iconic-accel {
             color: blue;
           }
-          .styloaix-agentsheet label:after {
-            content:"AG";
+          .styloaix-agentsheet .menu-iconic-accel {
             color: green;
           }
         }
@@ -474,3 +471,4 @@
   UC.styloaix.init();
 
 })()
+
