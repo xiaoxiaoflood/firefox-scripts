@@ -236,9 +236,19 @@ export class MGestChild extends JSWindowActorChild {
             context.hasMultipleBGImages = true;
           }
 
-          if (bgImgUrl) {
-            context.hasBGImage = true;
-            context.bgImageURL = this._makeURLAbsolute(elem.baseURI, bgImgUrl);
+          if (bgImgUrl &&
+              !elem.textContent &&
+              elem != this.document.body &&
+              elem != this.document.documentElement) {
+            const computedStyle = this.contentWindow.getComputedStyle(elem);
+            const computedStyleParent = this.contentWindow.getComputedStyle(elem.parentElement);
+            if (computedStyle.height == computedStyleParent.height &&
+                computedStyle.width == computedStyleParent.width &&
+                computedStyle.height != this.document.documentElement.clientHeight &&
+                computedStyle.width != this.document.documentElement.clientWidth) {
+              context.hasBGImage = true;
+              context.bgImageURL = this._makeURLAbsolute(elem.baseURI, bgImgUrl);
+            }
           }
         }
       }
