@@ -350,7 +350,6 @@ UC.rebuild = {
       type: 'menu',
       class: 'toolbarbutton-1 chromeclass-toolbar-additional',
       style: 'list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABeSURBVDhPY6AKSCms+x+SkPMfREOFwACXOAYYNQBVITrGJQ7CUO0IA0jFUO0QA3BhkEJs4iAM1Y4bgBTBDIAKkQYGlwHYMFQZbgBSBDIAF4Yqww3QbUTHUGWUAAYGAEyi7ERKirMnAAAAAElFTkSuQmCC)',
-      popup: 'userChromejs_options'
     });
 
     let mp = UC.rebuild.elBuilder(aDocument, 'menupopup', {
