@@ -110,8 +110,18 @@ UC.statusBar = {
 
     document.getElementById('fullscreen-and-pointerlock-wrapper').insertAdjacentElement('afterend', bottomBox);
 
+    win.addEventListener('fullscreen', this.fsEvent);
+
     if (document.readyState === 'complete')
       this.observe(win);
+  },
+
+  fsEvent: function (ev) {
+    const { StatusPanel, fullScreen, statusbar } = ev.target;
+    if (fullScreen)
+      StatusPanel.panel.appendChild(StatusPanel._labelElement);
+    else
+      statusbar.textNode.appendChild(StatusPanel._labelElement);
   },
 
   observe: function (win) {
@@ -148,7 +158,10 @@ UC.statusBar = {
             font-weight: bold;
           }
           #browser-bottombox:not([collapsed]) {
-            border-top: 1px solid var(--panel-separator-color) !important;
+            border-top: 1px solid #BCBEBF !important;
+          }
+          :root[inFullscreen]:not([macOSNativeFullscreen]) #browser-bottombox {
+            visibility: collapse !important;
           }
         }
       `)),
@@ -169,6 +182,7 @@ UC.statusBar = {
       StatusPanel.panel.appendChild(StatusPanel._labelElement);
       doc.getElementById('status-dummybar').remove();
       statusbar.node.remove();
+      win.removeEventListener('fullscreen', this.fsEvent);
     });
     Services.obs.removeObserver(this, 'browser-delayed-startup-finished');
     delete UC.statusBar;

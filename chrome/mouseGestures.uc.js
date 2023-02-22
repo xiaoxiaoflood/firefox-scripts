@@ -18,8 +18,8 @@ XPCOMUtils.defineLazyGetter(this, 'SelectionUtils', function() {
 UC.MGest = {
   // 0, 1, 2: mouse buttons
   // -, +: mousewheel direction
-  // UDLR: up, down, left, right / gesture direction
-  // FB: forward, back / for mouses with extra buttons
+  // U, D, L, R: up, down, left, right / gesture direction
+  // F, B: forward, back / for mouses with extra buttons
   // note: extra buttons must be the last part of the gesture because they are only triggered on 'click' (button release), there's no 'mousedown' for them
   GESTURES: {
     '1-': {

@@ -13,7 +13,7 @@ UC.beQuiet = {
   sites: [
     {
       rx: /^https:\/\/www\.deezer\.com\//,
-      play: 'li > button.svg-icon-group-btn',
+      play: 'li > button.svg-icon-group-btn.is-highlight',
       previous: '.player-controls li button',
       next: '.player-controls li:nth-of-type(5) button'
     },

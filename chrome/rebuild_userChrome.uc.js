@@ -206,7 +206,7 @@ UC.rebuild = {
       xPref.set(_uc.PREF_SCRIPTSDISABLED, xPref.get(_uc.PREF_SCRIPTSDISABLED).replace(new RegExp('^' + script.filename + ',|,' + script.filename), ''));
     }
 
-    if (script.isEnabled && !_uc.everLoaded.includes(script.id)) {
+    if (xPref.get(_uc.PREF_ENABLED) && script.isEnabled && !_uc.everLoaded.includes(script.id)) {
       this.install(script);
     } else if (script.isRunning && !!script.shutdown) {
       this.shutdown(script);
@@ -372,8 +372,9 @@ UC.rebuild = {
     });
     mg.appendChild(mi1);
 
-    let tb = UC.rebuild.elBuilder(aDocument, 'toolbarbutton', {
+    let tb = UC.rebuild.elBuilder(aDocument, 'menuitem', {
       id: 'userChromejs_restartApp',
+      class: 'menuitem-iconic',
       tooltiptext: 'Restart ' + _uc.BROWSERNAME,
       style: 'list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB20lEQVQ4jY2Tv2sUURDHZ/bX7eW0ChJBRFKIRRCRIEHuzVvfrYmkSiFXSSoLERERy5B/wcIuqG9mN5VecUWwCqkOEQsLKysLsQgSxEJEgsVYeJfsHXuY4tvN9zMzzHxBVXFS8Gy1kRaZi8U+iCV7HIq73Xqez9XWThoDsRvg6QDY6Ji8+RMK9dLSztcCoMhnkc27YxPth0I7oVAPhT5WYD9ScfkYALYWYxQa/OvU/h5ztg5bi3G1U2vbXUFPb4fT/EzELRwBYraPRvSE7eW6XVUV4en1JjLtARtFoYGqInRfd0Nk8wXYaCzZ/WnmkZrengc2v4GNNr1bglPiFoaj/5orV1r/A6gqhkI9YKMB0yY0OF9GsV/jIts9iVlVMeJscwhgOKmpqoDpGNDg5YuB0HYg9lUotINCuxFn/bN+9czUFZj6wEYDsRsQle7W+NPQ/uhEdUpLOw/cPgQ2OlPcvAoJZ90qICnc2tQzlist9GYAbDRk2lNVhFDs3YmXPUjkxp3JR2qWbgk9fRj9S+Olu6SqCJHYJ+DN5xnOryHT+wrsG7J9g0x9ZPup2iAS1z6aKi076+mLzoVRmKJpYeL2YSC2aBadc1PTOB7n3AXe3guYHiberZ0u8tm62r99Gyd0lo7sIAAAAABJRU5ErkJggg==)',
       oncommand: 'UC.rebuild.restart();'
@@ -422,7 +423,9 @@ UC.rebuild = {
       #userChromejs_options menuitem[restartless="true"] {
         color: blue;
       }
-      #uc-menugroup .menu-iconic-icon {margin-left:2px;}
+      #userChromejs_restartApp {
+        width: 34px;
+      }
       `.replace(/[\r\n\t]/g, '')) + '"'
     );
     aDocument.insertBefore(pi, aDocument.documentElement);
