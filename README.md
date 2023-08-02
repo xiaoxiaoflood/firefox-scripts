@@ -28,6 +28,18 @@
 
 7. Restart Firefox.
 
+8. To enable any extensions, go to **about:addons** and open a developer console. For each addon to enable, paste into the console:
+```
+var ad = (await AddonManager.getAddonByID("the@addon.id"));
+ad.__AddonInternal__.signedState = AddonManager.SIGNEDSTATE_NOT_REQUIRED;
+ad.__AddonInternal__.appDisabled = false;
+ad.disable();
+ad.enable();
+```
+Replacing `the@addon.id` with the addon id you want to enable. If you don't know it, Copy Link on the addon name in about:addons, their
+id is the bit after `addons://detail/`.
+
+
 ¹: Not all scripts are restartless. These have `@shutdown` at the beginning of the code. Almost all scripts on this page were written by me to be restartless, but almost all scripts you get from other sources are not.
 
 ## userChromeJS scripts
