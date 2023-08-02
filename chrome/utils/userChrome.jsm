@@ -1,6 +1,6 @@
 let EXPORTED_SYMBOLS = [];
 
-const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
+const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 const { xPref } = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
 const { Management } = ChromeUtils.import('resource://gre/modules/Extension.jsm');
 const { AppConstants } = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
