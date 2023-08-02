@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name            Auto Plain Text Links
 // @author          Alex Vallat
-// @version         0.11
+// @version         0.12
 // @description     Allow opening right-clicked plain text links without requiring selection.
 // @include         main
 // @shutdown        UC.autoPlainTextLinks.unload();
@@ -16,7 +16,7 @@ UC.autoPlainTextLinks = {
 //console.log("AutoPlainTextLinks framescript loading");
 
 Cu.import("resource://gre/modules/SelectionUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
+const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 Cu.import("chrome://userchromejs/content/hookFunction.jsm");
 
 const HookFlag = "AutoPlainTextLinks.Hooked";
