@@ -7,8 +7,6 @@
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-/* eslint-disable-next-line no-var */
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -40,7 +38,7 @@ let removeAllButton;
 let signonsTree;
 
 let signonReloadDisplay = {
-  observe(subject, topic, data) {
+  async observe(subject, topic, data) {
     if (topic == "passwordmgr-storage-changed") {
       switch (data) {
         case "addLogin":
@@ -51,7 +49,7 @@ let signonReloadDisplay = {
             return;
           }
           signons.length = 0;
-          LoadSignons();
+          await LoadSignons();
           // apply the filter if needed
           if (filterField && filterField.value != "") {
             FilterPasswords();
@@ -75,7 +73,7 @@ let dateAndTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
   timeStyle: "short",
 });
 
-function Startup() {
+async function Startup() {
   // be prepared to reload the display if anything changes
   Services.obs.addObserver(signonReloadDisplay, "passwordmgr-storage-changed");
 
@@ -112,7 +110,7 @@ function Startup() {
         .add(sortField);
     });
 
-  LoadSignons();
+  await LoadSignons();
 
   // filter the table if requested by caller
   if (
@@ -126,7 +124,7 @@ function Startup() {
   FocusFilterBox();
 }
 
-function Shutdown() {
+async function Shutdown() {
   Services.obs.removeObserver(
     signonReloadDisplay,
     "passwordmgr-storage-changed"
@@ -300,13 +298,14 @@ function SortTree(column, ascending) {
   }
 }
 
-function LoadSignons() {
+async function LoadSignons() {
   // loads signons into table
   try {
-    signons = Services.logins.getAllLogins();
+    signons = await Services.logins.getAllLogins();
   } catch (e) {
     signons = [];
   }
+  
   signons.forEach(login => login.QueryInterface(Ci.nsILoginMetaInfo));
   signonsTreeView.rowCount = signons.length;
 
@@ -461,7 +460,8 @@ async function DeleteAllSignons() {
 }
 
 async function TogglePasswordVisible() {
-  if (showingPasswords || (await masterPasswordLogin(AskUserShowPasswords))) {
+  //if (showingPasswords || (await masterPasswordLogin(AskUserShowPasswords))) 
+  {
     showingPasswords = !showingPasswords;
     togglePasswordsButton.label = showingPasswords ? "Hide Passwords" : "Show Passwords";
     togglePasswordsButton.accessKey = "P";
@@ -581,7 +581,7 @@ function SignonColumnSort(column) {
   );
 }
 
-function SignonClearFilter() {
+async function SignonClearFilter() {
   let singleSelection = signonsTreeView.selection.count == 1;
 
   // Clear the Tree Display
@@ -590,7 +590,7 @@ function SignonClearFilter() {
   signonsTreeView._filterSet = [];
 
   // Just reload the list to make sure deletions are respected
-  LoadSignons();
+  await LoadSignons();
 
   // Restore selection
   if (singleSelection) {
