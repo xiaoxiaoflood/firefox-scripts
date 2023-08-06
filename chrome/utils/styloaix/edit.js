@@ -1,4 +1,5 @@
-const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
+const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+
 const { NetUtil } = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
 
 let require;
