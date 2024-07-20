@@ -13,21 +13,15 @@ UC.beQuiet = {
   sites: [
     {
       rx: /^https:\/\/www\.deezer\.com\//,
-      play: 'li > button.svg-icon-group-btn.is-highlight',
-      previous: '.player-controls li button',
-      next: '.player-controls li:nth-of-type(5) button'
-    },
-    {
-      rx: /^https:\/\/songa\.nl\//,
-      play: '#play_button',
-      previous: '#previous_button',
-      next: '#next_button'
+      play: 'button:is([data-testid="play_button_pause"], [data-testid="play_button_play"])',
+      previous: 'button[data-testid="previous_track_button"]',
+      next: 'button[data-testid="next_track_button"]'
     },
     {
       rx: /^https:\/\/open\.spotify\.com\//,
-      play: '.Root__now-playing-bar .player-controls__buttons > button',
-      previous: '.Root__now-playing-bar .player-controls__left button:nth-of-type(2)',
-      next: '.Root__now-playing-bar .player-controls__right button'
+      play: 'button[data-testid=control-button-playpause]',
+      previous: 'button[data-testid=control-button-skip-back]',
+      next: 'button[data-testid=control-button-skip-forward]'
     },
     {
       rx: /^https:\/\/www\.twitch\.tv\//,

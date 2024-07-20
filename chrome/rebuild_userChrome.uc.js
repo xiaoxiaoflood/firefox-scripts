@@ -425,6 +425,17 @@ UC.rebuild = {
       }
       #userChromejs_restartApp {
         width: 34px;
+        padding-left: 12px;
+        padding-right: 28px;
+      }
+
+      #userChromejs_openChromeFolder {
+        height: 30px;
+        padding-left: 12px;
+      }
+
+      #userChromejs_restartApp > .menu-accel-container {
+        display: none;
       }
       `.replace(/[\r\n\t]/g, '')) + '"'
     );
