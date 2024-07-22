@@ -47,3 +47,11 @@
 #configTreeBody::-moz-tree-cell-text(locked) {
   font-style: italic;
 }
+
+#prefCol, #valueCol {
+  width: 40%;
+}
+
+#lockCol, #typeCol {
+  width: 70px;
+}

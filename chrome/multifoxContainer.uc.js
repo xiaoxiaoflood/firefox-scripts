@@ -43,22 +43,20 @@ UC.multifoxContainer = {
     else
       document.addEventListener('DOMContentLoaded', fixNewTabMenuButton, {once: true});
 
-    let orig_updateUserContextUIIndicator = win.updateUserContextUIIndicator;
-    win.updateUserContextUIIndicator = function () {
-      orig_updateUserContextUIIndicator();
+    document.getElementById('userContext-icons').hidden = false;
+    Object.defineProperty(document.getElementById('userContext-icons'), 'hidden', {
+      value: false,
+      configurable: true,
+    });
 
-      if (gBrowser.selectedTab.userContextId == 0) {
-        let hbox = document.getElementById('userContext-icons');
-        hbox.hidden = false;
-        hbox.className = 'identity-color-black';
-        document.getElementById('userContext-label').value = 'Default';
-        document.getElementById('userContext-indicator').className = 'identity-icon-fingerprint';
-      }
-    };
-    win.updateUserContextUIIndicator.orig = orig_updateUserContextUIIndicator;
+    gBrowser.tabContainer.addEventListener('TabSelect', this.onTabSelect);
 
     if (document.readyState == 'complete')
-      win.updateUserContextUIIndicator();
+      this.showUI(win);
+  },
+
+  onTabSelect: function (e) {
+    UC.multifoxContainer.showUI(this.ownerGlobal);
   },
 
   showPopup: function (win) {
@@ -113,6 +111,24 @@ UC.multifoxContainer = {
   init: function () {
     this.setStyle();
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
+
+    Services.obs.addObserver(this, 'browser-delayed-startup-finished');
+  },
+
+  showUI: function (win) {
+    const { document, gBrowser } = win;
+
+    if (gBrowser.selectedTab.userContextId == 0) {
+      let hbox = document.getElementById('userContext-icons');
+      hbox.hidden = false;
+      hbox.className = 'identity-color-black';
+      document.getElementById('userContext-label').value = 'Default';
+      document.getElementById('userContext-indicator').className = 'identity-icon-fingerprint';
+    }
+  },
+
+  observe: function (win) {
+    this.showUI(win);
   },
 
   forceDefaultContainer: function (e) {
@@ -142,12 +158,21 @@ UC.multifoxContainer = {
       doc.getElementById('mf-contextmenu').remove();
       gBrowser.addTab = gBrowser.orig_addTab;
       delete gBrowser.orig_addTab;
-      win.updateUserContextUIIndicator = win.updateUserContextUIIndicator.orig;
-      win.updateUserContextUIIndicator();
       doc.getElementById('context-openlinkinusercontext-menu').menupopup.setAttribute('oncommand', 'gContextMenu.openLinkInTab(event);');
       doc.getElementById('context_reopenInContainer').menupopup.setAttribute('oncommand', 'TabContextMenu.reopenInContainer(event);');
       doc.getElementById('tabs-newtab-button').menupopup.removeEventListener('mouseup', this.forceDefaultContainer, false);
+      Object.defineProperty(doc.getElementById('userContext-icons'), 'hidden', {
+        get() {
+          return !!doc.getElementById('userContext-icons').getAttribute('hidden');
+        },
+        set: Object.getOwnPropertyDescriptor(doc.getElementById('userContext-icons').__proto__, 'hidden').set,
+      });
+      gBrowser.tabContainer.removeEventListener('TabSelect', this.onTabSelect);
+      win.updateUserContextUIIndicator();
     });
+
+    Services.obs.removeObserver(this, 'browser-delayed-startup-finished');
+
     delete UC.multifoxContainer;
   }
 }
