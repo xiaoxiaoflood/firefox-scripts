@@ -286,7 +286,56 @@ UC.rebuild = {
     return el;
   },
 
+  setStyle: function () {
+    _uc.sss.loadAndRegisterSheet(Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
+      @-moz-document url('${_uc.BROWSERCHROME}') {
+        #userChromejs_options menuitem[restartless="true"] {
+          color: blue;
+        }
+        #userChromejs_restartApp {
+          padding-right: 4px;
+        }
+        #userChromejs_restartApp > .menu-iconic-left {
+          margin-inline-end: 0 !important;
+          padding-inline-end: 0 !important;
+        }
+
+        #userChromejs_openChromeFolder {
+          padding-inline-start: 12px;
+        }
+
+        #userChromejs_restartApp > .menu-accel-container {
+          display: none;
+        }
+
+        /* bug 1828413: checkbox is only rendering on mouseover/mouseout */
+        menuitem[type="checkbox"][checked="true"] .menu-iconic-icon {
+          appearance: checkbox !important;
+        }
+
+        @media (-moz-platform: windows) {
+          #userChromejs_openChromeFolder {
+            padding-block: 0.5em;
+          }
+          #userChromejs_restartApp {
+            padding: 0 8px !important;
+          }
+          #userChromejs_restartApp > .menu-iconic-left {
+            padding-top: 0;
+          }
+        }
+
+        @media (-moz-platform: linux) {
+          #userChromejs_restartApp {
+            padding-right: 4px !important;
+          }
+        }
+      }
+    `)), _uc.sss.USER_SHEET);
+  },
+
   init: function () {
+    this.setStyle();
     this.showToolButton = xPref.get(this.PREF_TOOLSBUTTON);
     if (this.showToolButton === undefined) {
       this.showToolButton = xPref.set(this.PREF_TOOLSBUTTON, false, true);
@@ -415,31 +464,7 @@ UC.rebuild = {
     let menupopup = aDocument.getElementById('userChromejs_options');
     UC.rebuild.menues.forEach(menu => {
       menupopup.insertBefore(menu, aDocument.getElementById('uc-menuseparator'));            
-    })
-
-    let pi = aDocument.createProcessingInstruction(
-      'xml-stylesheet',
-      'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent(`
-      #userChromejs_options menuitem[restartless="true"] {
-        color: blue;
-      }
-      #userChromejs_restartApp {
-        width: 34px;
-        padding-left: 12px;
-        padding-right: 28px;
-      }
-
-      #userChromejs_openChromeFolder {
-        height: 30px;
-        padding-left: 12px;
-      }
-
-      #userChromejs_restartApp > .menu-accel-container {
-        display: none;
-      }
-      `.replace(/[\r\n\t]/g, '')) + '"'
-    );
-    aDocument.insertBefore(pi, aDocument.documentElement);
+    });
 
     aDocument.defaultView.setTimeout((() => UC.rebuild.toggleUI(false, true)), 1000);
 
