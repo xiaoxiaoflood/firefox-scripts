@@ -33,10 +33,7 @@ var EXPORTED_SYMBOLS = ["RDFLiteral", "RDFBlankNode", "RDFResource", "RDFDataSou
 
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyGlobalGetters(this, ["DOMParser", "Element", "fetch"]);
-
-ChromeUtils.defineModuleGetter(this, "Services",
-                               "resource://gre/modules/Services.jsm");
+XPCOMUtils.defineLazyGlobalGetters(this, ["DOMParser", "Element"]);
 
 function isElement(obj) {
   return Element.isInstance(obj);

@@ -12,7 +12,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Blocklist: 'resource://gre/modules/Blocklist.jsm',
   ConsoleAPI: 'resource://gre/modules/Console.jsm',
   InstallRDF: 'chrome://userchromejs/content/RDFManifestConverter.jsm',
-  Services: 'resource://gre/modules/Services.jsm',
 });
 
 Services.obs.addObserver(doc => {

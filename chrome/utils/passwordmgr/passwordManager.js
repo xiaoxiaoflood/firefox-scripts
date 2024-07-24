@@ -2,14 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** * =================== SAVED SIGNONS CODE =================== ***/
-/* eslint-disable-next-line no-var */
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-/* eslint-disable-next-line no-var */
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 ChromeUtils.defineModuleGetter(
   this,
   "DeferredTask",
@@ -300,10 +292,10 @@ function SortTree(column, ascending) {
   }
 }
 
-function LoadSignons() {
+async function LoadSignons() {
   // loads signons into table
   try {
-    signons = Services.logins.getAllLogins();
+    signons = await Services.logins.getAllLogins();
   } catch (e) {
     signons = [];
   }

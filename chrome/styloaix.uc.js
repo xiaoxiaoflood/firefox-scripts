@@ -19,7 +19,7 @@
       if (win.location.href !== _uc.BROWSERCHROME)
         return;
 
-      const { AppConstants, CustomizableUI, document, Services } = win;
+      const { CustomizableUI, document } = win;
       if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
         if (!CustomizableUI.getPlacementOfWidget('styloaix-button')) {
           CustomizableUI.createWidget({

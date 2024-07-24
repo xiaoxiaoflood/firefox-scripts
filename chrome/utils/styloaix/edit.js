@@ -1,13 +1,6 @@
-const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
 const { NetUtil } = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
 
-let require;
-try {
-  ({ require } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm'));
-} catch (e) {
-  // tb91
-  ({ require } = ChromeUtils.import('resource://devtools/shared/Loader.jsm'));
-}
+const { require } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm');
 
 docShell.cssErrorReportingEnabled = true;
 

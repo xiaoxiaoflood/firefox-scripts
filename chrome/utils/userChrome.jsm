@@ -1,6 +1,5 @@
 let EXPORTED_SYMBOLS = [];
 
-const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
 const { xPref } = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
 const { Management } = ChromeUtils.import('resource://gre/modules/Extension.jsm');
 const { AppConstants } = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
@@ -173,6 +172,10 @@ let UserChrome_js = {
   handleEvent: function (aEvent) {
     let document = aEvent.originalTarget;
     let window = document.defaultView;
+    this.load(window);
+  },
+
+  load: function (window) {
     let location = window.location;
 
     if (!this.sharedWindowOpened && location.href == 'chrome://extensions/content/dummy.xhtml') {
@@ -218,5 +221,11 @@ let UserChrome_js = {
 if (!Services.appinfo.inSafeMode) {
   _uc.chromedir.append(_uc.scriptsDir);
   _uc.getScripts();
+  let windows = Services.wm.getEnumerator(null);
+  while (windows.hasMoreElements()) {
+    let win = windows.getNext();
+    if (!('UC' in win))
+      UserChrome_js.load(win)
+  }
   Services.obs.addObserver(UserChrome_js, 'chrome-document-global-created', false);
 }
