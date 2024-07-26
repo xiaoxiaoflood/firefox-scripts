@@ -182,7 +182,7 @@ let UserChrome_js = {
       this.sharedWindowOpened = true;
 
       Management.on('extension-browser-inserted', function (topic, browser) {
-        browser.messageManager.addMessageListener('Extension:ExtensionViewLoaded', this.messageListener.bind(this));
+        browser.messageManager.addMessageListener('Extension:BackgroundViewLoaded', this.messageListener.bind(this));
       }.bind(this));
     } else if (/^(chrome:(?!\/\/global\/content\/commonDialog\.x?html)|about:(?!blank))/i.test(location.href)) {
       window.UC = UC;
@@ -205,7 +205,7 @@ let UserChrome_js = {
     const browser = msg.target;
     const { addonId } = browser._contentPrincipal;
 
-    browser.messageManager.removeMessageListener('Extension:ExtensionViewLoaded', this.messageListener);
+    browser.messageManager.removeMessageListener('Extension:BackgroundViewLoaded', this.messageListener);
 
     if (browser.ownerGlobal.location.href == 'chrome://extensions/content/dummy.xhtml') {
       UC.webExts.set(addonId, browser);
