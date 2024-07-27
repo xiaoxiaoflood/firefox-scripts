@@ -57,7 +57,6 @@
     },
 
     init: function () {
-      xPref.lock(this.PREF_MOZDOCUMENT, true);
       xPref.set(this.PREF_FIRSTRUN, true, true);
       xPref.set(this.PREF_DISABLED, false, true);
       xPref.set(this.PREF_STYLESDISABLED, '[]', true);
@@ -365,7 +364,6 @@
     PREF_INSTANTINTERVAL: 'userChromeJS.styloaix.instantInterval',
     PREF_OPENINWINDOW: 'userChromeJS.styloaix.openInWindow',
     PREF_LINEWRAPPING: 'userChromeJS.styloaix.lineWrapping',
-    PREF_MOZDOCUMENT: 'layout.css.moz-document.content.enabled',
     EDITOR_URI: 'chrome://userchromejs/content/styloaix/edit.xhtml',
     STYLESDIR: 'resource://userchromejs/' + (_uc.scriptsDir ? _uc.scriptsDir + '/' : '') + 'UserStyles/',
 
@@ -388,7 +386,7 @@
           }
         }
       `)),
-      type: _uc.sss.AUTHOR_SHEET
+      type: _uc.sss.USER_SHEET
     },
 
     styles: new Map(),
@@ -396,7 +394,6 @@
     tbButtons: [],
 
     destroy: function () {
-      xPref.unlock(this.PREF_MOZDOCUMENT);
       xPref.removeListener(this.prefListener);
       xPref.removeListener(this.prefListenerAll);
       if (Services.wm.getMostRecentWindow(null).AppConstants.MOZ_APP_NAME !== 'thunderbird')
@@ -471,4 +468,3 @@
   UC.styloaix.init();
 
 })()
-

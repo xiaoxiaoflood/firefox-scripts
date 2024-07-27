@@ -200,10 +200,7 @@ function save () {
   const ostream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
   ostream.init(file, -1, -1, 0);
 
-  const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
-  converter.charset = 'UTF-8';
-
-  const istream = converter.convertToInputStream(codeElementWrapper.value);
+  const istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream).setUTF8Data(codeElementWrapper.value);
 
   NetUtil.asyncCopy(istream, ostream, function (aResult) {
     if (Components.isSuccessCode(aResult)) {
