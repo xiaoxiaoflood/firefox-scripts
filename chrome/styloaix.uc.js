@@ -379,10 +379,18 @@
         }
         @-moz-document url('${_uc.BROWSERCHROME}') {
           .styloaix-usersheet .menu-iconic-accel {
-            color: blue;
+            color: blue !important;
           }
           .styloaix-agentsheet .menu-iconic-accel {
-            color: green;
+            color: green !important;
+          }
+        }
+        /* bug 1719535 caused "!important" to be able to wrap in different lines,
+         * as if "!" were a word. It's not, "!important" must not be separated.
+         */
+        @-moz-document url-prefix('chrome://devtools/content/shared/sourceeditor/codemirror/cmiframe.html') {
+          .CodeMirror pre.CodeMirror-line > span > span:is(.cm-keyword, .cm-variable-2, .cm-number) {
+            white-space: nowrap;
           }
         }
       `)),

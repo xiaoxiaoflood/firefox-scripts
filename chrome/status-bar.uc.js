@@ -136,7 +136,7 @@ UC.statusBar = {
         @-moz-document url('${_uc.BROWSERCHROME}') {
           #status-bar {
             color: initial !important;
-            background-color: var(--toolbar-non-lwt-bgcolor);
+            background-color: var(--toolbar-non-lwt-bgcolor) !important;
           }
           #status-text > #statuspanel-label {
             border-top: 0 !important;

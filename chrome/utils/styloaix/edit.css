@@ -46,3 +46,11 @@ input.devtools-textinput {
 	padding: 5px;
   align-items: center;
 }
+
+.source-editor-frame {
+  flex: 1;
+}
+
+.CodeMirror pre.CodeMirror-line > span > span:is(.cm-keyword, .cm-variable-2, .cm-number) {
+  white-space: nowrap;
+}

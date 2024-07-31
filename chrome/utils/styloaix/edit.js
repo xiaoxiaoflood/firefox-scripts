@@ -128,10 +128,24 @@ function initEditor () {
     value: initialCode,
     maxHighlightLength: 10000
   });
-  
+
+  // https://searchfox.org/mozilla-central/source/devtools/client/shared/test/shared-head.js#2284-2295
+  function getClientCssProperties() {
+    const {
+      generateCssProperties,
+    } = require('resource://devtools/server/actors/css-properties.js');
+    const {
+      CssProperties,
+      normalizeCssData,
+    } = require('resource://devtools/client/fronts/css-properties.js');
+    return new CssProperties(
+      normalizeCssData({ properties: generateCssProperties(document) })
+    );
+  }
+
   sourceEditor.setupAutoCompletion = function () {
     this.extend(require_mini('userchromejs/content/styloaix/autocomplete'));
-    this.initializeAutoCompletion();
+    this.initializeAutoCompletion({ cssProperties: getClientCssProperties() });
   };
 
   document.getElementById('editor').selectedIndex = 1;
@@ -200,7 +214,8 @@ function save () {
   const ostream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
   ostream.init(file, -1, -1, 0);
 
-  const istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream).setUTF8Data(codeElementWrapper.value);
+  const istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+  istream.setUTF8Data(codeElementWrapper.value);
 
   NetUtil.asyncCopy(istream, ostream, function (aResult) {
     if (Components.isSuccessCode(aResult)) {
