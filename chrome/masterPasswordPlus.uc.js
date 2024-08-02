@@ -39,7 +39,7 @@ UC.masterPasswordPlus = {
       id: 'mpPinput',
       type: 'password',
       value: this.typed,
-      style: 'border: 1px solid black; text-align: center; position: absolute; top:0; bottom: 0; left: 0; right: 0; margin: auto; padding: 3px;'
+      style: 'border: 1px solid black; text-align: center; position: absolute; top:0; bottom: 0; left: 0; right: 0; margin: auto; padding: 3px; width: fit-content; height: fit-content;'
     }, false);
     ovl.appendChild(input);
 

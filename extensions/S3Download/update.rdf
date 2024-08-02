@@ -8,7 +8,7 @@
               "strict_min_version": "125.0a1"
             }
           },
-          "version": "4.14.125.2024.08.01-xiao",
+          "version": "4.14.126.2024.08.02-xiao",
           "update_link": "https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/extensions/S3Download/s3download.xpi"
         }
       ]
