@@ -109,6 +109,7 @@ UC.multifoxContainer = {
   },
 
   init: function () {
+    xPref.lock('privacy.userContext.enabled', true);
     this.setStyle();
     _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
 
@@ -122,7 +123,7 @@ UC.multifoxContainer = {
       let hbox = document.getElementById('userContext-icons');
       hbox.hidden = false;
       hbox.className = 'identity-color-black';
-      document.getElementById('userContext-label').value = 'Default';
+      document.getElementById('userContext-label').textContent = 'Default';
       document.getElementById('userContext-indicator').className = 'identity-icon-fingerprint';
     }
   },
@@ -151,6 +152,7 @@ UC.multifoxContainer = {
   },
 
   destroy: function () {
+    xPref.unlock('privacy.userContext.enabled');
     _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
 
     _uc.windows((doc, win) => {
