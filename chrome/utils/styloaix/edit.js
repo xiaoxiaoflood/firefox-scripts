@@ -29,7 +29,7 @@ if (isChromeWindow) {
   id = params.get('id');
 }
 
-origin = 2;
+origin = 1;
 let lastOrigin;
 let unsaved = false;
 let previewCode;
