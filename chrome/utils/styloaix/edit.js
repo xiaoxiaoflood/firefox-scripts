@@ -209,7 +209,7 @@ function save () {
   const file = UC.styloaix.CSSDIR.clone();
   file.append(finalTitle);
   if (!file.exists())
-    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644/*FileUtils.PERMS_FILE*/);
 
   const ostream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
   ostream.init(file, -1, -1, 0);

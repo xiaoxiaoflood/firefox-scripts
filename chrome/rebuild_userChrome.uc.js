@@ -364,30 +364,12 @@ UC.rebuild = {
         type: 'custom',
         defaultArea: CustomizableUI.AREA_NAVBAR,
         onBuild: (doc) => {
+          this.createPanel(doc);
           return this.createButton(doc);
         }
       });
     } else {
-      const { document, location } = window;
-      const btn = this.createButton(document);
-      btn.setAttribute('removable', true);
-      const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
-      if (toolbar.parentElement.palette)
-        toolbar.parentElement.palette.appendChild(btn);
-      else
-        toolbar.appendChild(btn);
-
-      if (xPref.get('userChromeJS.firstRun') !== false) {
-        xPref.set('userChromeJS.firstRun', false);
-        if (!toolbar.getAttribute('currentset').split(',').includes(btn.id)) {
-          toolbar.appendChild(btn);
-          toolbar.setAttribute('currentset', toolbar.currentSet);
-          Services.xulStore.persist(toolbar, 'currentset');
-        }
-      } else {
-        toolbar.currentSet = Services.xulStore.getValue(location.href, toolbar.id, 'currentset');
-        toolbar.setAttribute('currentset', toolbar.currentSet);
-      }
+      this.createPanel(window.document);
     }
   },
 
@@ -468,6 +450,10 @@ UC.rebuild = {
 
     aDocument.defaultView.setTimeout((() => UC.rebuild.toggleUI(false, true)), 1000);
 
+    return toolbaritem;
+  },
+
+  createPanel (aDocument) {
     const viewCache = aDocument.getElementById('appMenu-viewCache')?.content || aDocument.getElementById('appMenu-multiView');
 
     if (viewCache) {          
@@ -500,8 +486,6 @@ UC.rebuild = {
       const addonsButton = aDocument.getElementById('appMenu-extensions-themes-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.querySelector('#appMenu-extensions-themes-button');
       addonsButton.parentElement.insertBefore(scriptsButton, addonsButton);
     }
-
-    return toolbaritem;
   }
 }
 
