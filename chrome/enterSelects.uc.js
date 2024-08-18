@@ -36,9 +36,14 @@ UC.enterSelects = {
       }
     });
 
+    this.orig_isDeferringEvents = Object.getOwnPropertyDescriptor(this.eventBuffer, 'isDeferringEvents').get;
+    Object.defineProperty(this.eventBuffer, 'isDeferringEvents', {
+      value: true,
+    });
+
     xPref.lock('browser.urlbar.autoFill', false);
     xPref.lock('browser.urlbar.suggest.engines', false);
-    xPref.lock('browser.urlbar.quickactions.enabled', false);
+    xPref.lock('browser.urlbar.suggest.searches', false);
   },
 
   exec: function (win) {
@@ -53,6 +58,7 @@ UC.enterSelects = {
   },
 
   controller: ChromeUtils.importESModule('resource:///modules/UrlbarController.sys.mjs').UrlbarController.prototype,
+  eventBuffer: ChromeUtils.importESModule('resource:///modules/UrlbarEventBufferer.sys.mjs').UrlbarEventBufferer.prototype,
   input: ChromeUtils.importESModule('resource:///modules/UrlbarInput.sys.mjs').UrlbarInput.prototype,
 
   shouldSelect: function (gURLBar, queryContext) {
@@ -108,7 +114,13 @@ UC.enterSelects = {
 
   destroy: function () {
     xPref.unlock('browser.urlbar.autoFill');
-    xPref.unlock('browser.urlbar.showSearchSuggestionsFirst');
+    xPref.unlock('browser.urlbar.suggest.engines');
+    xPref.unlock('browser.urlbar.suggest.searches');
+
+    Object.defineProperty(this.eventBuffer, 'isDeferringEvents', {
+      get: this.orig_isDeferringEvents,
+    });
+
     _uc.windows((doc, win) => {
       this.controller.receiveResults = this.orig_receiveResults;
       this.input.setValueFromResult = this.orig_setValueFromResult;
