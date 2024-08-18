@@ -4,14 +4,10 @@
 
 'use strict';
 
-let EXPORTED_SYMBOLS = [];
-
-const { XPCOMUtils } = ChromeUtils.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  Blocklist: 'resource://gre/modules/Blocklist.jsm',
-  ConsoleAPI: 'resource://gre/modules/Console.jsm',
-  InstallRDF: 'chrome://userchromejs/content/RDFManifestConverter.jsm',
+ChromeUtils.defineESModuleGetters(this, {
+  Blocklist: 'resource://gre/modules/Blocklist.sys.mjs',
+  ConsoleAPI: 'resource://gre/modules/Console.sys.mjs',
+  InstallRDF: 'chrome://userchromejs/content/RDFManifestConverter.sys.mjs',
 });
 
 Services.obs.addObserver(doc => {
@@ -22,7 +18,7 @@ Services.obs.addObserver(doc => {
     win.customElements.get('addon-card').prototype.handleEvent = function (e) {
       if (e.type === 'click' &&
           e.target.getAttribute('action') === 'preferences' &&
-          this.addon.optionsType == 1/*AddonManager.OPTIONS_TYPE_DIALOG*/) {
+          this.addon.__AddonInternal__.optionsType == 1/*AddonManager.OPTIONS_TYPE_DIALOG*/) {
         var windows = Services.wm.getEnumerator(null);
         while (windows.hasMoreElements()) {
           var win2 = windows.getNext();
@@ -43,45 +39,30 @@ Services.obs.addObserver(doc => {
     let update_orig = win.customElements.get('addon-options').prototype.update;
     win.customElements.get('addon-options').prototype.update = function (card, addon) {
       update_orig.apply(this, arguments);
-      if (addon.optionsType == 1/*AddonManager.OPTIONS_TYPE_DIALOG*/)
+      if (addon.__AddonInternal__.optionsType == 1/*AddonManager.OPTIONS_TYPE_DIALOG*/)
         this.querySelector('panel-item[data-l10n-id="preferences-addon-button"]').hidden = false;
     }
   }
 }, 'chrome-document-loaded');
 
-const {AddonManager} = ChromeUtils.import('resource://gre/modules/AddonManager.jsm');
-const {XPIDatabase, AddonInternal} = ChromeUtils.import('resource://gre/modules/addons/XPIDatabase.jsm');
+const { AddonManager } = ChromeUtils.importESModule('resource://gre/modules/AddonManager.sys.mjs');
+const { XPIDatabase, AddonInternal } = ChromeUtils.importESModule('resource://gre/modules/addons/XPIDatabase.sys.mjs');
+const { XPIExports } = ChromeUtils.importESModule('resource://gre/modules/addons/XPIExports.sys.mjs');
 
-const { defineAddonWrapperProperty } = Cu.import('resource://gre/modules/addons/XPIDatabase.jsm');
-defineAddonWrapperProperty('optionsType', function optionsType() {
-  if (!this.isActive) {
-    return null;
-  }
-
-  let addon = this.__AddonInternal__;
-  let hasOptionsURL = !!this.optionsURL;
-
-  if (addon.optionsType) {
-    switch (parseInt(addon.optionsType, 10)) {
-      case 1/*AddonManager.OPTIONS_TYPE_DIALOG*/:
-      case AddonManager.OPTIONS_TYPE_TAB:
-      case AddonManager.OPTIONS_TYPE_INLINE_BROWSER:
-        return hasOptionsURL ? addon.optionsType : null;
-    }
-    return null;
-  }
-
-  return null;
-});
+var orig_verifyBundleSignedState = XPIExports.verifyBundleSignedState;
+XPIExports.verifyBundleSignedState = async (aBundle, aAddon) => {
+  if(!aAddon.isWebExtension && aAddon.type === "extension") return { signedState: undefined, signedTypes: [] };
+  return orig_verifyBundleSignedState(aBundle, aAddon);
+}
 
 XPIDatabase.isDisabledLegacy = () => false;
 
-XPCOMUtils.defineLazyGetter(this, 'BOOTSTRAP_REASONS', () => {
-  const {XPIProvider} = ChromeUtils.import('resource://gre/modules/addons/XPIProvider.jsm');
+ChromeUtils.defineLazyGetter(this, 'BOOTSTRAP_REASONS', () => {
+  const { XPIProvider } = ChromeUtils.importESModule('resource://gre/modules/addons/XPIProvider.sys.mjs');
   return XPIProvider.BOOTSTRAP_REASONS;
 });
 
-const {Log} = ChromeUtils.import('resource://gre/modules/Log.jsm');
+const { Log } = ChromeUtils.importESModule('resource://gre/modules/Log.sys.mjs');
 var logger = Log.repository.getLogger('addons.bootstrap');
 
 /**
@@ -332,6 +313,16 @@ var BootstrapLoader = {
       addon.icons[64] = 'icon64.png';
     }
 
+    Object.defineProperty(addon, 'appDisabled', {
+      set: _ => {},
+      get: _ => false
+    });
+
+    Object.defineProperty(addon, 'signedState', {
+      set: _ => {},
+      get: _ => AddonManager.SIGNEDSTATE_NOT_REQUIRED
+    });
+
     return addon;
   },
 
@@ -350,7 +341,7 @@ var BootstrapLoader = {
     try {
       Object.assign(sandbox, BOOTSTRAP_REASONS);
 
-      XPCOMUtils.defineLazyGetter(sandbox, 'console', () =>
+      ChromeUtils.defineLazyGetter(sandbox, 'console', () =>
         new ConsoleAPI({ consoleID: `addon/${addon.id}` }));
 
       Services.scriptloader.loadSubScript(uri, sandbox);

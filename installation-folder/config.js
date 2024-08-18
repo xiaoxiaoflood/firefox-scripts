@@ -8,10 +8,7 @@ try {
   cmanifest.append('chrome.manifest');
   Components.manager.QueryInterface(Ci.nsIComponentRegistrar).autoRegister(cmanifest);
 
-  const objRef = ChromeUtils.importESModule('resource://gre/modules/addons/XPIDatabase.sys.mjs');
-  objRef.XPIDatabase.SIGNED_TYPES.delete('extension');
-
-  ChromeUtils.import('chrome://userchromejs/content/BootstrapLoader.jsm');
+  Services.scriptloader.loadSubScript('chrome://userchromejs/content/BootstrapLoader.js');
 } catch (ex) {};
 
 try {

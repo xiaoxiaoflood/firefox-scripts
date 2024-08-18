@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
-var EXPORTED_SYMBOLS = ["InstallRDF"];
-
-ChromeUtils.defineModuleGetter(this, "RDFDataSource",
-                               "chrome://userchromejs/content/RDFDataSource.jsm");
+import { RDFDataSource } from "chrome://userchromejs/content/RDFDataSource.sys.mjs";
 
 const RDFURI_INSTALL_MANIFEST_ROOT = "urn:mozilla:install-manifest";
 
@@ -32,7 +29,7 @@ class Manifest {
   }
 }
 
-class InstallRDF extends Manifest {
+export class InstallRDF extends Manifest {
   _readProps(source, obj, props) {
     for (let prop of props) {
       let val = getProperty(source, prop);
