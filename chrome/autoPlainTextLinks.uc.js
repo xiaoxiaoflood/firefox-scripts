@@ -16,7 +16,6 @@ UC.autoPlainTextLinks = {
 //console.log("AutoPlainTextLinks framescript loading");
 
 Cu.import("resource://gre/modules/SelectionUtils.jsm");
-const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 Cu.import("chrome://userchromejs/content/hookFunction.jsm");
 
 const HookFlag = "AutoPlainTextLinks.Hooked";
