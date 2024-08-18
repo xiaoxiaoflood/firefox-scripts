@@ -286,7 +286,56 @@ UC.rebuild = {
     return el;
   },
 
+  setStyle: function () {
+    _uc.sss.loadAndRegisterSheet(Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
+      @-moz-document url('${_uc.BROWSERCHROME}') {
+        #userChromejs_options menuitem[restartless="true"] {
+          color: blue;
+        }
+        #userChromejs_restartApp {
+          padding-right: 4px;
+        }
+        #userChromejs_restartApp > .menu-iconic-left {
+          margin-inline-end: 0 !important;
+          padding-inline-end: 0 !important;
+        }
+
+        #userChromejs_openChromeFolder {
+          padding-inline-start: 12px;
+        }
+
+        #userChromejs_restartApp > .menu-accel-container {
+          display: none;
+        }
+
+        /* bug 1828413: checkbox is only rendering on mouseover/mouseout */
+        menuitem[type="checkbox"][checked="true"] .menu-iconic-icon {
+          appearance: checkbox !important;
+        }
+
+        @media (-moz-platform: windows) {
+          #userChromejs_openChromeFolder {
+            padding-block: 0.5em;
+          }
+          #userChromejs_restartApp {
+            padding: 0 8px !important;
+          }
+          #userChromejs_restartApp > .menu-iconic-left {
+            padding-top: 0;
+          }
+        }
+
+        @media (-moz-platform: linux) {
+          #userChromejs_restartApp {
+            padding-right: 4px !important;
+          }
+        }
+      }
+    `)), _uc.sss.USER_SHEET);
+  },
+
   init: function () {
+    this.setStyle();
     this.showToolButton = xPref.get(this.PREF_TOOLSBUTTON);
     if (this.showToolButton === undefined) {
       this.showToolButton = xPref.set(this.PREF_TOOLSBUTTON, false, true);
@@ -315,30 +364,12 @@ UC.rebuild = {
         type: 'custom',
         defaultArea: CustomizableUI.AREA_NAVBAR,
         onBuild: (doc) => {
+          this.createPanel(doc);
           return this.createButton(doc);
         }
       });
     } else {
-      const { document, location } = window;
-      const btn = this.createButton(document);
-      btn.setAttribute('removable', true);
-      const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
-      if (toolbar.parentElement.palette)
-        toolbar.parentElement.palette.appendChild(btn);
-      else
-        toolbar.appendChild(btn);
-
-      if (xPref.get('userChromeJS.firstRun') !== false) {
-        xPref.set('userChromeJS.firstRun', false);
-        if (!toolbar.getAttribute('currentset').split(',').includes(btn.id)) {
-          toolbar.appendChild(btn);
-          toolbar.setAttribute('currentset', toolbar.currentSet);
-          Services.xulStore.persist(toolbar, 'currentset');
-        }
-      } else {
-        toolbar.currentSet = Services.xulStore.getValue(location.href, toolbar.id, 'currentset');
-        toolbar.setAttribute('currentset', toolbar.currentSet);
-      }
+      this.createPanel(window.document);
     }
   },
 
@@ -415,23 +446,14 @@ UC.rebuild = {
     let menupopup = aDocument.getElementById('userChromejs_options');
     UC.rebuild.menues.forEach(menu => {
       menupopup.insertBefore(menu, aDocument.getElementById('uc-menuseparator'));            
-    })
-
-    let pi = aDocument.createProcessingInstruction(
-      'xml-stylesheet',
-      'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent(`
-      #userChromejs_options menuitem[restartless="true"] {
-        color: blue;
-      }
-      #userChromejs_restartApp {
-        width: 34px;
-      }
-      `.replace(/[\r\n\t]/g, '')) + '"'
-    );
-    aDocument.insertBefore(pi, aDocument.documentElement);
+    });
 
     aDocument.defaultView.setTimeout((() => UC.rebuild.toggleUI(false, true)), 1000);
 
+    return toolbaritem;
+  },
+
+  createPanel (aDocument) {
     const viewCache = aDocument.getElementById('appMenu-viewCache')?.content || aDocument.getElementById('appMenu-multiView');
 
     if (viewCache) {          
@@ -464,8 +486,6 @@ UC.rebuild = {
       const addonsButton = aDocument.getElementById('appMenu-extensions-themes-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.querySelector('#appMenu-extensions-themes-button');
       addonsButton.parentElement.insertBefore(scriptsButton, addonsButton);
     }
-
-    return toolbaritem;
   }
 }
 

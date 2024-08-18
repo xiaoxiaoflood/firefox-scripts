@@ -1,13 +1,6 @@
-const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm');
 const { NetUtil } = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
 
-let require;
-try {
-  ({ require } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm'));
-} catch (e) {
-  // tb91
-  ({ require } = ChromeUtils.import('resource://devtools/shared/Loader.jsm'));
-}
+const { require } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm');
 
 docShell.cssErrorReportingEnabled = true;
 
@@ -36,7 +29,7 @@ if (isChromeWindow) {
   id = params.get('id');
 }
 
-origin = 2;
+origin = 1;
 let lastOrigin;
 let unsaved = false;
 let previewCode;
@@ -135,10 +128,24 @@ function initEditor () {
     value: initialCode,
     maxHighlightLength: 10000
   });
-  
+
+  // https://searchfox.org/mozilla-central/source/devtools/client/shared/test/shared-head.js#2284-2295
+  function getClientCssProperties() {
+    const {
+      generateCssProperties,
+    } = require('resource://devtools/server/actors/css-properties.js');
+    const {
+      CssProperties,
+      normalizeCssData,
+    } = require('resource://devtools/client/fronts/css-properties.js');
+    return new CssProperties(
+      normalizeCssData({ properties: generateCssProperties(document) })
+    );
+  }
+
   sourceEditor.setupAutoCompletion = function () {
     this.extend(require_mini('userchromejs/content/styloaix/autocomplete'));
-    this.initializeAutoCompletion();
+    this.initializeAutoCompletion({ cssProperties: getClientCssProperties() });
   };
 
   document.getElementById('editor').selectedIndex = 1;
@@ -202,15 +209,13 @@ function save () {
   const file = UC.styloaix.CSSDIR.clone();
   file.append(finalTitle);
   if (!file.exists())
-    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o666);
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644/*FileUtils.PERMS_FILE*/);
 
   const ostream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
   ostream.init(file, -1, -1, 0);
 
-  const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
-  converter.charset = 'UTF-8';
-
-  const istream = converter.convertToInputStream(codeElementWrapper.value);
+  const istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+  istream.setUTF8Data(codeElementWrapper.value);
 
   NetUtil.asyncCopy(istream, ostream, function (aResult) {
     if (Components.isSuccessCode(aResult)) {

@@ -1,6 +1,5 @@
 let EXPORTED_SYMBOLS = [];
 
-const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 const { xPref } = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
 const { Management } = ChromeUtils.import('resource://gre/modules/Extension.jsm');
 const { AppConstants } = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
@@ -173,13 +172,17 @@ let UserChrome_js = {
   handleEvent: function (aEvent) {
     let document = aEvent.originalTarget;
     let window = document.defaultView;
+    this.load(window);
+  },
+
+  load: function (window) {
     let location = window.location;
 
     if (!this.sharedWindowOpened && location.href == 'chrome://extensions/content/dummy.xhtml') {
       this.sharedWindowOpened = true;
 
       Management.on('extension-browser-inserted', function (topic, browser) {
-        browser.messageManager.addMessageListener('Extension:ExtensionViewLoaded', this.messageListener.bind(this));
+        browser.messageManager.addMessageListener('Extension:BackgroundViewLoaded', this.messageListener.bind(this));
       }.bind(this));
     } else if (/^(chrome:(?!\/\/global\/content\/commonDialog\.x?html)|about:(?!blank))/i.test(location.href)) {
       window.UC = UC;
@@ -202,7 +205,7 @@ let UserChrome_js = {
     const browser = msg.target;
     const { addonId } = browser._contentPrincipal;
 
-    browser.messageManager.removeMessageListener('Extension:ExtensionViewLoaded', this.messageListener);
+    browser.messageManager.removeMessageListener('Extension:BackgroundViewLoaded', this.messageListener);
 
     if (browser.ownerGlobal.location.href == 'chrome://extensions/content/dummy.xhtml') {
       UC.webExts.set(addonId, browser);
@@ -218,5 +221,11 @@ let UserChrome_js = {
 if (!Services.appinfo.inSafeMode) {
   _uc.chromedir.append(_uc.scriptsDir);
   _uc.getScripts();
+  let windows = Services.wm.getEnumerator(null);
+  while (windows.hasMoreElements()) {
+    let win = windows.getNext();
+    if (!('UC' in win))
+      UserChrome_js.load(win)
+  }
   Services.obs.addObserver(UserChrome_js, 'chrome-document-global-created', false);
 }

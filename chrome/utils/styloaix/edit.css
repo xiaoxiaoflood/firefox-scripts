@@ -26,7 +26,7 @@ input.devtools-textinput {
 	padding: 4px;
   margin: 0 6px 0 4px;
   border: 1px solid ThreeDShadow;
-  -moz-box-flex: 1;
+  flex: 1;
 }
 .devtools-toolbarbutton {
 	border-radius: 2px !important;
@@ -44,5 +44,13 @@ input.devtools-textinput {
 }
 #editor-tools {
 	padding: 5px;
-  -moz-box-align: center;
+  align-items: center;
+}
+
+.source-editor-frame {
+  flex: 1;
+}
+
+.CodeMirror pre.CodeMirror-line > span > span:is(.cm-keyword, .cm-variable-2, .cm-number) {
+  white-space: nowrap;
 }

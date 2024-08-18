@@ -13,13 +13,24 @@
 
 // search for "userChromeJS.styloaix" in about:config to change settings.
 
+// exclusive prefs for Thunderbird:
+// - userChromeJS.styloaix.buttonRefElement:
+//     CSS selector for the element StyloaiX button depends on for its insertion in main window.
+//     default is the ☰ button.
+// - userChromeJS.styloaix.buttonPosition:
+//     related to previous pref. Should be a number between 0 and 3:
+//     - 0: button will be inserted BEFORE ref element (default);
+//     - 1: button will be the FIRST CHILD of ref relement;
+//     - 2: button will be the LAST CHILD of ref relement;
+//     - 3: button will be inserted AFTER ref relement.
+
 (function () {
   UC.styloaix = {
     exec: function (win) {
-      if (win.location.href !== _uc.BROWSERCHROME)
+      if (win.location.href !== _uc.BROWSERCHROME && win.location.href !== this.TBDETACHEDMAIL && win.location.href !== this.TBMAILCOMPOSEWIN)
         return;
 
-      const { AppConstants, CustomizableUI, document, Services } = win;
+      const { CustomizableUI, document } = win;
       if (AppConstants.MOZ_APP_NAME !== 'thunderbird') {
         if (!CustomizableUI.getPlacementOfWidget('styloaix-button')) {
           CustomizableUI.createWidget({
@@ -33,23 +44,39 @@
         }
       } else {
         const btn = this.createButton(document);
-        btn.setAttribute('removable', true);
-        const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
-        if (toolbar.parentElement.palette)
-          toolbar.parentElement.palette.appendChild(btn);
-        else
-          toolbar.appendChild(btn);
 
-        if (xPref.get(this.PREF_FIRSTRUN)) {
-          xPref.set(this.PREF_FIRSTRUN, false);
-          if (!toolbar.getAttribute('currentset').split(',').includes(btn.id)) {
-            toolbar.appendChild(btn);
-            toolbar.setAttribute('currentset', toolbar.currentSet);
-            Services.xulStore.persist(toolbar, 'currentset');
+        if (win.location.href === _uc.BROWSERCHROME) {
+          btn.removeAttribute('label');
+          btn.classList.add('button', 'toolbar-button');
+
+          let observer = (subject) => {
+            this.insertTbButton(btn);
+            Services.obs.removeObserver(observer, 'browser-delayed-startup-finished');
           }
+
+          if (document.readyState !== 'complete')
+            Services.obs.addObserver(observer, 'browser-delayed-startup-finished');
+          else
+            this.insertTbButton(btn);
         } else {
-          toolbar.currentSet = Services.xulStore.getValue(win.location.href, toolbar.id, 'currentset');
-          toolbar.setAttribute('currentset', toolbar.currentSet);
+          btn.setAttribute('removable', true);
+          const toolbar = document.querySelector('toolbar[customizable=true].chromeclass-toolbar');
+          if (toolbar.parentElement.palette)
+            toolbar.parentElement.palette.appendChild(btn);
+          else
+            toolbar.appendChild(btn);
+
+          if (xPref.get(this.PREF_FIRSTRUN)) {
+            xPref.set(this.PREF_FIRSTRUN, false);
+            if (!toolbar.getAttribute('currentset').split(',').includes(btn.id)) {
+              toolbar.appendChild(btn);
+              toolbar.setAttribute('currentset', toolbar.currentSet);
+              Services.xulStore.persist(toolbar, 'currentset');
+            }
+          } else {
+            toolbar.currentSet = Services.xulStore.getValue(win.location.href, toolbar.id, 'currentset');
+            toolbar.setAttribute('currentset', toolbar.currentSet);
+          }
         }
 
         this.tbButtons.push(btn);
@@ -57,7 +84,6 @@
     },
 
     init: function () {
-      xPref.lock(this.PREF_MOZDOCUMENT, true);
       xPref.set(this.PREF_FIRSTRUN, true, true);
       xPref.set(this.PREF_DISABLED, false, true);
       xPref.set(this.PREF_STYLESDISABLED, '[]', true);
@@ -66,8 +92,10 @@
       xPref.set(this.PREF_INSTANTINTERVAL, 500, true);
       xPref.set(this.PREF_LINEWRAPPING, true, true);
       xPref.set(this.PREF_OPENINWINDOW, true, true);
+      xPref.set(this.PREF_TBBTNREFELEMENT, '#button-appmenu', true);
+      xPref.set(this.PREF_TBBTNREFPOSITION, 0, true);
 
-      this.prefListener = xPref.addListener(this.PREF_STYLESDISABLED, (sDisabled) => {
+      this.prefListenerDisabledStyles = xPref.addListener(this.PREF_STYLESDISABLED, (sDisabled) => {
         let newSet;
         try {
           newSet = new Set(JSON.parse(sDisabled));
@@ -82,7 +110,8 @@
             this.toggleStyle(style);
         });
       });
-      this.prefListenerAll = xPref.addListener(this.PREF_DISABLED, (disabled) => {
+
+      this.prefListenerStateEnabled = xPref.addListener(this.PREF_DISABLED, (disabled) => {
         this.toggleAll({disable: disabled});
         this.btnClasses.reverse();
         _uc.windows((doc) => {
@@ -92,6 +121,14 @@
           doc.getElementById('styloaix-button').classList.replace(...this.btnClasses);
           doc.getElementById('styloaix-reload-all').disabled = disabled;
         });
+      });
+
+      this.prefListenerTbBtnRef = xPref.addListener(this.PREF_TBBTNREFELEMENT, () => {
+        this.insertTbButton();
+      });
+
+      this.prefListenerTbBtnRefPos = xPref.addListener(this.PREF_TBBTNREFPOSITION, () => {
+        this.insertTbButton();
       });
 
       this.disabledStyles = new DisabledSet(JSON.parse(xPref.get(this.PREF_STYLESDISABLED)).sort((a, b) => a[0].localeCompare(b[0])));
@@ -104,6 +141,26 @@
       this.loadStyles();
 
       _uc.sss.loadAndRegisterSheet(this.STYLE.url, this.STYLE.type);
+    },
+
+    get tbBtnRefPosition() {
+      switch (xPref.get(this.PREF_TBBTNREFPOSITION)) {
+        default:
+          return 'beforebegin';
+        case 1:
+          return 'afterbegin';
+        case 2:
+          return 'beforeend';
+        case 3:
+          return 'afterend';
+      }
+    },
+
+    insertTbButton (btn) {
+      let win = Services.wm.getMostRecentBrowserWindow('navigator');
+      btn ??= win.document.getElementById('styloaix-button');
+      let refElement = win.document.querySelector(xPref.get(this.PREF_TBBTNREFELEMENT));
+      refElement?.insertAdjacentElement(this.tbBtnRefPosition, btn);
     },
 
     createButton (doc) {
@@ -350,7 +407,7 @@
       let cssFolder = _uc.chromedir.clone();
       cssFolder.append('UserStyles');
       if (!cssFolder.exists() || !cssFolder.isDirectory())
-        cssFolder.create(Ci.nsIFile.DIRECTORY_TYPE, 0664);
+        cssFolder.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755/*FileUtils.PERMS_DIRECTORY*/);
       Object.defineProperty(this, 'CSSDIR', { value: cssFolder });
       return cssFolder;
     },
@@ -365,30 +422,46 @@
     PREF_INSTANTINTERVAL: 'userChromeJS.styloaix.instantInterval',
     PREF_OPENINWINDOW: 'userChromeJS.styloaix.openInWindow',
     PREF_LINEWRAPPING: 'userChromeJS.styloaix.lineWrapping',
-    PREF_MOZDOCUMENT: 'layout.css.moz-document.content.enabled',
+    PREF_TBBTNREFELEMENT: 'userChromeJS.styloaix.buttonRefElement',
+    PREF_TBBTNREFPOSITION: 'userChromeJS.styloaix.buttonPosition',
     EDITOR_URI: 'chrome://userchromejs/content/styloaix/edit.xhtml',
     STYLESDIR: 'resource://userchromejs/' + (_uc.scriptsDir ? _uc.scriptsDir + '/' : '') + 'UserStyles/',
+    TBDETACHEDMAIL: 'chrome://messenger/content/messageWindow.xhtml',
+    TBMAILCOMPOSEWIN: 'chrome://messenger/content/messengercompose/messengercompose.xhtml',
 
     STYLE: {
-      url: Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
-        @-moz-document url('${_uc.BROWSERCHROME}'), url('chrome://messenger/content/customizeToolbar.xhtml') {
-          #styloaix-button.icon-white {
-            list-style-image: url('chrome://userchromejs/content/styloaix/16w.png');
+      get url() {
+        return this.url = Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(`
+          @-moz-document url('${_uc.BROWSERCHROME}'), url('chrome://messenger/content/customizeToolbar.xhtml'), url('${UC.styloaix.TBDETACHEDMAIL}'), url('${UC.styloaix.TBMAILCOMPOSEWIN}') {
+            #styloaix-button.icon-white {
+              list-style-image: url('chrome://userchromejs/content/styloaix/16w.png');
+            }
+            #styloaix-button.icon-colored {
+              list-style-image: url('chrome://userchromejs/content/styloaix/16.png');
+            }
           }
-          #styloaix-button.icon-colored {
-            list-style-image: url('chrome://userchromejs/content/styloaix/16.png');
+          @-moz-document url('${_uc.BROWSERCHROME}') {
+            .styloaix-usersheet .menu-iconic-accel {
+              color: blue !important;
+            }
+            .styloaix-agentsheet .menu-iconic-accel {
+              color: green !important;
+            }
+            #styloaix-button > label {
+              display: none;
+            }
           }
-        }
-        @-moz-document url('${_uc.BROWSERCHROME}') {
-          .styloaix-usersheet .menu-iconic-accel {
-            color: blue;
+          /* bug 1719535 caused "!important" to be able to wrap in different lines,
+           * as if "!" were a word. It's not, "!important" must not be separated.
+           */
+          @-moz-document url-prefix('chrome://devtools/content/shared/sourceeditor/codemirror/cmiframe.html') {
+            .CodeMirror pre.CodeMirror-line > span > span:is(.cm-keyword, .cm-variable-2, .cm-number) {
+              white-space: nowrap;
+            }
           }
-          .styloaix-agentsheet .menu-iconic-accel {
-            color: green;
-          }
-        }
-      `)),
-      type: _uc.sss.AUTHOR_SHEET
+        `));
+      },
+      type: _uc.sss.USER_SHEET
     },
 
     styles: new Map(),
@@ -396,15 +469,20 @@
     tbButtons: [],
 
     destroy: function () {
-      xPref.unlock(this.PREF_MOZDOCUMENT);
-      xPref.removeListener(this.prefListener);
-      xPref.removeListener(this.prefListenerAll);
+      xPref.removeListener(this.prefListenerDisabledStyles);
+      xPref.removeListener(this.prefListenerStateEnabled);
+      xPref.removeListener(this.prefListenerTbBtnRef);
+      xPref.removeListener(this.prefListenerTbBtnRefPos);
+
       if (Services.wm.getMostRecentWindow(null).AppConstants.MOZ_APP_NAME !== 'thunderbird')
         Services.wm.getMostRecentBrowserWindow().CustomizableUI.destroyWidget('styloaix-button');
       else
         this.tbButtons.forEach(b => b.remove());
+
       _uc.sss.unregisterSheet(this.STYLE.url, this.STYLE.type);
+
       this.toggleAll({disable: true});
+
       delete UC.styloaix;
     }
   }
@@ -443,10 +521,6 @@
     }
     register () {
       _uc.sss.loadAndRegisterSheet(this.url, this.type);
-      if (AppConstants.MOZ_APP_NAME === 'thunderbird') { // https://bugzilla.mozilla.org/show_bug.cgi?id=1702947
-        this.unregister();
-        _uc.sss.loadAndRegisterSheet(this.url, this.type);
-      }
     }
     unregister () {
       _uc.sss.unregisterSheet(this.url, this.type);
@@ -471,4 +545,3 @@
   UC.styloaix.init();
 
 })()
-

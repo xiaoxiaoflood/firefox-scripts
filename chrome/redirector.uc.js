@@ -10,6 +10,10 @@
 
 UC.Redirector = {
 
+  ignore: [
+    ///^https:\/\/...$/,
+  ],
+
   // [regex, replace, decode, tld]
   rules: [[
     /^https?:\/\/redir\.folha\.com\.br\/redir\/online\/.+?\*(.+)/,
@@ -94,6 +98,10 @@ UC.Redirector = {
       var tld = 'tld';
     }
     var redirectUrl = false;
+    for (const rx of this.ignore) {
+      if (rx.test(originUrl))
+        return false; 
+    }
     aRules?.forEach((rule) => {
       var regex = rule[3] ? new RegExp(rule[0].source.replace(/\.tld/, '\.' + tld)) : rule[0];
       if (regex.test(originUrl)) {
@@ -113,6 +121,7 @@ UC.Redirector = {
 
   observe: function (subject) {
     let httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
+
     if (httpChannel.loadInfo.originAttributes.firstPartyDomain.startsWith('(view-source'))
       return;
     let contentType = httpChannel.loadInfo.externalContentPolicyType;
@@ -120,7 +129,7 @@ UC.Redirector = {
       let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec);
       if (redirectUrl) {
         let loadInfo = httpChannel.loadInfo;
-        loadInfo.browsingContext.embedderElement.loadURI(redirectUrl, {referer: loadInfo.loadingPrincipal?.URI, triggeringPrincipal: loadInfo.triggeringPrincipal});
+        loadInfo.browsingContext.embedderElement.loadURI(Services.io.newURI(redirectUrl), {referer: loadInfo.loadingPrincipal?.URI, triggeringPrincipal: loadInfo.triggeringPrincipal});
       }
     } else if (contentType in this.internalRules) {
       let redirectUrl = this.getRedirectUrl(httpChannel.URI.spec, this.internalRules[contentType]);

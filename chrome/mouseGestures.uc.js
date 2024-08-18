@@ -105,7 +105,7 @@ UC.MGest = {
         let previousTab = gBrowser.selectedTab;
         let lastAccessed = 0;
         for (let tab of gBrowser.tabs) {
-          if (tab.everSelected && tab._lastAccessed > lastAccessed && tab != gBrowser.selectedTab) {
+          if (tab.everSelected && tab._lastAccessed > lastAccessed && tab != gBrowser.selectedTab && !tab.hasAttribute('pending')) {
             lastAccessed = tab._lastAccessed;
             previousTab = tab;
           }
@@ -155,7 +155,7 @@ UC.MGest = {
       name: 'Video 2× speed',
       cmd: function () {
         function speedUpVideo (win) {
-          let video = win.document.querySelector('html > div > video');
+          let video = win.document.querySelector('html > div video[src]');
           if (video)
             video.playbackRate = video.playbackRate == video.defaultPlaybackRate ? 3 : video.defaultPlaybackRate;
         };
@@ -166,7 +166,7 @@ UC.MGest = {
       name: 'Video advance 5 seconds',
       cmd: function () {
         function advanceVideo (win) {
-          let video = win.document.querySelector('html > div > video');
+          let video = win.document.querySelector('html > div video[src]');
           if (video)
             video.currentTime += 5;
         };
@@ -177,7 +177,7 @@ UC.MGest = {
       name: 'Video rewind 5 seconds',
       cmd: function () {
         function rewindVideo (win) {
-          let video = win.document.querySelector('html > div > video');
+          let video = win.document.querySelector('html > div video[src]');
           if (video)
             video.currentTime -= 5;
         };

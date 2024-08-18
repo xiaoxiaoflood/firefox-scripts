@@ -32,9 +32,8 @@ const NS_NC = "http://home.netscape.com/NC-rdf#";
 var EXPORTED_SYMBOLS = ["RDFLiteral", "RDFBlankNode", "RDFResource", "RDFDataSource"];
 
 const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-XPCOMUtils.defineLazyGlobalGetters(this, ["DOMParser", "Element", "fetch"]);
+XPCOMUtils.defineLazyGlobalGetters(this, ["DOMParser", "Element"]);
 
 function isElement(obj) {
   return Element.isInstance(obj);

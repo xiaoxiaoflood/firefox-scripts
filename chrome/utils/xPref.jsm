@@ -1,7 +1,5 @@
 let EXPORTED_SYMBOLS = ['xPref'];
 
-const Services = globalThis.Services || ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
-
 var xPref = {
   // Retorna o valor da preferência, seja qual for o tipo, mas não
   // testei com tipos complexos como nsIFile, não sei como detectar
@@ -81,7 +79,7 @@ var xPref = {
 
     Services.prefs.addObserver(prefPath, this.observer);
     return {
-      prefPath: prefPath,
+      prefPath,
       observer: this.observer
     };
   },

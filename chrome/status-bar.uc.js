@@ -57,6 +57,7 @@ UC.statusBar = {
     let dummystatusbar = _uc.createElement(document, 'toolbar', {
       id: 'status-dummybar',
       toolbarname: 'Status Bar',
+      accesskey: 'S',
       hidden: 'true'
     });
     dummystatusbar.collapsed = !this.enabled;
@@ -136,7 +137,7 @@ UC.statusBar = {
         @-moz-document url('${_uc.BROWSERCHROME}') {
           #status-bar {
             color: initial !important;
-            background-color: var(--toolbar-non-lwt-bgcolor);
+            background-color: var(--toolbar-non-lwt-bgcolor) !important;
           }
           #status-text > #statuspanel-label {
             border-top: 0 !important;

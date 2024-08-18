@@ -50,7 +50,7 @@ UC.MinMaxCloseButton = {
         }
         break;
       case 2:
-        win.BrowserTryToCloseWindow();
+        win.BrowserCommands.tryToCloseWindow();
     }
   },
 

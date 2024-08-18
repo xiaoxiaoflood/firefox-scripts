@@ -180,7 +180,7 @@ export class MGestChild extends JSWindowActorChild {
 
   _isMediaURLReusable (aURL) {
     if (aURL.startsWith("blob:")) {
-      return URL.isValidURL(aURL);
+      return URL.isValidObjectURL(aURL);
     }
 
     return true;
