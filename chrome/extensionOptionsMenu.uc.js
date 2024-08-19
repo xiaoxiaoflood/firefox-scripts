@@ -202,7 +202,7 @@ UC.extensionOptionsMenu = {
     if (!addon.isActive || !addon.optionsURL)
       return;
 
-    switch (Number(addon.optionsType)) {
+    switch (Number(addon.__AddonInternal__.optionsType)) {
       case 5:
         win.BrowserOpenAddonsMgr('addons://detail/' + encodeURIComponent(addon.id) + '/preferences');
         break;
