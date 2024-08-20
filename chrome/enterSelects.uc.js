@@ -38,7 +38,6 @@ UC.enterSelects = {
         }
       } else if (queryContext.results.length > 1) {
         UC.enterSelects.deleteLastResultCount();
-        gURLBar.view.selectedRowIndex = 0;
       }
 
       return result;
@@ -66,14 +65,19 @@ UC.enterSelects = {
   },
 
   exec: function (win) {
+    const { gURLBar } = win;
+
     let observe = () => {
       Services.obs.removeObserver(observe, 'browser-window-before-show');
-      win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+      gURLBar.textbox.addEventListener('keydown', this.keyD, true);
     }
+
     if (win.__SSi)
-      win.gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+      gURLBar.textbox.addEventListener('keydown', this.keyD, true);
     else
       Services.obs.addObserver(observe, 'browser-window-before-show');
+
+    gURLBar.inputField.addEventListener('input', this.checkSpace, true);
   },
 
   controller: ChromeUtils.importESModule('resource:///modules/UrlbarController.sys.mjs').UrlbarController.prototype,
@@ -106,6 +110,13 @@ UC.enterSelects = {
     return true;
   },
 
+  checkSpace: function (e) {
+    let { gURLBar } = e.view;
+    if (!UC.enterSelects.AUTOSELECT_WITH_SPACE && /\s/.test(gURLBar.value)) {
+      UC.enterSelects.deleteLastResultCount();
+    }
+  },
+
   lockLastResultCount: function () {
     Object.defineProperty(this.queryContext, 'lastResultCount', {
       get: () => 1,
@@ -119,7 +130,7 @@ UC.enterSelects = {
   },
 
   keyD: function (e) {
-    let gURLBar = e.view.gURLBar;
+    let { gURLBar } = e.view;
     if (!gURLBar.view.isOpen)
       return;
     if (e.keyCode == e.DOM_VK_TAB) {
@@ -156,6 +167,7 @@ UC.enterSelects = {
       this.controller.receiveResults = this.orig_receiveResults;
       this.input.setValueFromResult = this.orig_setValueFromResult;
       win.gURLBar.textbox.removeEventListener('keydown', this.keyD, true);
+      win.gURLBar.inputField.removeEventListener('input', this.checkSpace, true);
     });
     delete UC.enterSelects;
   }
