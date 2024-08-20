@@ -38,6 +38,7 @@ UC.enterSelects = {
         }
       } else if (queryContext.results.length > 1) {
         UC.enterSelects.deleteLastResultCount();
+        gURLBar.view.selectedRowIndex = 0;
       }
 
       return result;

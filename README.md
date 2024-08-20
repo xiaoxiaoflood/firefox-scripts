@@ -55,6 +55,8 @@
   
   This script replaces urlbar autocomplete, so `browser.urlbar.autoFill` is disabled on install. If at any time you miss domain autofill, you still sort of can achieve that by pressing Tab IF the domain of first suggestion matches what you've typed so far. Example: you typed "*git*" and the first suggestion is from *github.com*. Pressing Tab key will autocomplete the domain even if the first suggestion is not just github.com - it may be github.com/whatever. But if the typed input doesn't match the domain of the first suggestion, then Tab key will have default behavior of selecting next suggestion just like down arrow key.
 
+  By default, first entry is only selected if typed input is a single word. You can change that if you want: find `AUTOSELECT_WITH_SPACE` at the beginning of the code, replace `false` by `true`, save and reload.
+
   [Download link](https://raw.githubusercontent.com/xiaoxiaoflood/firefox-scripts/master/chrome/enterSelects.uc.js). 
 </details>
 <details>
