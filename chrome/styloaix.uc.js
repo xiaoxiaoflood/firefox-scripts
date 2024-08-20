@@ -439,8 +439,6 @@
             #styloaix-button.icon-colored {
               list-style-image: url('chrome://userchromejs/content/styloaix/16.png');
             }
-          }
-          @-moz-document url('${_uc.BROWSERCHROME}') {
             .styloaix-usersheet .menu-iconic-accel {
               color: blue !important;
             }

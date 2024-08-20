@@ -18,8 +18,27 @@ UC.enterSelects = {
       let result = UC.enterSelects.orig_receiveResults.call(this, queryContext);
       let gURLBar = this.browserWindow.gURLBar;
       if (UC.enterSelects.shouldSelect(gURLBar, queryContext)) {
-        UC.enterSelects.flag = true;
-        gURLBar.view.selectBy(1);
+        if (!('lastResultCount' in UC.enterSelects.queryContext))
+          UC.enterSelects.lockLastResultCount();
+
+        gURLBar.view.input.setResultForCurrentValue(gURLBar.view.selectedResult);
+
+        if (gURLBar.view.selectedRowIndex <= 0) {
+          UC.enterSelects.flag = true;
+          gURLBar.view.selectBy(1);
+
+          gURLBar.view.selectedElement.parentElement.remove = function () {
+            if (UC.enterSelects.shouldSelect(gURLBar, queryContext)) {
+              UC.enterSelects.flag = true;
+              gURLBar.view.selectBy(1);
+            }
+
+            return Element.prototype.remove.call(this);
+          };
+        }
+      } else if (queryContext.results.length > 1) {
+        UC.enterSelects.deleteLastResultCount();
+        gURLBar.view.selectedRowIndex = 0;
       }
 
       return result;
@@ -60,9 +79,10 @@ UC.enterSelects = {
   controller: ChromeUtils.importESModule('resource:///modules/UrlbarController.sys.mjs').UrlbarController.prototype,
   eventBuffer: ChromeUtils.importESModule('resource:///modules/UrlbarEventBufferer.sys.mjs').UrlbarEventBufferer.prototype,
   input: ChromeUtils.importESModule('resource:///modules/UrlbarInput.sys.mjs').UrlbarInput.prototype,
+  queryContext: ChromeUtils.importESModule('resource:///modules/UrlbarUtils.sys.mjs').UrlbarQueryContext.prototype,
 
   shouldSelect: function (gURLBar, queryContext) {
-    if (gURLBar.searchMode?.engineName || queryContext.results.length < 2 || gURLBar.view.selectedRowIndex > 0)
+    if (gURLBar.searchMode?.engineName || queryContext.results.length < 2)
       return false;
 
     let search = gURLBar.value.trim();
@@ -79,12 +99,25 @@ UC.enterSelects = {
     if (/[a-zA-Z][\w-]*:(\/\/)?[\w-]+/.test(search))
       return false;
 
-    // Check if the first word is a keyword (search or bookmark) or search suggestion (if enabled and there is no result)
-    if (!!queryContext.results[0].payload.keyword || !queryContext.results[1].payload.displayUrl)
+    // Check if the first word is a keyword (search or bookmark)
+    if (!!queryContext.results[0].payload.keyword)
       return false;
 
     return true;
   },
+
+  lockLastResultCount: function () {
+    Object.defineProperty(this.queryContext, 'lastResultCount', {
+      get: () => 1,
+      set: () => 1,
+      configurable: true,
+    });
+  },
+
+  deleteLastResultCount: function () {
+    delete UC.enterSelects.queryContext.lastResultCount;
+  },
+
   keyD: function (e) {
     let gURLBar = e.view.gURLBar;
     if (!gURLBar.view.isOpen)
@@ -97,18 +130,14 @@ UC.enterSelects = {
           gURLBar.value != url.match(/(\w*:\/\/)?[^/]+\//)[0]) {
         gURLBar.inputField.value = gURLBar._untrimmedValue = gURLBar._trimValue(url.match(/(\w*:\/\/)?[^/]+\//)[0] + '/').slice(0, -1);
         gURLBar.view.close();
-        e.preventDefault();
-        e.stopPropagation();
       } else if (gURLBar.view.selectedRowIndex == -1) {
         gURLBar.view.selectedRowIndex = 1;
         gURLBar.value = url;
-        e.preventDefault();
-        e.stopPropagation();
       } else if (gURLBar.view.selectedRowIndex == 1 && gURLBar.value != url) {
         gURLBar.value = url;
-        e.preventDefault();
-        e.stopPropagation();
       }
+      e.preventDefault();
+      e.stopPropagation();
     }
   },
 
@@ -120,6 +149,8 @@ UC.enterSelects = {
     Object.defineProperty(this.eventBuffer, 'isDeferringEvents', {
       get: this.orig_isDeferringEvents,
     });
+
+    this.deleteLastResultCount();
 
     _uc.windows((doc, win) => {
       this.controller.receiveResults = this.orig_receiveResults;
