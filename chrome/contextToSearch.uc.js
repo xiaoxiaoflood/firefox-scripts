@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name            Context to Search
 // @author          Alex Vallat
-// @version         0.4
+// @version         0.5
 // @description     Search context menu entry now sends search to search box
 // @include         main
 // @startup         UC.contextToSearch.startup(win);
@@ -22,7 +22,7 @@ UC.contextToSearch = {
         const menuItem = window.document.getElementById("context-searchselect");
         if (menuItem) {
             this.originalHandler = menuItem.getAttribute("oncommand");
-            menuItem.setAttribute("oncommand", "BrowserSearch.searchBar.value = this.searchTerms; BrowserSearch.searchBar.openSuggestionsPanel();");
+            menuItem.setAttribute("oncommand", "BrowserSearch.searchBar.value = this.searchTerms; BrowserSearch.searchBar.openSuggestionsPanel(); event.stopPropagation();");
         }
     },
 

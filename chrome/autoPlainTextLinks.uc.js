@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name            Auto Plain Text Links
 // @author          Alex Vallat
-// @version         0.11
+// @version         0.13
 // @description     Allow opening right-clicked plain text links without requiring selection.
 // @include         main
 // @shutdown        UC.autoPlainTextLinks.unload();
@@ -16,7 +16,6 @@ UC.autoPlainTextLinks = {
 //console.log("AutoPlainTextLinks framescript loading");
 
 Cu.import("resource://gre/modules/SelectionUtils.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("chrome://userchromejs/content/hookFunction.jsm");
 
 const HookFlag = "AutoPlainTextLinks.Hooked";
@@ -34,7 +33,7 @@ if (!SelectionUtils[HookFlag]) {
         if (lastClickedPlainTextUrl && baseResult.text.length === 0) {
             baseResult.linkText = lastClickedPlainTextUrl;
             baseResult.linkURL = lastClickedPlainTextUrl;
-            baseResult.text = lastClickedPlainTextUrl.substr(0, 150); // Only use the first 150 characters of the selection for the text bit, but text is required otherwise it simply won't show the text options.
+            baseResult.fullText = baseResult.text = lastClickedPlainTextUrl.substr(0, 150); // Only use the first 150 characters of the selection for the text bit, but text is required otherwise it simply won't show the text options.
         }
         
         // Do not delete the LastClickedPlainTextUrl as if multiprocess is disabled, this method will be called twice.
