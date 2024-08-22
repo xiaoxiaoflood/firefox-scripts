@@ -5,11 +5,11 @@ const { require } = ChromeUtils.import('resource://devtools/shared/loader/Loader
 docShell.cssErrorReportingEnabled = true;
 
 function require_mini (m) {
-	let scope = {
+  let scope = {
     exports: {}
   };
-	Services.scriptloader.loadSubScript('chrome://' + m + '.js', scope);
-	return scope.exports;
+  Services.scriptloader.loadSubScript('chrome://' + m + '.js', scope);
+  return scope.exports;
 };
 
 let url;
@@ -48,42 +48,17 @@ function init () {
     style = UC.styloaix.styles.get(id);
   if (style) {
     origin = style.type;
-    NetUtil.asyncFetch(
-      {
-        uri: style.url,
-        loadingNode: document,
-        securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_INHERITS_SEC_CONTEXT || Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_INHERITS,
-        contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
-      },
-      async function (stream) {
-        const bstream = Cc['@mozilla.org/binaryinputstream;1'].createInstance(Ci.nsIBinaryInputStream);
-        bstream.setInputStream(stream);
-
-        try {
-          initialCode = bstream.readBytes(bstream.available());
-        } catch {}
-
-        stream.close();
-
-        try {
-          const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
-          converter.charset = 'utf-8';
-          initialCode = converter.ConvertToUnicode(initialCode);
-        } catch {}
-       
-        initEditor();
-      }
-    );
+    readFile(style.url, initEditor);
   } else {
     if (url)
       initialCode = '@-moz-document ' + type + '("' + url + '") {\n\n\n}';
     initEditor();
   }
 
-	nameE = document.getElementById('name');
+  nameE = document.getElementById('name');
   nameE.value = style?.name || '';
   updateTitle();
-	nameE.addEventListener('input', function () {
+  nameE.addEventListener('input', function () {
     unsaved = true;
     toggleUI('save-button', true);
   });
@@ -164,7 +139,36 @@ function initEditor () {
   });
 }
 
-function changed () {  
+function readFile (url, fun) {
+  NetUtil.asyncFetch(
+    {
+      uri: url,
+      loadingNode: document,
+      securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_INHERITS_SEC_CONTEXT || Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_INHERITS,
+      contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
+    },
+    async function (stream) {
+      const bstream = Cc['@mozilla.org/binaryinputstream;1'].createInstance(Ci.nsIBinaryInputStream);
+      bstream.setInputStream(stream);
+
+      try {
+        initialCode = bstream.readBytes(bstream.available());
+      } catch {}
+
+      stream.close();
+
+      try {
+        const converter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
+        converter.charset = 'utf-8';
+        initialCode = converter.ConvertToUnicode(initialCode);
+      } catch {}
+
+      fun?.();
+    }
+  );
+}
+
+function changed () {
   if ((isInstantPreview || isInstantCheck) && !timeoutRunning)
     instantTimeout();
 
@@ -178,15 +182,9 @@ function instantTimeout () {
   timeoutRunning = true;
   setTimeout(() => {
     if (isInstantPreview) {
-      if (previewActive)
-        _uc.sss.unregisterSheet(previewCode, previewOrigin);
-      else if (style?.enabled)
-        style.unregister();
-      previewCode = Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(codeElementWrapper.value));
-      previewOrigin = origin;
-      previewActive = true;
-      _uc.sss.loadAndRegisterSheet(previewCode, previewOrigin);
+      processPreview();
       toggleUI('preview-button', false);
+
       if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET) {
         lastOrigin = origin;
         UC.styloaix.forceRefresh();
@@ -266,36 +264,46 @@ function toggleUI (id, state) {
   document.getElementById(id).disabled = !state;
 }
 
-function preview () {
-  if (previewActive)
-    _uc.sss.unregisterSheet(previewCode, previewOrigin);
-  else if (style?.enabled)
-    style.unregister();
-	previewCode = Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(codeElementWrapper.value));
+function processPreview () {
+  let lastPreviewCode = previewCode;
+  let lastpreviewOrigin = previewOrigin;
+
+  previewCode = Services.io.newURI('data:text/css;charset=UTF-8,' + encodeURIComponent(codeElementWrapper.value));
   previewOrigin = origin;
   _uc.sss.loadAndRegisterSheet(previewCode, previewOrigin);
+
+  if (previewActive)
+    _uc.sss.unregisterSheet(lastPreviewCode, lastpreviewOrigin);
+  else if (style?.enabled)
+    style.unregister();
+
   previewActive = true;
+}
+
+function preview () {
+  processPreview();
+
   if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET) {
     lastOrigin = origin;
     UC.styloaix.forceRefresh();
   }
 
   checkForErrors();
-	toggleUI('preview-button', false);
+  toggleUI('preview-button', false);
   sourceEditor.focus();
 }
 
 function checkForErrors () {
-	const errors = document.getElementById('errors');
-	errors.style.display = 'none';
+  const errors = document.getElementById('errors');
+  errors.style.display = 'none';
 
-	while (errors.hasChildNodes())
-		errors.lastChild.remove();
+  while (errors.hasChildNodes())
+    errors.lastChild.remove();
 
   let count = 0;
 
-	const errorListener = {
-		observe: (message) => {
+  const errorListener = {
+    observe: (message) => {
       if (!count)
         errors.style.display = 'block';
 
@@ -315,8 +323,8 @@ function checkForErrors () {
         errors.appendChild(document.createTextNode('...'));
         Services.console.unregisterListener(this);
       }
-		}
-	}
+    }
+  }
 
   Services.console.registerListener(errorListener);
 
@@ -330,39 +338,39 @@ function checkForErrors () {
       Services.console.unregisterListener(errorListener);
   });
 
-	toggleUI('check-for-errors-button', false);
+  toggleUI('check-for-errors-button', false);
   sourceEditor.focus();
 }
 
 function goToLine (line, col) {
-	sourceEditor.focus();
+  sourceEditor.focus();
   sourceEditor.setCursor({line: line - 1, ch: col});
 }
 
 function insertCodeAtStart (snippet) {
-	let position = codeElementWrapper.value.indexOf(snippet);
-	if (position == -1) {
-		codeElementWrapper.value = snippet + '\n' + codeElementWrapper.value;
+  let position = codeElementWrapper.value.indexOf(snippet);
+  if (position == -1) {
+    codeElementWrapper.value = snippet + '\n' + codeElementWrapper.value;
     position = 0;
-	}
+  }
   const positionEnd = position + snippet.length;
 
-	codeElementWrapper.setSelectionRange(positionEnd, positionEnd);
-	sourceEditor.focus();
+  codeElementWrapper.setSelectionRange(positionEnd, positionEnd);
+  sourceEditor.focus();
 }
 
 function insertCodeAtCaret (snippet) {
-	const selectionStart = codeElementWrapper.selectionStart;
-	const selectionEnd = selectionStart + snippet.length;
-	codeElementWrapper.value = codeElementWrapper.value.substring(0, codeElementWrapper.selectionStart) + snippet + codeElementWrapper.value.substring(codeElementWrapper.selectionEnd, codeElementWrapper.value.length);
-	codeElementWrapper.setSelectionRange(selectionEnd, selectionEnd);
-	sourceEditor.focus();
+  const selectionStart = codeElementWrapper.selectionStart;
+  const selectionEnd = selectionStart + snippet.length;
+  codeElementWrapper.value = codeElementWrapper.value.substring(0, codeElementWrapper.selectionStart) + snippet + codeElementWrapper.value.substring(codeElementWrapper.selectionEnd, codeElementWrapper.value.length);
+  codeElementWrapper.setSelectionRange(selectionEnd, selectionEnd);
+  sourceEditor.focus();
 }
 
 function changeWordWrap (bool, persist) {
-	if (persist)
+  if (persist)
     xPref.set(UC.styloaix.PREF_LINEWRAPPING, bool);
-	sourceEditor.setOption('lineWrapping', bool);
+  sourceEditor.setOption('lineWrapping', bool);
   sourceEditor.focus();
 }
 
@@ -387,9 +395,9 @@ function instantCheck (bool, persist) {
 }
 
 function insertDataURI() {
-	const fp = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
-	fp.init(window, 'Choose File…', Ci.nsIFilePicker.modeOpen);
-	fp.open(res => {
+  const fp = Cc['@mozilla.org/filepicker;1'].createInstance(Ci.nsIFilePicker);
+  fp.init(window, 'Choose File…', Ci.nsIFilePicker.modeOpen);
+  fp.open(res => {
     if (res != Ci.nsIFilePicker.returnOK)
       return;
 
@@ -406,43 +414,61 @@ function insertDataURI() {
 }
 
 const codeElementWrapper = {
-	get value() {
-		return sourceEditor.getText();
-	},
+  get value() {
+    return sourceEditor.getText();
+  },
 
-	set value(v) {
-		sourceEditor.setText(v);
-	},
+  set value(v) {
+    sourceEditor.setText(v);
+  },
 
-	setSelectionRange: function (start, end) {
-		sourceEditor.setSelection(sourceEditor.getPosition(start), sourceEditor.getPosition(end));
-	},
+  setSelectionRange: function (start, end) {
+    sourceEditor.setSelection(sourceEditor.getPosition(start), sourceEditor.getPosition(end));
+  },
 
-	get selectionStart() {
-		return sourceEditor.getOffset(sourceEditor.getCursor('start'));
-	},
+  get selectionStart() {
+    return sourceEditor.getOffset(sourceEditor.getCursor('start'));
+  },
 
-	get selectionEnd() {
-		return sourceEditor.getOffset(sourceEditor.getCursor('end'));
-	},
-
+  get selectionEnd() {
+    return sourceEditor.getOffset(sourceEditor.getCursor('end'));
+  },
 }
 
 const closeFn = window.close;
 let shouldHandle = true;
 
+function closeWithoutAsking () {
+  shouldHandle = false;
+  closeFn();
+}
+
+function confirmClose () {
+  if (confirm('Do you want to close and lose unsaved changes?')) {
+    shouldHandle = false;
+    setTimeout(closeFn);
+  }
+}
+
 if (isChromeWindow) {
   window.close = function () {
-    if (!unsaved || confirm('Do you want to close and lose unsaved changes?')) {
-      shouldHandle = false;
-      setTimeout(closeFn);
+    if (!unsaved)
+      return closeWithoutAsking();
+
+    if (style) {
+      readFile(style.url, function () {
+        const hasChanges = initialCode !== codeElementWrapper.value;
+        hasChanges ? confirmClose() : closeWithoutAsking();
+      });
+    } else {
+      codeElementWrapper.value ? confirmClose() : closeWithoutAsking();
     }
   }
 }
 
 window.addEventListener('close', function (e) {
-	e.preventDefault();
-	window.close();
+  e.preventDefault();
+  window.close();
 })
 
 window.addEventListener('beforeunload', function (e) {
@@ -451,14 +477,14 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 window.addEventListener('unload', function (event) {
+  if (style?.enabled && previewActive)
+    style.register();
+
   if (previewActive) {
     _uc.sss.unregisterSheet(previewCode, previewOrigin);
     if (origin === _uc.sss.AGENT_SHEET || lastOrigin === _uc.sss.AGENT_SHEET)
       UC.styloaix.forceRefresh();
   }
-
-  if (style?.enabled && previewActive)
-    style.register();
 });
 
 window.addEventListener('DOMContentLoaded', init, {once: true});
