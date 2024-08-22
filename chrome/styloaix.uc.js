@@ -331,7 +331,7 @@
       style.enabled = aStatus;
       _uc.windows((doc) => {
         let menuitem = doc.getElementById('styloaix-popup').getElementsByAttribute('styleid', style.fullName)[0];
-        menuitem.setAttribute('checked', aStatus);
+        menuitem?.setAttribute('checked', aStatus);
       });
       if (aStatus) {
         this.disabledStyles.delete(style.fullName);
