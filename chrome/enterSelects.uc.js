@@ -65,18 +65,20 @@ UC.enterSelects = {
   },
 
   exec: function (win) {
-    const { gURLBar } = win;
-
     let observe = () => {
       Services.obs.removeObserver(observe, 'browser-window-before-show');
-      gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+      this.addUrlbarListeners(win);
     }
 
     if (win.__SSi)
-      gURLBar.textbox.addEventListener('keydown', this.keyD, true);
+      this.addUrlbarListeners(win);
     else
       Services.obs.addObserver(observe, 'browser-window-before-show');
+  },
 
+  addUrlbarListeners: function (win) {
+    const { gURLBar } = win;
+    gURLBar.textbox.addEventListener('keydown', this.keyD, true);
     gURLBar.inputField.addEventListener('input', this.checkSpace, true);
   },
 
