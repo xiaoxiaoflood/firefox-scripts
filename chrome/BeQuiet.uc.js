@@ -38,8 +38,18 @@ UC.beQuiet = {
       play: '.ytp-play-button'
     }
   ],
-
   exec: function (win) {
+  	let observe = () => {
+  	  	    Services.obs.removeObserver(observe, 'browser-window-before-show');
+  	  	    this.execReady(win);
+  	  	  }
+
+  	  	  if (win.__SSi)
+  	  	    this.execReady(win);
+  	  	  else
+  	  	    Services.obs.addObserver(observe, 'browser-window-before-show');
+  },
+  execReady: function (win) {
     const { document, gBrowser } = win;
     gBrowser.addTabsProgressListener(this.progressListener);
     gBrowser.addEventListener('DOMAudioPlaybackStarted', this.audioStarted);
