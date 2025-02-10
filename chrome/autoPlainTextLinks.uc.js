@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name            Auto Plain Text Links
 // @author          Alex Vallat
-// @version         0.13
+// @version         0.14
 // @description     Allow opening right-clicked plain text links without requiring selection.
 // @include         main
 // @shutdown        UC.autoPlainTextLinks.unload();
@@ -15,18 +15,22 @@ UC.autoPlainTextLinks = {
     encodeURIComponent('"use strict";\n(' + (function () {
 //console.log("AutoPlainTextLinks framescript loading");
 
-Cu.import("resource://gre/modules/SelectionUtils.jsm");
-Cu.import("chrome://userchromejs/content/hookFunction.jsm");
+const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+    SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
+    hookFunction: "chrome://userchromejs/content/hookFunction.mjs",
+});
 
 const HookFlag = "AutoPlainTextLinks.Hooked";
 const LastClickedPlainTextUrl = "AutoPlainTextLinks.LastClickedPlainTextUrl";
 
 var unHookFunction; // Only set if the function is hooked
 
-if (!SelectionUtils[HookFlag]) {
-    SelectionUtils[HookFlag] = true;
+if (!lazy.SelectionUtils[HookFlag]) {
+    lazy.SelectionUtils[HookFlag] = true;
     
-    unHookFunction = hookFunction(SelectionUtils, "getSelectionDetails", null, function (preResult, baseArgs, baseResult) {
+    unHookFunction = lazy.hookFunction(lazy.SelectionUtils, "getSelectionDetails", null, function (preResult, baseArgs, baseResult) {
         let originalContent = baseArgs[0].content; // The current content may not be the one the context menu was triggered from, so get the actual content that was passed as an arg.
         
         const lastClickedPlainTextUrl = originalContent[LastClickedPlainTextUrl] 
@@ -81,7 +85,7 @@ function unload() {
         unHookFunction();
     }
     removeEventListener("contextmenu", onContextMenu, { passive: true });
-    delete SelectionUtils[HookFlag];
+    delete lazy.SelectionUtils[HookFlag];
     removeMessageListener("AutoPlainTextLinks@byalexv.co.uk:disable", unload);
     
     //console.log("AutoPlainTextLinks unloaded");
