@@ -1,8 +1,6 @@
-let EXPORTED_SYMBOLS = [];
-
-const { xPref } = ChromeUtils.import('chrome://userchromejs/content/xPref.jsm');
-const { Management } = ChromeUtils.import('resource://gre/modules/Extension.jsm');
-const { AppConstants } = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
+const { xPref } = ChromeUtils.importESModule('chrome://userchromejs/content/xPref.mjs');
+const { Management } = ChromeUtils.importESModule('resource://gre/modules/Extension.sys.mjs');
+const { AppConstants } = ChromeUtils.importESModule('resource://gre/modules/AppConstants.sys.mjs');
 
 let UC = {
   webExts: new Map(),
@@ -150,7 +148,10 @@ let _uc = {
   createElement: function (doc, tag, atts, XUL = true) {
     let el = XUL ? doc.createXULElement(tag) : doc.createElement(tag);
     for (let att in atts) {
-      el.setAttribute(att, atts[att]);
+      if(att.startsWith('on')) 
+        el.addEventListener(att.slice(2), typeof atts[att] == "string" ? new Function("event", "with(event.view){" + atts[att] + "}") : atts[att]);
+      else 
+        el.setAttribute(att, atts[att]);
     }
     return el
   }

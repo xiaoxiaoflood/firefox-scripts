@@ -1,6 +1,6 @@
-const { NetUtil } = ChromeUtils.import('resource://gre/modules/NetUtil.jsm');
+const { NetUtil } = ChromeUtils.importESModule('resource://gre/modules/NetUtil.sys.mjs');
 
-const { require } = ChromeUtils.import('resource://devtools/shared/loader/Loader.jsm');
+const { require } = ChromeUtils.importESModule('resource://devtools/shared/loader/Loader.sys.mjs');
 
 docShell.cssErrorReportingEnabled = true;
 

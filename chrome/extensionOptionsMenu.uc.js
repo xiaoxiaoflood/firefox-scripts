@@ -35,7 +35,7 @@ UC.extensionOptionsMenu = {
 
         let mp = _uc.createElement(doc, 'menupopup', {
           id: 'eom-button-popup',
-          onclick: function() {
+          onclick: function(event) {
               event.preventDefault();
               event.stopPropagation();
           },
