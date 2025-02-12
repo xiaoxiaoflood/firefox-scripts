@@ -27,7 +27,7 @@ UC.rebuild = {
 
     let mi = event.target.appendChild(this.elBuilder(document, 'menuitem', {
       label: enabled ? 'Enabled' : 'Disabled (click to Enable)',
-      oncommand: 'xPref.set(_uc.PREF_ENABLED, ' + !enabled + ');',
+      oncommand: _ => xPref.set(_uc.PREF_ENABLED, ' + !enabled + '),
       type: 'checkbox',
       checked: enabled
     }));
@@ -42,8 +42,8 @@ UC.rebuild = {
 
       mi = event.target.appendChild(this.elBuilder(document, 'menuitem', {
         label: script.name ? script.name : script.filename,
-        onclick: 'UC.rebuild.clickScriptMenu(event)',
-        onmouseup: 'UC.rebuild.shouldPreventHide(event)',
+        onclick: event => UC.rebuild.clickScriptMenu(event),
+        onmouseup: event => UC.rebuild.shouldPreventHide(event),
         type: 'checkbox',
         checked: script.isEnabled,
         class: 'userChromejs_script',
@@ -86,7 +86,7 @@ UC.rebuild = {
         return;
 
       let scriptMenuItem = UC.rebuild.createMenuItem(scriptsSeparator.ownerDocument, null, null, script.name ? script.name : script.filename);
-      scriptMenuItem.setAttribute('onclick', 'UC.rebuild.clickScriptMenu(event)');
+      scriptMenuItem.onclick = event => UC.rebuild.clickScriptMenu(event);
       scriptMenuItem.type = 'checkbox';
       scriptMenuItem.checked = script.isEnabled;
       scriptMenuItem.setAttribute('restartless', !!script.shutdown);
@@ -238,7 +238,7 @@ UC.rebuild = {
     menuItem.label = label;
     menuItem.style.listStyleImage = icon;
     if (command)
-      menuItem.setAttribute('oncommand', command);
+      menuItem.addEventListener('command', command);
     return menuItem;
   },
 
@@ -281,7 +281,10 @@ UC.rebuild = {
   elBuilder: function (doc, tag, props) {
     let el = doc.createXULElement(tag);
     for (let p in props) {
-      el.setAttribute(p, props[p]);
+      if(p.startsWith('on')) 
+        el.addEventListener(p.slice(2), props[p]);
+      else 
+        el.setAttribute(p, props[p]);
     }
     return el;
   },
@@ -385,8 +388,8 @@ UC.rebuild = {
 
     let mp = UC.rebuild.elBuilder(aDocument, 'menupopup', {
       id: 'userChromejs_options',
-      onpopupshowing: 'UC.rebuild.onpopup(event);',
-      oncontextmenu: 'event.preventDefault();'
+      onpopupshowing: event => UC.rebuild.onpopup(event),
+      oncontextmenu: event => event.preventDefault()
     });
     toolbaritem.appendChild(mp);
 
@@ -399,7 +402,7 @@ UC.rebuild = {
       class: 'menuitem-iconic',
       flex: '1',
       style: 'list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABe0lEQVQ4jc3N2ytDARwH8J83/wRKefU3zFBCSnlQSnkQpSiFFLk8OMQmxLBZLos2I7ckM3PmMmEredF23Ma2GrPjkuFsvh7mstTqnDff+jx+v1+ifxEZ43zPYFyIld3FHWYxzlRRA5mdXFi3c4vpvbuo3TvU6z2CnHEKf4djRd9bLYnyDldkYtuPqZ1b0TIYF2StlkTK6eaQ080ht+eLgkPeH/nflGc/8hRRVNB7BuVaAGPWILRsDCsfl4bl0bMaQGHfOaho4AL9pns0GPyo04vTYPCjz3SP4sELUInqEkObPNoXA5IMmoMoHbkClWncUG8/QLnOS6K2PqJc6wZVjl9jyvYMtfVJEp3tGVWTN6Bq3Q2M9hBmDl4kMTpCqJ32gOr1XmHp+BUrJ2+SLB2/onHWK1DLvG95lOU/Nk4FbLnCcbHcL/OpgFGWj7Qt+AxUo7an12qOHM1Gb6R5zgcxmozecLVq31YxvJ9GRJRARElElExEKSIlf3USPgHT/mSv7iPTOwAAAABJRU5ErkJggg==)',
-      oncommand: 'Services.dirsvc.get(\'UChrm\', Ci.nsIFile).launch();'
+      oncommand: _ => Services.dirsvc.get('UChrm', Ci.nsIFile).launch()
     });
     mg.appendChild(mi1);
 
@@ -408,7 +411,7 @@ UC.rebuild = {
       class: 'menuitem-iconic',
       tooltiptext: 'Restart ' + _uc.BROWSERNAME,
       style: 'list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB20lEQVQ4jY2Tv2sUURDHZ/bX7eW0ChJBRFKIRRCRIEHuzVvfrYmkSiFXSSoLERERy5B/wcIuqG9mN5VecUWwCqkOEQsLKysLsQgSxEJEgsVYeJfsHXuY4tvN9zMzzHxBVXFS8Gy1kRaZi8U+iCV7HIq73Xqez9XWThoDsRvg6QDY6Ji8+RMK9dLSztcCoMhnkc27YxPth0I7oVAPhT5WYD9ScfkYALYWYxQa/OvU/h5ztg5bi3G1U2vbXUFPb4fT/EzELRwBYraPRvSE7eW6XVUV4en1JjLtARtFoYGqInRfd0Nk8wXYaCzZ/WnmkZrengc2v4GNNr1bglPiFoaj/5orV1r/A6gqhkI9YKMB0yY0OF9GsV/jIts9iVlVMeJscwhgOKmpqoDpGNDg5YuB0HYg9lUotINCuxFn/bN+9czUFZj6wEYDsRsQle7W+NPQ/uhEdUpLOw/cPgQ2OlPcvAoJZ90qICnc2tQzlist9GYAbDRk2lNVhFDs3YmXPUjkxp3JR2qWbgk9fRj9S+Olu6SqCJHYJ+DN5xnOryHT+wrsG7J9g0x9ZPup2iAS1z6aKi076+mLzoVRmKJpYeL2YSC2aBadc1PTOB7n3AXe3guYHiberZ0u8tm62r99Gyd0lo7sIAAAAABJRU5ErkJggg==)',
-      oncommand: 'UC.rebuild.restart();'
+      oncommand: _ => UC.rebuild.restart()
     });
     mg.appendChild(tb);
 
@@ -427,7 +430,7 @@ UC.rebuild = {
       label: 'Switch display mode',
       class: 'menuitem-iconic',
       style: 'list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADdklEQVQ4jXWTbUwUdADG/7zccZ6lQ/pgcDJEEEGBO8/hmLQY9mKOmFvyEi93IIISSSMGxx0Hw0QKJJCOI3CxGM0IhEASjDsQ1lgdRuqcE4N0RznTjPFSDGJwvz64nOX6bc+35+XTI8R/KRXOG6LFwcAEj+7d2b4PI3L8ltQZiuuKaGmp5yER8JT/Sco/0e+JylP1xNfuXTrWEU/+BQ26Pi3vnk8ioyWG10pU9lj9S4VjY2Pyp4cbcxP36PyW83tTKBnMwDhwiCJrGkXWVIzWNIoH0ikezCTxTBRROcG9k5O2dY/Dp5qKwyN0W5aMgxkYLKkYrakYB7XorAnorPEUWOLJ749D159E6dBRIj7cRIhW8fmj5dJI16jc4L78vhQK+zUYrCkUDrxJtS0P6+12hu3dDNu7sNw+R8vVahK+2E1onQyvHOE4YIyIFOv3i7gEU+RyoUVD2dBbXL9v46tbLRiHkum8cYbv7SNcsdsA6L/RTVCVMzvNMkJq5GyMF50iMNnDktV2gNPfGrj3xxT/MDL1NcXDSRgGEzh+6TArLNM+2sy2SkFYgxxVnZwtWdK7Iizbe67hu3Lml2bAAQ6H43HJ+IOrvDeiRdunYmFllnOXWwioEuxqlKGskxGgk/4lIt7xX6keLsJ06QSnLAbG719jaXmJin4d+t5UDraGENOhYGFlnq4fWlHXyon6dCORTV5s1UkdQpn+/ERa66tkdu0jpTOcb36+yIO5GcJN7rzS5kHPZAe/LPzK7Moq9/6cY2LWzs2Htzjc+gbe2U4zwnO/c2XQcRlq81p2mASt45/x4+/TKKsk7GoW7DuroGein99WYRqYnJsn5eM4fIwueGucrojgrPW+vkekUyEmN7bXCppvtnFnEYoHijhxWU/yhRcIa1xLzWg9vT9d48X31XiXCALL3AjUuhcIIYSI0ccU+BgEwSZX3u49Qr2tjXrblzSMnueD4QZebtqGss4FZYUH/icFoSY5Co3T3cT6LHchhBCx5thnFAnSi0FlMnbUSgg46UxguQtBFS4EV7qhrn0WtXkNyjo3Qj+Ss/moZHF7uvvr//qC37EN6xSxLmf98iSOkBoZKvMadtY/ksosR2mSE1Qmw0cjsXunuUT/7yO9tK57vZMl7ZuzpHf8C6SLW/XSVf9cybRPquvopmRng2emeO5J/98W5fyDGAVpggAAAABJRU5ErkJggg==)',
-      oncommand: 'UC.rebuild.toggleUI();'
+      oncommand: _ => UC.rebuild.toggleUI()
     });
     mp2.appendChild(mi2);
 
@@ -463,10 +466,10 @@ UC.rebuild = {
       userChromeJsPanel.addEventListener('ViewShowing', UC.rebuild.onHamPopup);
       const subviewBody = aDocument.createXULElement('vbox');
       subviewBody.className = 'panel-subview-body';
-      subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'openChrome', 'url(chrome://browser/skin/folder.svg)', 'Open chrome directory', 'Services.dirsvc.get(\'UChrm\', Ci.nsIFile).launch();'));
-      subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'restart', 'url(chrome://browser/skin/reload.svg)', 'Restart ' + _uc.BROWSERNAME, 'UC.rebuild.restart();'));
+      subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'openChrome', 'url(chrome://browser/skin/folder.svg)', 'Open chrome directory', _ => Services.dirsvc.get('UChrm', Ci.nsIFile).launch()));
+      subviewBody.appendChild(UC.rebuild.createMenuItem(aDocument, 'restart', 'url(chrome://browser/skin/reload.svg)', 'Restart ' + _uc.BROWSERNAME, _ => UC.rebuild.restart()));
       subviewBody.appendChild(aDocument.createXULElement('toolbarseparator'));
-      const enabledMenuItem = UC.rebuild.createMenuItem(aDocument, 'enabled', null, 'Enabled', 'xPref.set(_uc.PREF_ENABLED, !!this.checked)');
+      const enabledMenuItem = UC.rebuild.createMenuItem(aDocument, 'enabled', null, 'Enabled', _ => xPref.set(_uc.PREF_ENABLED, !!this.checked));
       enabledMenuItem.type = 'checkbox';
       subviewBody.appendChild(enabledMenuItem);
       const scriptsSeparator = aDocument.createXULElement('toolbarseparator');
@@ -481,7 +484,7 @@ UC.rebuild = {
       scriptsButton.label = 'User Scripts';
       scriptsButton.style.listStyleImage = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABeSURBVDhPY6AKSCms+x+SkPMfREOFwACXOAYYNQBVITrGJQ7CUO0IA0jFUO0QA3BhkEJs4iAM1Y4bgBTBDIAKkQYGlwHYMFQZbgBSBDIAF4Yqww3QbUTHUGWUAAYGAEyi7ERKirMnAAAAAElFTkSuQmCC)';
       scriptsButton.setAttribute('closemenu', 'none');
-      scriptsButton.setAttribute('oncommand', 'PanelUI.showSubView(\'appMenu-userChromeJsView\', this)');
+      scriptsButton.addEventListener('command', function() {Cu.getGlobalForObject(this).PanelUI.showSubView('appMenu-userChromeJsView', this)});
 
       const addonsButton = aDocument.getElementById('appMenu-extensions-themes-button') ?? aDocument.getElementById('appmenu_addons') ?? viewCache.querySelector('#appMenu-extensions-themes-button');
       addonsButton.parentElement.insertBefore(scriptsButton, addonsButton);
